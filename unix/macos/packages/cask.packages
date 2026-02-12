@@ -1,25 +1,24 @@
 # Homebrew Cask packages (GUI applications) for macOS
 
 # Browsers
-brave-browser@beta
 zen-browser
 
 # Development
-visual-studio-code
-zed@preview
-wezterm
-postman
+android-platform-tools
 orbstack
+postman
+visual-studio-code
+wezterm
+zed@preview
 
 # Productivity
-obsidian
 bitwarden
 localsend
+obsidian
 signal@beta
 tailscale
 
 # Utilities
-rectangle
 alt-tab
 maccy
 

@@ -1,8 +1,10 @@
 bat
-eza
-ripgrep
-fd-find
-zoxide
-starship
-cargo-update
+capsync
 cargo-cache
+cargo-update
+eza
+fd-find
+ripgrep
+starship
+zoxide
+zparse-cli
