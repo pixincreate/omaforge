@@ -6,7 +6,7 @@ setup_git() {
     local git_name="$1"
     local git_email="$2"
     local ssh_dir="${3:-$HOME/.ssh}"
-    local gitconfig_local="${4:-$HOME/.config/gitconfig/.gitconfig.local}"
+    local gitconfig_local="${4:-$HOME/.gitconfig.local}"
 
     echo "Configuring Git and SSH"
 
@@ -95,7 +95,7 @@ setup_git() {
         echo "[SUCCESS] SSH signing key generated: $ssh_sign_key"
     fi
 
-    echo "[INFO] Creating .gitconfig.local"
+    echo "[INFO] Creating platform-specific git config in: $gitconfig_local"
     cat > "$gitconfig_local" <<EOF
 [user]
   name = $git_name
