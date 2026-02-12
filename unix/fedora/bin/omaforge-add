@@ -1,0 +1,78 @@
+#!/bin/bash
+# Add packages to package lists declaratively
+
+set -euo pipefail
+
+OMAFORGE_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PACKAGES_DIR="$OMAFORGE_PATH/packages"
+
+show_usage() {
+    echo "Usage: omaforge-add <package-type> <package-name>"
+    echo ""
+    echo "Package types:"
+    echo "  base              Base packages (base.packages)"
+    echo "  dev               Development packages (development.packages)"
+    echo "  tools             User tools (tools.packages)"
+    echo "  system            System libraries (system.packages)"
+    echo "  flatpak           Flatpak apps (flatpak.packages)"
+    echo "  rust              Rust tools (rust.packages)"
+    echo ""
+    echo "Examples:"
+    echo "  omaforge-add base neovim          # Add neovim to base packages"
+    echo "  omaforge-add flatpak com.spotify.Client  # Add Spotify"
+    echo "  omaforge-add rust exa             # Add exa to rust packages"
+    echo ""
+    echo "After adding, run:"
+    echo "  ./fedora-setup --only packaging/<type>"
+}
+
+# Validate arguments
+if [[ $# -lt 2 ]]; then
+    show_usage
+    exit 1
+fi
+
+PACKAGE_TYPE="$1"
+PACKAGE_NAME="$2"
+
+case "$PACKAGE_TYPE" in
+    base)
+        PACKAGE_FILE="$PACKAGES_DIR/base.packages"
+        ;;
+    dev|development)
+        PACKAGE_FILE="$PACKAGES_DIR/development.packages"
+        ;;
+    tools)
+        PACKAGE_FILE="$PACKAGES_DIR/tools.packages"
+        ;;
+    system)
+        PACKAGE_FILE="$PACKAGES_DIR/system.packages"
+        ;;
+    flatpak)
+        PACKAGE_FILE="$PACKAGES_DIR/flatpak.packages"
+        ;;
+    rust)
+        PACKAGE_FILE="$PACKAGES_DIR/rust.packages"
+        ;;
+    *)
+        echo "Error: Unknown package type: $PACKAGE_TYPE"
+        show_usage
+        exit 1
+        ;;
+esac
+
+# Check if package already exists
+if grep -q "^$PACKAGE_NAME$" "$PACKAGE_FILE" 2>/dev/null; then
+    echo "Package '$PACKAGE_NAME' already exists in $PACKAGE_TYPE"
+    exit 0
+fi
+
+# Add package
+echo "$PACKAGE_NAME" >> "$PACKAGE_FILE"
+echo "✓ Added '$PACKAGE_NAME' to $PACKAGE_TYPE packages"
+echo ""
+echo "To install, run:"
+echo "  ./fedora-setup --only packaging/<type>"
+echo ""
+echo "Or run full packaging:"
+echo "  ./fedora-setup --only packaging/all"

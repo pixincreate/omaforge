@@ -1,0 +1,73 @@
+#!/bin/bash
+# Interactive package management menu
+
+set -euo pipefail
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+show_menu() {
+    clear
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${BLUE}   Package Manager${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    echo "1. Add/Install package"
+    echo "2. Remove package (interactive)"
+    echo "3. Search DNF repositories"
+    echo "4. Search Flatpak"
+    echo "5. Exit"
+    echo ""
+    echo -ne "${YELLOW}Choose option: ${NC}"
+}
+
+main() {
+    while true; do
+        show_menu
+        read -r choice
+
+        case $choice in
+            1)
+                echo -ne "\n${YELLOW}Enter package names (space-separated): ${NC}"
+                read -r packages
+                if [[ -n "$packages" ]]; then
+                    omaforge-pkg-add $packages
+                    read -p "Press Enter to continue..."
+                fi
+                ;;
+            2)
+                omaforge-pkg-remove
+                ;;
+            3)
+                echo -ne "\n${YELLOW}Enter search term: ${NC}"
+                read -r term
+                if [[ -n "$term" ]]; then
+                    dnf search "$term"
+                    read -p "Press Enter to continue..."
+                fi
+                ;;
+            4)
+                echo -ne "\n${YELLOW}Enter search term: ${NC}"
+                read -r term
+                if [[ -n "$term" ]]; then
+                    flatpak search "$term"
+                    read -p "Press Enter to continue..."
+                fi
+                ;;
+            5)
+                echo -e "\n${GREEN}Goodbye!${NC}"
+                exit 0
+                ;;
+            *)
+                echo -e "${RED}Invalid option${NC}"
+                sleep 1
+                ;;
+        esac
+    done
+}
+
+main

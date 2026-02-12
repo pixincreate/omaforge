@@ -1,0 +1,117 @@
+#!/bin/bash
+# Stow specific dotfile packages
+
+set -euo pipefail
+
+OMAFORGE_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source "$OMAFORGE_PATH/install/helpers/all.sh"
+
+show_usage() {
+    echo "Usage: omaforge-stow [OPTIONS] [PACKAGE...]"
+    echo ""
+    echo "Options:"
+    echo "  -a, --all         Stow all packages from config"
+    echo "  -d, --delete      Delete/unstow packages instead of stowing"
+    echo "  -R, --restow      Restow packages (delete then stow again)"
+    echo "  -h, --help        Show this help message"
+    echo ""
+    echo "Available packages:"
+    echo "  cargo, config, git, local, Pictures, ssh, zsh"
+    echo ""
+    echo "Examples:"
+    echo "  omaforge-stow --all              # Stow all packages"
+    echo "  omaforge-stow config zsh         # Stow only config and zsh"
+    echo "  omaforge-stow -R config          # Restow config package"
+    echo "  omaforge-stow -d git             # Unstow git package"
+}
+
+# Parse arguments
+MODE="stow"
+PACKAGES=()
+RUN_ALL=false
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -a|--all)
+            RUN_ALL=true
+            shift
+            ;;
+        -d|--delete)
+            MODE="delete"
+            shift
+            ;;
+        -R|--restow)
+            MODE="restow"
+            shift
+            ;;
+        -h|--help)
+            show_usage
+            exit 0
+            ;;
+        -*)
+            echo "Unknown option: $1"
+            show_usage
+            exit 1
+            ;;
+        *)
+            PACKAGES+=("$1")
+            shift
+            ;;
+    esac
+done
+
+# Get configuration
+stow_dir=$(expand_path "$(get_config '.dotfiles.stow_source')")
+target_dir="$HOME"
+
+# If --all specified, get packages from config
+if [[ "$RUN_ALL" == true ]]; then
+    PACKAGES=()
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        [[ -z "$line" ]] && continue
+        PACKAGES+=("$line")
+    done < <(get_config_array '.dotfiles.stow_packages')
+fi
+
+# Validate packages
+if [[ ${#PACKAGES[@]} -eq 0 ]]; then
+    echo "Error: No packages specified"
+    show_usage
+    exit 1
+fi
+
+# Source common stow functions
+COMMON_SCRIPT="$OMAFORGE_PATH/../common/dotfiles/stow.sh"
+if [[ -f "$COMMON_SCRIPT" ]]; then
+    source "$COMMON_SCRIPT"
+fi
+
+# Process each package
+for pkg in "${PACKAGES[@]}"; do
+    pkg_dir="$stow_dir/$pkg"
+    
+    if [[ ! -d "$pkg_dir" ]]; then
+        log_error "Package not found: $pkg_dir"
+        continue
+    fi
+    
+    case "$MODE" in
+        stow)
+            log_info "Stowing package: $pkg"
+            stow --no-folding --restow --dir="$stow_dir" --target="$target_dir" "$pkg"
+            log_success "Stowed: $pkg"
+            ;;
+        delete)
+            log_info "Unstowing package: $pkg"
+            stow --delete --dir="$stow_dir" --target="$target_dir" "$pkg"
+            log_success "Unstowed: $pkg"
+            ;;
+        restow)
+            log_info "Restowing package: $pkg"
+            stow --no-folding --restow --dir="$stow_dir" --target="$target_dir" "$pkg"
+            log_success "Restowed: $pkg"
+            ;;
+    esac
+done
+
+log_success "Completed!"

@@ -1,0 +1,23 @@
+# MacOS
+.DS_Store
+
+# Logs files
+*.logs
+*.log
+
+# Environment variables
+.envrc
+
+# Rust
+/target
+
+# Python
+*.pyc
+__pycache__/
+
+# Generated files
+generated
+\%APPDATA\%
+buffers
+current_preset
+current.conf

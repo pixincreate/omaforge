@@ -1,0 +1,106 @@
+{
+  "system": {
+    "hostname": "pixw"
+  },
+  "dnf": {
+    "max_parallel_downloads": 10,
+    "install_weak_deps": false,
+    "fastestmirror": true
+  },
+  "repositories": {
+    "rpmfusion": {
+      "enabled": true
+    },
+    "terra": {
+      "enabled": true
+    },
+    "copr": {
+      "repos": [
+        "atim/starship",
+        "lilay/topgrade",
+        "lukenukem/asus-linux",
+        "wezfurlong/wezterm-nightly"
+      ]
+    },
+    "external": [
+      {
+        "name": "vscode",
+        "type": "repo_file",
+        "content": "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\nautorefresh=1\ntype=rpm-md\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc",
+        "gpgkey": "https://packages.microsoft.com/keys/microsoft.asc"
+      },
+      {
+        "name": "tailscale",
+        "type": "url",
+        "repo_url": "https://pkgs.tailscale.com/stable/fedora/tailscale.repo"
+      },
+      {
+        "name": "nextdns",
+        "type": "url",
+        "repo_url": "https://repo.nextdns.io/nextdns.repo"
+      }
+    ]
+  },
+  "services": {
+    "enable": [
+      "docker.service",
+      "postgresql.service",
+      "redis.service",
+      "tailscaled.service"
+    ],
+    "disable": ["cups.service", "NetworkManager-wait-online.service"]
+  },
+  "hardware": {
+    "asus": {
+      "auto_detect": true,
+      "packages": ["asusctl", "supergfxctl"]
+    },
+    "nvidia": {
+      "auto_detect": true
+    }
+  },
+  "multimedia": {
+    "install_codecs": true,
+    "enable_hardware_accel": true,
+    "swap_to_full_ffmpeg": true
+  },
+  "performance": {
+    "enable_zram": true,
+    "zram_size_mb": 24576,
+    "disable_cpu_mitigations": false,
+    "enable_fstrim": true,
+    "enable_oomd": true,
+    "grub_timeout": 1,
+    "auto_luks": true,
+    "shut_off_time": 5,
+    "swappiness": 10
+  },
+  "git": {
+    "user_name": "PiX",
+    "user_email": "69745008+pixincreate@users.noreply.github.com"
+  },
+  "directories": {
+    "config": "~/.config",
+    "local_bin": "~/.local/bin",
+    "ssh": "~/.ssh",
+    "fonts": "~/.local/share/fonts",
+    "wallpapers": "~/Pictures/Wallpapers",
+    "screenshots": "~/Pictures/Screenshots",
+    "zsh": "~/.zsh",
+    "npm_global": "~/.npm-global"
+  },
+  "dotfiles": {
+    "stow_source": "~/dev/.dotfiles/home",
+    "stow_packages": [
+      "cargo",
+      "config",
+      "git",
+      "ssh",
+      "zsh",
+      "Pictures",
+      "local"
+    ],
+    "fonts_source": "~/dev/.dotfiles/fonts",
+    "config_root": "~/dev/.omaforge"
+  }
+}

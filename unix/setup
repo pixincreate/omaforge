@@ -1,0 +1,137 @@
+#!/bin/bash
+
+set -euo pipefail
+
+ansi_art='
+ ▄██████▄    ▄▄▄▄███▄▄▄▄      ▄████████    ▄████████  ▄██████▄     ▄████████    ▄██████▄     ▄████████
+███    ███ ▄██▀▀▀███▀▀▀██▄   ███    ███   ███    ███ ███    ███   ███    ███   ███    ███   ███    ███
+███    ███ ███   ███   ███   ███    ███   ███    █▀  ███    ███   ███    ███   ███    █▀    ███    █▀
+███    ███ ███   ███   ███   ███    ███  ▄███▄▄▄     ███    ███  ▄███▄▄▄▄██▀  ▄███         ▄███▄▄▄
+███    ███ ███   ███   ███ ▀███████████ ▀▀███▀▀▀     ███    ███ ▀▀███▀▀▀▀▀   ▀▀███ ████▄  ▀▀███▀▀▀
+███    ███ ███   ███   ███   ███    ███   ███        ███    ███ ▀███████████   ███    ███   ███    █▄
+███    ███ ███   ███   ███   ███    ███   ███        ███    ███   ███    ███   ███    ███   ███    ███
+ ▀██████▀   ▀█   ███   █▀    ███    █▀    ███         ▀██████▀    ███    ███   ████████▀    ██████████
+                                                                   ███    ███
+'
+
+clear
+echo -e "$ansi_art\n"
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+OMAFORGE_REPO="${OMAFORGE_REPO:-pixincreate/omaforge}"
+OMAFORGE_REF="${OMAFORGE_REF:-main}"
+OMAFORGE_PATH="${OMAFORGE_PATH:-$HOME/dev/.omaforge}"
+
+DOTFILES_REPO="${DOTFILES_REPO:-pixincreate/dotfiles}"
+DOTFILES_REF="${DOTFILES_REF:-main}"
+DOTFILES_PATH="${DOTFILES_PATH:-$HOME/dev/.dotfiles}"
+
+log_info() { echo -e "${BLUE}[INFO]${NC} $*"; }
+log_success() { echo -e "${GREEN}[SUCCESS]${NC} $*"; }
+log_error() { echo -e "${RED}[ERROR]${NC} $*"; }
+
+detect_platform() {
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "macos"
+    elif [[ -f /etc/fedora-release ]]; then
+        echo "fedora"
+    else
+        log_error "Unsupported platform: $OSTYPE"
+        exit 1
+    fi
+}
+
+install_essentials() {
+    local platform="$1"
+
+    log_info "Checking essential dependencies..."
+
+    local missing_deps=()
+    for dep in git curl; do
+        if ! command -v "$dep" &>/dev/null; then
+            missing_deps+=("$dep")
+        fi
+    done
+
+    if [ ${#missing_deps[@]} -eq 0 ]; then
+        log_info "All essential dependencies present"
+        return 0
+    fi
+
+    log_info "Installing missing dependencies: ${missing_deps[*]}"
+
+    if [[ "$platform" == "macos" ]]; then
+        if [[ " ${missing_deps[*]} " =~ " git " ]]; then
+            log_info "Installing Xcode Command Line Tools (includes git)..."
+            xcode-select --install 2>/dev/null || true
+            log_info "Waiting for Command Line Tools installation..."
+            until xcode-select -p &>/dev/null; do
+                sleep 5
+            done
+            log_success "Command Line Tools installed"
+        fi
+    else
+        sudo dnf install -y "${missing_deps[@]}"
+        log_success "Dependencies installed"
+    fi
+}
+
+clone_dotfiles() {
+    if [[ ! -d "$DOTFILES_PATH" ]]; then
+        log_info "Cloning dotfiles repository..."
+        git clone --recurse-submodules "https://github.com/${DOTFILES_REPO}.git" "$DOTFILES_PATH"
+        log_success "Dotfiles cloned to $DOTFILES_PATH"
+    else
+        log_info "Dotfiles already exist, updating..."
+        cd "$DOTFILES_PATH"
+        git pull --rebase origin $DOTFILES_REF
+        git submodule update --init --recursive
+        log_success "Dotfiles updated"
+    fi
+}
+
+clone_omaforge() {
+    if [[ ! -d "$OMAFORGE_PATH" ]]; then
+        log_info "Cloning omaforge repository..."
+        git clone --recurse-submodules "https://github.com/${OMAFORGE_REPO}.git" "$OMAFORGE_PATH"
+        log_success "Omaforge cloned to $OMAFORGE_PATH"
+    else
+        log_info "Omaforge already exists, updating..."
+        cd "$OMAFORGE_PATH"
+        git pull --rebase origin $OMAFORGE_REF
+        git submodule update --init --recursive
+        log_success "Omaforge updated"
+    fi
+}
+
+main() {
+    local platform
+    platform=$(detect_platform)
+
+    log_info "Detected platform: $platform"
+
+    # Install essential dependencies first
+    install_essentials "$platform"
+
+    # Clone both repositories
+    clone_dotfiles
+    clone_omaforge
+
+    cd "$OMAFORGE_PATH/unix/$platform"
+
+    if [[ "$platform" == "fedora" ]]; then
+        log_info "Running Fedora setup..."
+        ./fedora-setup
+    else
+        log_info "Running macOS setup..."
+        ./macos-setup
+    fi
+}
+
+trap 'log_error "Setup interrupted"; exit 1' INT
+
+main "$@"
