@@ -1,10 +1,9 @@
-bat
 capsync
+cargo-audit
 cargo-cache
+cargo-deny
 cargo-update
-eza
-fd-find
-ripgrep
-starship
-zoxide
+cargo-tree
+cargo-wipe
+just
 zparse-cli
