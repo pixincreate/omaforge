@@ -1,11 +1,14 @@
 # Cargo tools
 
+capsync
 cargo-audit
+cargo-cache
 cargo-deny
 cargo-fuzz
-cargo-wipe
+cargo-tree
 cargo-update
-cargo-cache
+cargo-wipe
 just
 rustlings
 wasm-pack
+zparse-cli
