@@ -42,6 +42,7 @@ path=(
     $(brew --prefix)/opt/homebrew/opt/openjdk@21/bin
     $(brew --prefix)/opt/homebrew/opt/openjdk@17/bin
     $(brew --prefix)/opt/llvm/bin
+    $(brew --prefix)/opt/postgresql@18/bin
 )
 
 # Disable NPM ads
