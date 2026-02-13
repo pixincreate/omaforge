@@ -1,5 +1,19 @@
 # Omaforge
 
+```
+
+ ▄██████▄    ▄▄▄▄███▄▄▄▄      ▄████████    ▄████████  ▄██████▄     ▄████████    ▄██████▄     ▄████████
+███    ███ ▄██▀▀▀███▀▀▀██▄   ███    ███   ███    ███ ███    ███   ███    ███   ███    ███   ███    ███
+███    ███ ███   ███   ███   ███    ███   ███    █▀  ███    ███   ███    ███   ███    █▀    ███    █▀
+███    ███ ███   ███   ███   ███    ███  ▄███▄▄▄     ███    ███  ▄███▄▄▄▄██▀  ▄███         ▄███▄▄▄
+███    ███ ███   ███   ███ ▀███████████ ▀▀███▀▀▀     ███    ███ ▀▀███▀▀▀▀▀   ▀▀███ ████▄  ▀▀███▀▀▀
+███    ███ ███   ███   ███   ███    ███   ███        ███    ███ ▀███████████   ███    ███   ███    █▄
+███    ███ ███   ███   ███   ███    ███   ███        ███    ███   ███    ███   ███    ███   ███    ███
+ ▀██████▀   ▀█   ███   █▀    ███    █▀    ███         ▀██████▀    ███    ███   ████████▀    ██████████
+                                                                   ███    ███
+
+```
+
 Automated system setup for Fedora Linux and macOS.
 
 ## Quick Start
@@ -28,6 +42,123 @@ export OMAFORGE_SECUREBOOT='true'  # Fedora only
 eval "$(curl -fsSL https://raw.githubusercontent.com/pixincreate/omaforge/main/unix/setup)"
 ```
 
+### Manual Installation
+
+```bash
+# macOS
+git clone https://github.com/pixincreate/dotfiles.git ~/.dotfiles
+git clone https://github.com/pixincreate/omaforge.git ~/.omaforge
+cd ~/.omaforge/unix/macos
+./macos-setup
+
+# Fedora
+git clone https://github.com/pixincreate/dotfiles.git ~/.dotfiles
+git clone https://github.com/pixincreate/omaforge.git ~/.omaforge
+cd ~/.omaforge/unix/fedora
+./fedora-setup
+```
+
+## Running Individual Components
+
+Both macOS and Fedora support running specific modules:
+
+```bash
+./macos-setup --only <module-path>    # macOS
+./fedora-setup --only <module-path>   # Fedora
+```
+
+### macOS Modules
+
+```bash
+./macos-setup --only dotfiles/stow        # Stow all packages
+./macos-setup --only dotfiles/zsh         # Configure ZSH
+./macos-setup --only dotfiles/fonts       # Install fonts
+./macos-setup --only packaging/homebrew   # Install Homebrew
+./macos-setup --only packaging/brew       # Install brew packages
+./macos-setup --only packaging/cask       # Install cask apps
+./macos-setup --only config/git           # Git & SSH
+./macos-setup --only config/nextdns       # NextDNS
+```
+
+### Fedora Modules
+
+```bash
+./fedora-setup --only dotfiles/stow
+./fedora-setup --only dotfiles/zsh
+./fedora-setup --only packaging/base      # Base packages
+./fedora-setup --only packaging/flatpak   # Flatpak apps
+./fedora-setup --only packaging/rust      # Rust tools
+./fedora-setup --only config/git
+./fedora-setup --only config/services     # Enable services
+./fedora-setup --only config/performance  # Performance tuning
+./fedora-setup --only config/hardware/asus    # ASUS laptop
+./fedora-setup --only config/hardware/nvidia  # NVIDIA drivers
+```
+
+## Dotfiles Management
+
+### Selective Stowing
+
+```bash
+# Stow all packages
+omaforge-stow --all
+
+# Stow specific packages
+omaforge-stow config zsh          # Only config and zsh
+
+# Restow (useful after updates)
+omaforge-stow -R config           # Restow config
+omaforge-stow -R --all            # Restow all
+```
+
+### Manual Stow
+
+```bash
+cd ~/.dotfiles
+stow --no-folding --restow --target=$HOME home/config
+stow --no-folding --restow --target=$HOME home/zsh
+```
+
+## Package Management
+
+### Declarative (Recommended)
+
+```bash
+# macOS
+./bin/omaforge-add brew neovim       # Add CLI tool
+./bin/omaforge-add cask firefox      # Add GUI app
+./macos-setup --only packaging/brew  # Install new packages
+
+# Fedora
+./bin/omaforge-add base neovim       # Add to base packages
+./bin/omaforge-add flatpak com.spotify.Client  # Add Flatpak
+./fedora-setup --only packaging/base # Install new packages
+```
+
+### Interactive
+
+```bash
+./bin/omaforge-pkg-manage
+```
+
+## Reset/Re-run Components
+
+```bash
+./bin/omaforge-reset
+```
+
+Interactive menu to reset specific components.
+
+## Web Applications (Fedora only)
+
+```bash
+# Install
+./bin/omaforge-webapp-install "App Name" "https://example.com" "icon.png"
+
+# Remove
+./bin/omaforge-webapp-remove ChatGPT  # Specific app
+```
+
 ## Structure
 
 ```
@@ -39,31 +170,6 @@ eval "$(curl -fsSL https://raw.githubusercontent.com/pixincreate/omaforge/main/u
 │   └── macos/             # macOS-specific setup
 ├── windows/               # Windows configuration (see windows/README.md)
 └── docs/                  # Documentation
-```
-
-## Supported Platforms
-
-- **Fedora** - Fedora Linux with DNF, Flatpak, hardware support
-- **macOS** - macOS with Homebrew
-
-## Manual Installation
-
-### Fedora
-
-```bash
-git clone https://github.com/pixincreate/dotfiles.git ~/dev/.dotfiles
-git clone https://github.com/pixincreate/omaforge.git ~/dev/.omaforge
-cd ~/dev/.omaforge/unix/fedora
-./fedora-setup
-```
-
-### macOS
-
-```bash
-git clone https://github.com/pixincreate/dotfiles.git ~/dev/.dotfiles
-git clone https://github.com/pixincreate/omaforge.git ~/dev/.omaforge
-cd ~/dev/.omaforge/unix/macos
-./macos-setup
 ```
 
 ## Features
@@ -93,25 +199,12 @@ cd ~/dev/.omaforge/unix/macos
 - **Applications**: CLI tools and GUI applications
 - **System**: Hostname and system preferences
 
-## Utilities
-
-### Fedora
-
-- `omaforge-pkg-manage` - Interactive package manager
-- `omaforge-webapp-install` - Install web applications
-- `omaforge-webapp-remove` - Remove web applications
-- `omaforge-launch-browser` - Launch browser (supports Zen, Brave, Helium)
-- `omaforge-launch-webapp` - Launch web app in app mode
-- `omaforge-reset` - Reset/re-run specific components
-
-### macOS
-
-- `omaforge-pkg-manage` - Interactive package manager
-- `omaforge-reset` - Reset/re-run specific components
-
 ## Configuration
 
-Each platform has a `config.json` for declarative configuration. See platform-specific READMEs for details.
+Each platform has a `config.json` for declarative configuration:
+
+- `unix/macos/config.json` - macOS configuration
+- `unix/fedora/config.json` - Fedora configuration
 
 ## Documentation
 
@@ -120,4 +213,4 @@ Each platform has a `config.json` for declarative configuration. See platform-sp
 
 ## License
 
-GPL 3.0 License
+GPL 3.0

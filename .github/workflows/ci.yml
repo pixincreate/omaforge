@@ -1,0 +1,199 @@
+name: Setup Scripts CI
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "unix/**"
+      - ".github/workflows/**"
+  pull_request:
+    branches: [main, master]
+    paths:
+      - "unix/**"
+      - ".github/workflows/**"
+
+jobs:
+  test-fedora-setup:
+    name: Test Fedora Setup
+    runs-on: ubuntu-latest
+    container:
+      image: fedora:latest
+    steps:
+      - name: Install dependencies
+        run: |
+          dnf update -y
+          dnf install -y git jq
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate Fedora config.json
+        run: |
+          cd unix/fedora
+          jq empty config.json
+          echo "Fedora config.json syntax is valid"
+
+      - name: Check Fedora package lists
+        run: |
+          cd unix/fedora/packages
+          for file in *.packages; do
+            echo "Checking $file..."
+            # Ensure file exists and has content
+            [ -s "$file" ] || (echo "$file is empty"; exit 1)
+          done
+          echo "All package list files exist and have content"
+
+      - name: Test Fedora preflight checks
+        run: |
+          cd unix/fedora
+          export OMAFORGE_PATH="$(pwd)"
+          export OMAFORGE_INSTALL="$OMAFORGE_PATH/install"
+          export OMAFORGE_CONFIG="$OMAFORGE_PATH/config.json"
+          source install/helpers/all.sh
+          # Only test that scripts can be sourced without errors
+          echo "Fedora helper scripts loaded successfully"
+
+  test-macos-setup:
+    name: Test macOS Setup
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install jq
+        run: brew install jq
+
+      - name: Validate macOS config.json
+        run: |
+          cd unix/macos
+          jq empty config.json
+          echo "macOS config.json syntax is valid"
+
+      - name: Check macOS package lists
+        run: |
+          cd unix/macos/packages
+          for file in *.packages; do
+            echo "Checking $file..."
+            [ -s "$file" ] || (echo "$file is empty"; exit 1)
+          done
+          echo "All package list files exist and have content"
+
+      - name: Test macOS preflight checks
+        run: |
+          cd unix/macos
+          export MACOS_PATH="$(pwd)"
+          export MACOS_INSTALL="$MACOS_PATH/install"
+          export MACOS_CONFIG="$MACOS_PATH/config.json"
+          export NON_INTERACTIVE=true
+          source install/helpers/all.sh
+          echo "macOS helper scripts loaded successfully"
+
+  test-common-scripts:
+    name: Test Common Scripts
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo apt-get update
+            sudo apt-get install -y git stow
+          else
+            brew install git stow
+          fi
+
+      - name: Test platform detection
+        run: |
+          cd unix/common/helpers
+          platform=$(bash platform.sh)
+          echo "Detected platform: $platform"
+          [ -n "$platform" ] || (echo "Platform detection failed"; exit 1)
+          echo "Platform detection works"
+
+      - name: Test common scripts can be sourced
+        run: |
+          cd unix/common
+
+          # Test config scripts
+          source config/git.sh
+          source config/nextdns.sh
+
+          # Test dotfiles scripts
+          source dotfiles/directories.sh
+          source dotfiles/fonts.sh
+          source dotfiles/stow.sh
+          source dotfiles/zsh.sh
+
+          # Test packaging scripts
+          source packaging/homebrew.sh
+          source packaging/brew.sh
+          source packaging/cask.sh
+
+          echo "All common scripts loaded successfully"
+
+  shellcheck:
+    name: ShellCheck Linting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run ShellCheck
+        run: |
+          sudo apt-get install -y shellcheck
+
+          # Find all .sh files and check them
+          find unix/ -name "*.sh" -type f | while read -r script; do
+            echo "Checking $script..."
+            shellcheck -e SC1090,SC1091 "$script" || exit 1
+          done
+
+          # Check main setup scripts
+          shellcheck -e SC1090,SC1091 unix/fedora/fedora-setup || exit 1
+          shellcheck -e SC1090,SC1091 unix/macos/macos-setup || exit 1
+
+          echo "All shell scripts passed ShellCheck"
+
+  test-non-interactive:
+    name: Test Non-Interactive Mode
+    runs-on: ubuntu-latest
+    container:
+      image: fedora:latest
+    steps:
+      - name: Install dependencies
+        run: |
+          dnf update -y
+          dnf install -y git jq stow
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Test NON_INTERACTIVE mode
+        run: |
+          cd unix/fedora
+          export OMAFORGE_PATH="$(pwd)"
+          export OMAFORGE_INSTALL="$OMAFORGE_PATH/install"
+          export OMAFORGE_CONFIG="$OMAFORGE_PATH/config.json"
+
+          # Source helpers
+          source install/helpers/all.sh
+
+          # Test confirm function with NON_INTERACTIVE
+          if confirm "Test prompt" "Y"; then
+            echo "NON_INTERACTIVE auto-confirmed (default Y)"
+          else
+            echo "NON_INTERACTIVE should have auto-confirmed"
+            exit 1
+          fi
+
+          if ! confirm "Test prompt" "N"; then
+            echo "NON_INTERACTIVE auto-declined (default N)"
+          else
+            echo "NON_INTERACTIVE should have auto-declined"
+            exit 1
+          fi
