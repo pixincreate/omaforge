@@ -1,14 +1,7 @@
 #!/bin/bash
-# Font installation for Fedora
-# Uses common Unix fonts script
+# Font installation for Fedora - Downloads and installs fonts from GitHub releases
 
-echo "Installing fonts"
-
-# Get fonts configuration
-fonts_source=$(expand_path "$(get_config '.dotfiles.fonts_source')")
-fonts_target="$HOME/.local/share/fonts"
-
-# Source and run common fonts setup
+# Source common fonts script
 COMMON_SCRIPT="$OMAFORGE_PATH/../common/dotfiles/fonts.sh"
 
 if [[ ! -f "$COMMON_SCRIPT" ]]; then
@@ -16,8 +9,30 @@ if [[ ! -f "$COMMON_SCRIPT" ]]; then
     return 1
 fi
 
-# Source the common script
 source "$COMMON_SCRIPT"
 
-# Run fonts installation
-install_fonts "$fonts_source" "$fonts_target"
+# Download and install fonts
+main() {
+    # Download fonts to temp directory
+    local fonts_source
+    fonts_source=$(download_github_fonts)
+    local download_status=$?
+    
+    if [[ $download_status -ne 0 ]]; then
+        return 1
+    fi
+    
+    # Get temp_dir from fonts_source path for cleanup
+    local temp_dir=$(dirname "$fonts_source")
+    
+    # Install fonts (target auto-detected as ~/.local/share/fonts on Linux)
+    install_fonts "$fonts_source"
+    local install_status=$?
+    
+    # Cleanup
+    rm -rf "$temp_dir"
+    
+    return $install_status
+}
+
+main
