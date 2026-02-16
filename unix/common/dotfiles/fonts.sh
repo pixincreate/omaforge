@@ -252,7 +252,18 @@ download_github_fonts() {
         "$fonts_source" \
         "Intel One Mono")
     total_downloaded=$((total_downloaded + intel_count))
-    
+
+    # Download Geist Font
+    local geist_count
+    geist_count=$(download_font_package \
+        "vercel/geist-font" \
+        "geist-font" \
+        "https://github.com/vercel/geist-font/releases/download/{tag}/geist-font-v{version}.zip" \
+        "$temp_dir" \
+        "$fonts_source" \
+        "Geist")
+    total_downloaded=$((total_downloaded + geist_count))
+
     echo >&2 "[INFO] Total fonts downloaded: $total_downloaded"
     
     if [[ $total_downloaded -eq 0 ]]; then
