@@ -21,6 +21,7 @@ atuin
 tealdeer
 direnv
 git-delta
+glow
 
 # Development tools
 neovim
