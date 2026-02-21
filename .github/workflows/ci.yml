@@ -85,7 +85,7 @@ jobs:
           export MACOS_INSTALL="$MACOS_PATH/install"
           export MACOS_CONFIG="$MACOS_PATH/config.json"
           export NON_INTERACTIVE=true
-          source install/helpers/all.sh
+          source "$MACOS_INSTALL/helpers/all.sh"
           echo "macOS helper scripts loaded successfully"
 
   test-common-scripts:
@@ -122,6 +122,7 @@ jobs:
           # Test config scripts
           source config/git.sh
           source config/nextdns.sh
+          source config/rust.sh
 
           # Test dotfiles scripts
           source dotfiles/directories.sh
@@ -129,10 +130,8 @@ jobs:
           source dotfiles/stow.sh
           source dotfiles/zsh.sh
 
-          # Test packaging scripts
-          source packaging/homebrew.sh
-          source packaging/brew.sh
-          source packaging/cask.sh
+          # Test helper scripts
+          source helpers/platform.sh
 
           echo "All common scripts loaded successfully"
 
