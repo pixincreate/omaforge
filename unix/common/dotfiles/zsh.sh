@@ -51,9 +51,11 @@ export ADBLOCK=1
 
 PQ_LIB_DIR="$(brew --prefix libpq)/lib"
 
-export CPPFLAGS="-I/opt/homebrew/opt/llvm/include"
-export LDFLAGS="-L/opt/homebrew/opt/llvm/lib"
+export CPPFLAGS="-I$(brew --prefix)/opt/llvm/include"
+export LDFLAGS="-L$(brew --prefix)/opt/llvm/lib"
 export CC="$(brew --prefix)/opt/llvm/bin/clang"
+
+export OLLAMA_LIBRARY_PATH=$(brew --prefix)/lib
 
 # omaforge bin
 export PATH="$HOME/.omaforge/unix/macos/bin:$PATH"
