@@ -24,3 +24,4 @@ java-latest-openjdk
 protobuf-compiler
 grpc
 zig
+ollama

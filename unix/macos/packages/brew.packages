@@ -54,6 +54,7 @@ ollama
 ffmpeg
 protobuf
 grpc
+opencode
 
 # GNU tools (macOS replacements)
 gnu-sed

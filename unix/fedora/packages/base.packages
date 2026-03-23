@@ -1,6 +1,7 @@
 # Base system packages
 # Core utilities and shell tools
 
+atuin
 git
 wget
 curl
