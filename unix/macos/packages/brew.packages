@@ -29,6 +29,7 @@ tmux
 gh
 jq
 tree
+grpcurl
 
 # System tools
 htop

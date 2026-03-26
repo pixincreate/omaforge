@@ -1,7 +1,6 @@
 # Flatpak applications
 
 app.zen_browser.zen
-com.brave.Browser
 org.signal.Signal
 md.obsidian.Obsidian
 org.localsend.localsend_app
