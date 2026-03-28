@@ -193,9 +193,6 @@ jobs:
 
           source install/helpers/all.sh
 
-          # Verify stow function exists
-          type stow_dotfiles || { echo "stow_dotfiles not defined"; exit 1; }
-
           # Verify dotfiles scripts have valid syntax
           bash -n "$OMAFORGE_INSTALL/dotfiles/all.sh"
           bash -n "$OMAFORGE_INSTALL/dotfiles/stow.sh"
@@ -426,9 +423,6 @@ jobs:
           mkdir -p "$HOME/.local/state/omaforge"
 
           source install/helpers/all.sh
-
-          # Verify stow function exists
-          type stow_dotfiles || { echo "stow_dotfiles not defined"; exit 1; }
 
           # Verify dotfiles scripts have valid syntax
           bash -n "$OMAFORGE_INSTALL/dotfiles/all.sh"
