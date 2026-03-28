@@ -70,6 +70,8 @@ run_logged() {
     local script="$1"
     export CURRENT_SCRIPT="$script"
 
+    mkdir -p "$(dirname "$OMAFORGE_INSTALL_LOG_FILE")"
+
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting: $script" >>"$OMAFORGE_INSTALL_LOG_FILE"
 
     bash -c "source '$script'" </dev/null >>"$OMAFORGE_INSTALL_LOG_FILE" 2>&1
