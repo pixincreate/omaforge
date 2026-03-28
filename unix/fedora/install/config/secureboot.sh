@@ -13,8 +13,10 @@ log_info "Secure Boot setup is optional and required only if:"
 log_info "  - You have Secure Boot enabled in BIOS/UEFI"
 log_info "  - You installed NVIDIA drivers or other third-party kernel modules"
 
-# Check env var or prompt
-if [[ "${OMAFORGE_SECUREBOOT:-false}" == "true" ]]; then
+secureboot_config=$(get_config '.secureboot')
+if [[ "$secureboot_config" == "true" ]]; then
+    log_info "secureboot=true in config.json: Proceeding"
+elif [[ "${OMAFORGE_SECUREBOOT:-false}" == "true" ]]; then
     log_info "OMAFORGE_SECUREBOOT=true: Proceeding"
 elif ! confirm "Setup Secure Boot support?"; then
     log_info "Skipped Secure Boot setup"
