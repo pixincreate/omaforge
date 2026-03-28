@@ -74,7 +74,7 @@ run_logged() {
 
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting: $script" >>"$OMAFORGE_INSTALL_LOG_FILE"
 
-    bash -c "source '$script'" </dev/null >>"$OMAFORGE_INSTALL_LOG_FILE" 2>&1
+    bash -c "source '$OMAFORGE_INSTALL/helpers/all.sh'; source '$script'" </dev/null >>"$OMAFORGE_INSTALL_LOG_FILE" 2>&1
 
     local exit_code=$?
 
