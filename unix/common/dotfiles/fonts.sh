@@ -269,6 +269,36 @@ download_github_fonts() {
         "Geist")
     total_downloaded=$((total_downloaded + geist_count))
 
+    echo >&2 "[INFO] Downloading CaskaydiaCove Nerd Font..."
+    local cascadia_zip="$temp_dir/CaskaydiaCove.zip"
+    if curl -sL -o "$cascadia_zip" "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/CascadiaCode.zip"; then
+        unzip -q "$cascadia_zip" -d "$temp_dir/CaskaydiaCove" 2>/dev/null || true
+        local cascadia_count=0
+        while IFS= read -r font; do
+            cp "$font" "$fonts_source/" 2>/dev/null
+            cascadia_count=$((cascadia_count + 1))
+        done < <(find "$temp_dir/CaskaydiaCove" -type f \( -name "*.ttf" -o -name "*.otf" \) 2>/dev/null)
+        echo >&2 "[INFO] Extracted $cascadia_count CaskaydiaCove fonts"
+        total_downloaded=$((total_downloaded + cascadia_count))
+    else
+        echo >&2 "[WARNING] Failed to download CaskaydiaCove"
+    fi
+
+    echo >&2 "[INFO] Downloading Meslo Nerd Font..."
+    local meslo_zip="$temp_dir/Meslo.zip"
+    if curl -sL -o "$meslo_zip" "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/Meslo.zip"; then
+        unzip -q "$meslo_zip" -d "$temp_dir/Meslo" 2>/dev/null || true
+        local meslo_count=0
+        while IFS= read -r font; do
+            cp "$font" "$fonts_source/" 2>/dev/null
+            meslo_count=$((meslo_count + 1))
+        done < <(find "$temp_dir/Meslo" -type f \( -name "*.ttf" -o -name "*.otf" \) 2>/dev/null)
+        echo >&2 "[INFO] Extracted $meslo_count Meslo fonts"
+        total_downloaded=$((total_downloaded + meslo_count))
+    else
+        echo >&2 "[WARNING] Failed to download Meslo"
+    fi
+
     echo >&2 "[INFO] Total fonts downloaded: $total_downloaded"
     
     if [[ $total_downloaded -eq 0 ]]; then
