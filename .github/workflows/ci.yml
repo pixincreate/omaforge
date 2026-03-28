@@ -161,18 +161,11 @@ jobs:
           printf '#!/bin/bash\necho "test output"\necho "test error" >&2\nexit 0\n' > /tmp/test-run-logged.sh
           chmod +x /tmp/test-run-logged.sh
 
-          echo "Running run_logged..."
-          run_logged /tmp/test-run-logged.sh || true
+          run_logged /tmp/test-run-logged.sh
 
-          echo "Checking log file..."
-          if [[ -f /tmp/omaforge-test.log ]]; then
-            echo "Log file exists:"
-            cat /tmp/omaforge-test.log
-          else
-            echo "WARNING: Log file not created"
-          fi
-
-          echo "run_logged test completed"
+          # Verify output went to log file
+          cat /tmp/omaforge-test.log
+          echo "run_logged test passed"
 
       - name: Test dotfiles directories
         run: |
@@ -206,36 +199,18 @@ jobs:
 
           source install/helpers/all.sh
 
-          echo "Running stow setup..."
-          run_logged "$OMAFORGE_INSTALL/dotfiles/stow.sh" || true
+          run_logged "$OMAFORGE_INSTALL/dotfiles/stow.sh"
 
-          echo "Checking stowed files..."
-          ls -la ~/.ssh/ || true
-          ls -la ~/.local/bin/ || true
-          ls -la ~/.zsh/ || true
+          # Verify stowed files
+          test -f ~/.ssh/config || { echo "~/.ssh/config NOT FOUND"; exit 1; }
+          test -f ~/.local/bin/test-cmd || { echo "~/.local/bin/test-cmd NOT FOUND"; exit 1; }
+          test -f ~/.zsh/zshenv || { echo "~/.zsh/zshenv NOT FOUND"; exit 1; }
 
-          # Check if expected files exist
-          if [[ -f ~/.ssh/config ]]; then
-            echo "~/.ssh/config exists"
-          else
-            echo "~/.ssh/config NOT FOUND"
-          fi
+          # Verify content
+          grep -q "test" ~/.local/bin/test-cmd || { echo "Content mismatch in test-cmd"; exit 1; }
+          grep -q "PATH" ~/.zsh/zshenv || { echo "Content mismatch in zshenv"; exit 1; }
 
-          if [[ -f ~/.local/bin/test-cmd ]]; then
-            echo "~/.local/bin/test-cmd exists"
-            grep -q "test" ~/.local/bin/test-cmd && echo "Content OK"
-          else
-            echo "~/.local/bin/test-cmd NOT FOUND"
-          fi
-
-          if [[ -f ~/.zsh/zshenv ]]; then
-            echo "~/.zsh/zshenv exists"
-            grep -q "PATH" ~/.zsh/zshenv && echo "Content OK"
-          else
-            echo "~/.zsh/zshenv NOT FOUND"
-          fi
-
-          echo "Dotfiles stow test completed"
+          echo "Dotfiles stow test passed"
 
       - name: Test config scripts load
         run: |
@@ -459,36 +434,18 @@ jobs:
 
           source install/helpers/all.sh
 
-          echo "Running stow setup..."
-          run_logged "$OMAFORGE_INSTALL/dotfiles/stow.sh" || true
+          run_logged "$OMAFORGE_INSTALL/dotfiles/stow.sh"
 
-          echo "Checking stowed files..."
-          ls -la ~/.ssh/ || true
-          ls -la ~/.local/bin/ || true
-          ls -la ~/.zsh/ || true
+          # Verify stowed files
+          test -f ~/.ssh/config || { echo "~/.ssh/config NOT FOUND"; exit 1; }
+          test -f ~/.local/bin/test-cmd || { echo "~/.local/bin/test-cmd NOT FOUND"; exit 1; }
+          test -f ~/.zsh/zshenv || { echo "~/.zsh/zshenv NOT FOUND"; exit 1; }
 
-          # Check if expected files exist
-          if [[ -f ~/.ssh/config ]]; then
-            echo "~/.ssh/config exists"
-          else
-            echo "~/.ssh/config NOT FOUND"
-          fi
+          # Verify content
+          grep -q "test" ~/.local/bin/test-cmd || { echo "Content mismatch in test-cmd"; exit 1; }
+          grep -q "PATH" ~/.zsh/zshenv || { echo "Content mismatch in zshenv"; exit 1; }
 
-          if [[ -f ~/.local/bin/test-cmd ]]; then
-            echo "~/.local/bin/test-cmd exists"
-            grep -q "test" ~/.local/bin/test-cmd && echo "Content OK"
-          else
-            echo "~/.local/bin/test-cmd NOT FOUND"
-          fi
-
-          if [[ -f ~/.zsh/zshenv ]]; then
-            echo "~/.zsh/zshenv exists"
-            grep -q "PATH" ~/.zsh/zshenv && echo "Content OK"
-          else
-            echo "~/.zsh/zshenv NOT FOUND"
-          fi
-
-          echo "Dotfiles stow test completed"
+          echo "Dotfiles stow test passed"
 
       - name: Test non-interactive mode
         run: |
