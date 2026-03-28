@@ -1,6 +1,5 @@
 #!/bin/bash
 # Preflight checks to validate environment
-# Following Omarchy guard pattern
 
 echo "Validating system requirements"
 
@@ -57,6 +56,20 @@ if ! ping -c 1 1.1.1.1 &>/dev/null; then
     exit 1
 else
     log_success "Internet connectivity verified"
+fi
+
+# Check if root filesystem is btrfs
+if [[ $(findmnt -n -o FSTYPE /) == "btrfs" ]]; then
+    log_success "Root filesystem is btrfs"
+else
+    log_warning "Root filesystem is not btrfs (btrfs recommended)"
+fi
+
+# Check if KDE Plasma is installed
+if dnf list installed plasma-desktop &>/dev/null; then
+    log_success "KDE Plasma desktop is installed"
+else
+    log_warning "KDE Plasma desktop not found (recommended)"
 fi
 
 log_success "All preflight checks passed"

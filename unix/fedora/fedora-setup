@@ -6,11 +6,23 @@ set -eEo pipefail
 
 # Error handler
 error_handler() {
-    local line_no=$1
-    echo ""
-    echo "[ERROR] Setup failed at line $line_no"
-    echo "[ERROR] Check the output above for details"
-    exit 1
+  local line_no=$1
+  local cmd="$BASH_COMMAND"
+  local script="${CURRENT_SCRIPT:-$0}"
+  local script_name=$(basename "$script")
+
+  echo ""
+  echo -e "\033[0;31m=========================================\033[0m"
+  echo -e "\033[0;31m[ERROR] Setup failed\033[0m"
+  echo -e "\033[0;33m[ERROR] Script: $script_name\033[0m"
+  echo -e "\033[0;33m[ERROR] Line: $line_no\033[0m"
+  echo -e "\033[0;33m[ERROR] Command: $cmd\033[0m"
+  echo -e "\033[0;31m=========================================\033[0m"
+  echo ""
+  echo -e "\033[0;36mCheck the log file for details:\033[0m"
+  echo -e "\033[0;36m  sudo tail -50 /var/log/omaforge-install.log\033[0m"
+  echo ""
+  exit 1
 }
 
 trap 'error_handler $LINENO' ERR
@@ -78,7 +90,7 @@ run_single_module() {
     fi
 
     echo "[INFO] Running: $module_path"
-    source "$module_path"
+    run_logged "$module_path"
     echo "[SUCCESS] Completed"
 }
 
@@ -90,10 +102,10 @@ else
     show_welcome
 
     # Execute installation phases
-    source "$OMAFORGE_INSTALL/preflight/all.sh"
-    source "$OMAFORGE_INSTALL/repositories/all.sh"
-    source "$OMAFORGE_INSTALL/packaging/all.sh"
-    source "$OMAFORGE_INSTALL/config/all.sh"
-    source "$OMAFORGE_INSTALL/dotfiles/all.sh"
-    source "$OMAFORGE_INSTALL/post-install/all.sh"
+    run_logged "$OMAFORGE_INSTALL/preflight/all.sh"
+    run_logged "$OMAFORGE_INSTALL/repositories/all.sh"
+    run_logged "$OMAFORGE_INSTALL/packaging/all.sh"
+    run_logged "$OMAFORGE_INSTALL/config/all.sh"
+    run_logged "$OMAFORGE_INSTALL/dotfiles/all.sh"
+    run_logged "$OMAFORGE_INSTALL/post-install/all.sh"
 fi

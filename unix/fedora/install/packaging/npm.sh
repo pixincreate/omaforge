@@ -39,14 +39,14 @@ if [[ ${#packages[@]} -eq 0 ]]; then
 fi
 
 
-npm config set prefix '~/.npm-global'
+npm config set prefix "$HOME/.npm-global"
 export PATH=$HOME/.npm-global/bin:$PATH
 
 log_info "Installing ${#packages[@]} NPM global packages"
 
-local installed=0
-local skipped=0
-local failed=0
+installed=0
+skipped=0
+failed=0
 
 for package in "${packages[@]}"; do
     # Check if package is already installed globally
