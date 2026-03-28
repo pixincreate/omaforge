@@ -18,6 +18,5 @@ run_logged "$OMAFORGE_INSTALL/config/hardware/all.sh"
 run_logged "$OMAFORGE_INSTALL/config/nextdns.sh"
 run_logged "$OMAFORGE_INSTALL/config/secureboot.sh"
 run_logged "$OMAFORGE_INSTALL/config/kde.sh"
-run_logged "$OMAFORGE_COMMON_INSTALL/config/skillset.sh"
 
 log_success "All system configurations applied"

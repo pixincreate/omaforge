@@ -163,5 +163,6 @@ else
     run_logged "$OMAFORGE_INSTALL/packaging/all.sh"
     run_logged "$OMAFORGE_INSTALL/config/all.sh"
     run_logged "$OMAFORGE_INSTALL/dotfiles/all.sh"
+    run_logged "$OMAFORGE_INSTALL/repos/all.sh"
     run_logged "$OMAFORGE_INSTALL/post-install/all.sh"
 fi
