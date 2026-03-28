@@ -23,6 +23,7 @@ stow_dotfiles() {
         return 1
     fi
 
+    local failed=0
     for pkg in "${packages[@]}"; do
         pkg_dir="$stow_dir/$pkg"
 
@@ -36,14 +37,16 @@ stow_dotfiles() {
         if stow --no-folding --restow --dir="$stow_dir" --target="$target_dir" "$pkg"; then
             echo "[SUCCESS] Successfully stowed: $pkg"
         else
-            if confirm "Stow conflict detected for $pkg. Override existing files?"; then
-                stow --no-folding --restow --adopt --dir="$stow_dir" --target="$target_dir" "$pkg"
-                echo "[SUCCESS] Successfully stowed with override: $pkg"
-            else
-                echo "[WARNING] Skipped stowing: $pkg"
-            fi
+            echo "[WARNING] Stow conflict detected for: $pkg"
+            echo "[INFO] To resolve, run: stow --no-folding --restow --adopt --dir=\"$stow_dir\" --target=\"$target_dir\" \"$pkg\""
+            failed=$((failed + 1))
         fi
     done
+
+    if (( failed > 0 )); then
+        echo "[WARNING] $failed package(s) had conflicts. See log above for resolution commands."
+        return 1
+    fi
 
     echo "[SUCCESS] Dotfiles stowing completed"
 }
