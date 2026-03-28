@@ -4,8 +4,6 @@
 set -e
 
 setup_rust() {
-    local tools_json_key="${1:-.rust_tools}"
-
     echo "Setting up Rust toolchain"
 
     # Check if rustup is installed

@@ -6,7 +6,7 @@ set -eEuo pipefail
 echo "Running migration: Set up LUKS Auto Unlock and reduce GRUB timeout to 1 second"
 
 confirm() {
-    read -p "$1 [y/N]: " response
+    read -r -p "$1 [y/N]: " response
     [[ "$response" =~ ^[Yy]$ ]]
 }
 
@@ -82,10 +82,7 @@ echo "[3/3] Disabling CUPS service..."
 service="cups.service"
 if ! systemctl list-unit-files "$service" &>/dev/null; then
     echo "Service not available: $service"
-    continue
-fi
-
-if systemctl is-enabled "$service" &>/dev/null; then
+elif systemctl is-enabled "$service" &>/dev/null; then
     echo "Disabling service: $service"
     sudo systemctl disable "$service" 2>/dev/null || echo "Failed to disable: $service"
 else

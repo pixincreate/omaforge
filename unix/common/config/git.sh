@@ -47,11 +47,11 @@ setup_git() {
 
     # Prompt for missing values
     if [[ -z "$git_name" ]]; then
-        read -p "Enter your Git name: " git_name
+        read -r -p "Enter your Git name: " git_name
     fi
 
     if [[ -z "$git_email" ]]; then
-        read -p "Enter your Git email: " git_email
+        read -r -p "Enter your Git email: " git_email
     fi
 
     # Validate we have required values

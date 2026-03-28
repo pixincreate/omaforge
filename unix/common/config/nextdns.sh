@@ -25,7 +25,7 @@ setup_nextdns() {
 
     if [[ -z "$config_id" ]]; then
         echo "[INFO] Get your NextDNS configuration ID from: https://my.nextdns.io"
-        read -p "Enter your NextDNS config ID (or press Enter to skip): " config_id
+        read -r -p "Enter your NextDNS config ID (or press Enter to skip): " config_id
 
         if [[ -z "$config_id" ]]; then
             echo "[INFO] No NextDNS config ID provided, skipping"

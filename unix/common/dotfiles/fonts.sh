@@ -13,7 +13,8 @@ install_fonts() {
     echo "Installing fonts"
 
     if [[ -z "$fonts_target" ]]; then
-        local platform=$(detect_platform)
+        local platform
+        platform=$(detect_platform)
         if [[ "$platform" == "macos" ]]; then
             fonts_target="$HOME/Library/Fonts"
         else
@@ -30,7 +31,8 @@ install_fonts() {
     mkdir -p "$fonts_target"
 
     # Count fonts
-    local font_count=$(find "$fonts_source" -type f \( -name "*.ttf" -o -name "*.otf" -o -name "*.ttc" -o -name "*.TTF" -o -name "*.OTF" -o -name "*.TTC" \) 2>/dev/null | wc -l)
+    local font_count
+    font_count=$(find "$fonts_source" -type f \( -name "*.ttf" -o -name "*.otf" -o -name "*.ttc" -o -name "*.TTF" -o -name "*.OTF" -o -name "*.TTC" \) 2>/dev/null | wc -l)
 
     if [[ $font_count -eq 0 ]]; then
         echo "[WARNING] No fonts found in: $fonts_source"
@@ -44,7 +46,8 @@ install_fonts() {
     local skipped=0
 
     while IFS= read -r font; do
-        local font_name=$(basename "$font")
+        local font_name
+        font_name=$(basename "$font")
         local target_path="$fonts_target/$font_name"
 
         if [[ -f "$target_path" ]]; then
@@ -62,7 +65,8 @@ install_fonts() {
 
     echo "[INFO] Rebuilding font cache"
 
-    local platform=$(detect_platform)
+    local platform
+    platform=$(detect_platform)
     if command -v fc-cache &>/dev/null; then
         fc-cache -f "$fonts_target"
         echo "[SUCCESS] Font cache rebuilt"
@@ -180,7 +184,8 @@ download_font_package() {
 # Downloads Iosevka, IosevkaAile, JetBrains Mono, and Intel One Mono
 # Returns: Path to directory containing downloaded fonts (caller must cleanup)
 download_github_fonts() {
-    local temp_dir=$(mktemp -d)
+    local temp_dir
+    temp_dir=$(mktemp -d)
     local fonts_source="$temp_dir/fonts"
     mkdir -p "$fonts_source"
     local total_downloaded=0

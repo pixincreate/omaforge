@@ -108,7 +108,6 @@ if [[ ! "$REAL_USER" =~ ^[a-zA-Z0-9_-]+$ ]]; then
     return 1
 fi
 
-REAL_UID=$(id -u "$REAL_USER")
 REAL_HOME=$(getent passwd "$REAL_USER" | cut -d: -f6)
 
 # Validate script exists and is owned by user

@@ -12,7 +12,8 @@ setup_zsh() {
     echo "Configuring ZSH"
 
     local additionals_file="$zsh_dir/.additionals.zsh"
-    local platform=$(detect_platform)
+    local platform
+    platform=$(detect_platform)
 
     echo "[INFO] Detected platform: $platform"
 
@@ -129,7 +130,8 @@ EOF
     echo "[SUCCESS] Platform-specific ZSH config created"
 
     # Change default shell to ZSH
-    local zsh_path=$(command -v zsh)
+    local zsh_path
+    zsh_path=$(command -v zsh)
 
     if [[ "$SHELL" != "$zsh_path" ]]; then
         echo "[INFO] Current shell: $SHELL"

@@ -23,7 +23,8 @@ main() {
     fi
     
     # Get temp_dir from fonts_source path for cleanup
-    local temp_dir=$(dirname "$fonts_source")
+    local temp_dir
+    temp_dir=$(dirname "$fonts_source")
     
     # Install fonts (target auto-detected as ~/Library/Fonts on macOS)
     install_fonts "$fonts_source"
