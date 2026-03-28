@@ -13,7 +13,7 @@ create_directories() {
     local directories=(
         "$HOME/.config"
         "$HOME/.local/bin"
-        "$HOME/.npm-global",
+        "$HOME/.npm-global"
         "$HOME/.ssh"
         "$HOME/.zsh"
         "$HOME/Pictures"
@@ -24,7 +24,8 @@ create_directories() {
         "$HOME/Dev"
     )
 
-    local platform=$(detect_platform)
+    local platform
+    platform=$(detect_platform)
     case "$platform" in
         macos)
             directories+=("$HOME/Library/Fonts")
