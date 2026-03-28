@@ -65,12 +65,13 @@ jobs:
       - name: Check package lists
         run: |
           for platform in fedora macos; do
-            cd "unix/$platform/packages"
+            echo "Checking $platform packages..."
+            cd "unix/$platform/packages" || exit 1
             for file in *.packages; do
               echo "Checking $file..."
               [ -s "$file" ] || (echo "$file is empty"; exit 1)
             done
-            cd /workspace
+            cd - || exit 1
           done
           echo "All package list files have content"
 
@@ -358,6 +359,9 @@ jobs:
           export NON_INTERACTIVE=true
           export OMAFORGE_INSTALL_LOG_FILE="$HOME/.local/state/omaforge/install.log"
 
+          # Create log directory
+          mkdir -p "$HOME/.local/state/omaforge"
+
           # Source helpers - should not error
           source install/helpers/all.sh
 
@@ -541,6 +545,6 @@ jobs:
           source unix/common/helpers/common.sh
 
           # Test that scripts can be sourced
-          source unix/common/config/skillset.sh
+          source unix/common/install/config/skillset.sh
 
           echo "Common config scripts loaded successfully"
