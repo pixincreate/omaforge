@@ -74,9 +74,10 @@ run_logged() {
 
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting: $script" >>"$OMAFORGE_INSTALL_LOG_FILE"
 
-    bash -c "source '$OMAFORGE_INSTALL/helpers/all.sh'; source '$script'" </dev/null >>"$OMAFORGE_INSTALL_LOG_FILE" 2>&1
+    # Run interactively: stdin passes through, output goes to both console and log
+    bash -c "source '$OMAFORGE_INSTALL/helpers/all.sh'; source '$script'" 2>&1 | tee -a "$OMAFORGE_INSTALL_LOG_FILE"
 
-    local exit_code=$?
+    local exit_code=${PIPESTATUS[0]}
 
     if (( exit_code == 0 )); then
         echo "[$(date '+%Y-%m-%d %H:%M:%S')] Completed: $script" >>"$OMAFORGE_INSTALL_LOG_FILE"
@@ -85,7 +86,7 @@ run_logged() {
         echo "[$(date '+%Y-%m-%d %H:%M:%S')] Failed: $script (exit code: $exit_code)" >>"$OMAFORGE_INSTALL_LOG_FILE"
     fi
 
-    return $exit_code
+    return "$exit_code"
 }
 
 # Abort with error message
