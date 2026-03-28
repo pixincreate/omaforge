@@ -10,7 +10,7 @@ if [[ ! -d "$KDE_CONFIG_DIR" ]]; then
 fi
 
 if [[ ! -d "$HOME/.config" ]]; then
-  log_warning "~/.config directory not found"
+  log_warning "$HOME/.config directory not found"
   return 0
 fi
 
