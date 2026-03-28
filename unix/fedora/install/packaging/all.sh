@@ -4,11 +4,11 @@ set -eEuo pipefail
 
 log_section "Package Installation"
 
-source "$OMAFORGE_INSTALL/packaging/base.sh"
-source "$OMAFORGE_INSTALL/packaging/bloatware.sh"
-source "$OMAFORGE_INSTALL/packaging/flatpak.sh"
-source "$OMAFORGE_INSTALL/packaging/npm.sh"
-source "$OMAFORGE_INSTALL/packaging/rust.sh"
-source "$OMAFORGE_INSTALL/packaging/webapps.sh"
+run_logged "$OMAFORGE_INSTALL/packaging/base.sh"
+run_logged "$OMAFORGE_INSTALL/packaging/bloatware.sh"
+run_logged "$OMAFORGE_INSTALL/packaging/flatpak.sh"
+run_logged "$OMAFORGE_INSTALL/packaging/npm.sh"
+run_logged "$OMAFORGE_INSTALL/packaging/rust.sh"
+run_logged "$OMAFORGE_INSTALL/packaging/webapps.sh"
 
 log_success "All packages installed"

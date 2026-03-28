@@ -4,4 +4,4 @@ set -eEuo pipefail
 
 log_section "Post-Installation"
 
-source "$OMAFORGE_INSTALL/post-install/finished.sh"
+run_logged "$OMAFORGE_INSTALL/post-install/finished.sh"

@@ -4,10 +4,10 @@ set -eEuo pipefail
 
 log_section "Repository Setup"
 
-source "$OMAFORGE_INSTALL/repositories/rpmfusion.sh"
-source "$OMAFORGE_INSTALL/repositories/copr.sh"
-source "$OMAFORGE_INSTALL/repositories/terra.sh"
-source "$OMAFORGE_INSTALL/repositories/external.sh"
+run_logged "$OMAFORGE_INSTALL/repositories/rpmfusion.sh"
+run_logged "$OMAFORGE_INSTALL/repositories/copr.sh"
+run_logged "$OMAFORGE_INSTALL/repositories/terra.sh"
+run_logged "$OMAFORGE_INSTALL/repositories/external.sh"
 
 # Refresh repository metadata
 log_info "Refreshing repository metadata"
