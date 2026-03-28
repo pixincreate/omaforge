@@ -7,6 +7,10 @@
     "install_weak_deps": false,
     "fastestmirror": true
   },
+  "skills": {
+    "skills_source": "$HOME/dev/scripts/skillset/skills",
+    "commands_source": "$HOME/dev/scripts/skillset/commands"
+  },
   "repositories": {
     "rpmfusion": {
       "enabled": true

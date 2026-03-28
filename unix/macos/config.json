@@ -10,6 +10,10 @@
     "user_name": "PiX",
     "user_email": "69745008+pixincreate@users.noreply.github.com"
   },
+  "skills": {
+    "skills_source": "$HOME/dev/scripts/skillset/skills",
+    "commands_source": "$HOME/dev/scripts/skillset/commands"
+  },
   "nextdns": {
     "config_id": ""
   },
