@@ -32,7 +32,25 @@ The installer automatically:
 - Prompt you for Git name/email, NextDNS config, etc.
 - Run the complete setup
 
-**Optional**: Skip prompts by exporting environment variables:
+### Configuration
+
+Settings are read from `config.json` first. Edit before running:
+
+```bash
+vim unix/fedora/config.json  # or unix/macos/config.json
+```
+
+```json
+{
+  "git": {
+    "user_name": "Your Name",
+    "user_email": "your@email.com"
+  },
+  "secureboot": true
+}
+```
+
+**Optional**: Override via environment variables:
 
 ```bash
 export OMAFORGE_GIT_NAME='Your Name'
@@ -89,8 +107,10 @@ Both macOS and Fedora support running specific modules:
 ./fedora-setup --only packaging/flatpak   # Flatpak apps
 ./fedora-setup --only packaging/rust      # Rust tools
 ./fedora-setup --only config/git
+./fedora-setup --only config/kde          # KDE Plasma defaults
 ./fedora-setup --only config/services     # Enable services
 ./fedora-setup --only config/performance  # Performance tuning
+./fedora-setup --only config/secureboot   # Secure Boot setup
 ./fedora-setup --only config/hardware/asus    # ASUS laptop
 ./fedora-setup --only config/hardware/nvidia  # NVIDIA drivers
 ```
@@ -179,12 +199,13 @@ Interactive menu to reset specific components.
 - **Git & SSH**: ed25519 keys with automatic configuration
 - **Shell**: ZSH with zgenom plugin manager
 - **Dotfiles**: GNU Stow for symlink management
-- **Fonts**: Nerd Fonts and custom fonts
+- **Fonts**: Iosevka, CaskaydiaCove Nerd Font, Meslo Nerd Font, JetBrains Mono, Inter, Geist
 - **Rust**: Rustup with configurable cargo tools
 - **NextDNS**: Automated DNS configuration
 
 ### Fedora-Specific
 
+- **KDE Plasma**: Keybindings, Krohnkite tiling, theme defaults
 - **Package Management**: DNF optimization, Flatpak, Rust tools
 - **Repositories**: RPM Fusion, COPR, Terra
 - **Web Applications**: Twitter, ChatGPT (incognito), Grok (incognito)
@@ -205,6 +226,16 @@ Each platform has a `config.json` for declarative configuration:
 
 - `unix/macos/config.json` - macOS configuration
 - `unix/fedora/config.json` - Fedora configuration
+
+## Logs
+
+Setup logs are stored at `~/.local/state/omaforge/install.log`.
+
+Check logs if something fails:
+
+```bash
+tail -50 ~/.local/state/omaforge/install.log
+```
 
 ## Documentation
 
