@@ -1,11 +1,10 @@
 #!/bin/bash
-# Manage all dotfiles
 
 log_section "Dotfiles Management"
 
-source "$OMAFORGE_INSTALL/dotfiles/directories.sh"
-source "$OMAFORGE_INSTALL/dotfiles/stow.sh"
-source "$OMAFORGE_INSTALL/dotfiles/fonts.sh"
-source "$OMAFORGE_INSTALL/dotfiles/zsh.sh"
+run_logged "$OMAFORGE_INSTALL/dotfiles/directories.sh"
+run_logged "$OMAFORGE_INSTALL/dotfiles/stow.sh"
+run_logged "$OMAFORGE_INSTALL/dotfiles/fonts.sh"
+run_logged "$OMAFORGE_INSTALL/dotfiles/zsh.sh"
 
 log_success "Dotfiles management completed"
