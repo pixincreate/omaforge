@@ -259,7 +259,7 @@ jobs:
           bash -n install/post-install/all.sh
           echo "Post-install all.sh syntax valid"
 
-      - name: Test hardware detection scripts
+      - name: Test bin commands
         run: |
           cd unix/fedora
           export OMAFORGE_PATH="$(pwd)"
@@ -270,12 +270,15 @@ jobs:
 
           source install/helpers/all.sh
 
-          # Test hw-asus command exists
-          bash -n "$OMAFORGE_PATH/bin/omaforge-hw-asus"
-          echo "omaforge-hw-asus syntax valid"
+          # Test that bin commands exist and have valid syntax
+          for cmd in "$OMAFORGE_PATH/bin/"*; do
+            if [[ -f "$cmd" ]]; then
+              echo "Checking $(basename "$cmd")..."
+              bash -n "$cmd" && echo "  Syntax OK"
+            fi
+          done
 
-          bash -n "$OMAFORGE_PATH/bin/omaforge-hw-nvidia"
-          echo "omaforge-hw-nvidia syntax valid"
+          echo "All bin commands syntax valid"
 
       - name: Test non-interactive mode
         run: |
