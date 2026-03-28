@@ -3,7 +3,7 @@
 set -e
 
 setup_nextdns() {
-    local config_id="$1"
+    local config_id="${1:-}"
 
     echo "Configuring NextDNS"
 
