@@ -1,140 +1,22 @@
-name: Setup Scripts CI
+name: Omaforge CI
 
 on:
   push:
     branches: [main, master]
     paths:
       - "unix/**"
+      - "default/**"
+      - "AGENTS.md"
       - ".github/workflows/**"
   pull_request:
     branches: [main, master]
     paths:
       - "unix/**"
+      - "default/**"
+      - "AGENTS.md"
       - ".github/workflows/**"
 
 jobs:
-  test-fedora-setup:
-    name: Test Fedora Setup
-    runs-on: ubuntu-latest
-    container:
-      image: fedora:latest
-    steps:
-      - name: Install dependencies
-        run: |
-          dnf update -y
-          dnf install -y git jq
-
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Validate Fedora config.json
-        run: |
-          cd unix/fedora
-          jq empty config.json
-          echo "Fedora config.json syntax is valid"
-
-      - name: Check Fedora package lists
-        run: |
-          cd unix/fedora/packages
-          for file in *.packages; do
-            echo "Checking $file..."
-            # Ensure file exists and has content
-            [ -s "$file" ] || (echo "$file is empty"; exit 1)
-          done
-          echo "All package list files exist and have content"
-
-      - name: Test Fedora preflight checks
-        run: |
-          cd unix/fedora
-          export OMAFORGE_PATH="$(pwd)"
-          export OMAFORGE_INSTALL="$OMAFORGE_PATH/install"
-          export OMAFORGE_CONFIG="$OMAFORGE_PATH/config.json"
-          source install/helpers/all.sh
-          # Only test that scripts can be sourced without errors
-          echo "Fedora helper scripts loaded successfully"
-
-  test-macos-setup:
-    name: Test macOS Setup
-    runs-on: macos-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install jq
-        run: brew install jq
-
-      - name: Validate macOS config.json
-        run: |
-          cd unix/macos
-          jq empty config.json
-          echo "macOS config.json syntax is valid"
-
-      - name: Check macOS package lists
-        run: |
-          cd unix/macos/packages
-          for file in *.packages; do
-            echo "Checking $file..."
-            [ -s "$file" ] || (echo "$file is empty"; exit 1)
-          done
-          echo "All package list files exist and have content"
-
-      - name: Test macOS preflight checks
-        run: |
-          cd unix/macos
-          export MACOS_PATH="$(pwd)"
-          export MACOS_INSTALL="$MACOS_PATH/install"
-          export MACOS_CONFIG="$MACOS_PATH/config.json"
-          export NON_INTERACTIVE=true
-          source "$MACOS_INSTALL/helpers/all.sh"
-          echo "macOS helper scripts loaded successfully"
-
-  test-common-scripts:
-    name: Test Common Scripts
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install dependencies
-        run: |
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            sudo apt-get update
-            sudo apt-get install -y git stow
-          else
-            brew install git stow
-          fi
-
-      - name: Test platform detection
-        run: |
-          cd unix/common/helpers
-          platform=$(bash platform.sh)
-          echo "Detected platform: $platform"
-          [ -n "$platform" ] || (echo "Platform detection failed"; exit 1)
-          echo "Platform detection works"
-
-      - name: Test common scripts can be sourced
-        run: |
-          cd unix/common
-
-          # Test config scripts
-          source config/git.sh
-          source config/nextdns.sh
-          source config/rust.sh
-
-          # Test dotfiles scripts
-          source dotfiles/directories.sh
-          source dotfiles/fonts.sh
-          source dotfiles/stow.sh
-          source dotfiles/zsh.sh
-
-          # Test helper scripts
-          source helpers/platform.sh
-
-          echo "All common scripts loaded successfully"
-
   shellcheck:
     name: ShellCheck Linting
     runs-on: ubuntu-latest
@@ -146,53 +28,519 @@ jobs:
         run: |
           sudo apt-get install -y shellcheck
 
-          # Find all .sh files and check them
-          find unix/ -name "*.sh" -type f | while read -r script; do
+          # Check all shell scripts
+          find . -name "*.sh" -type f | while read -r script; do
             echo "Checking $script..."
             shellcheck -e SC1090,SC1091 "$script" || exit 1
           done
 
-          # Check main setup scripts
+          # Check main setup scripts (no .sh extension)
           shellcheck -e SC1090,SC1091 unix/fedora/fedora-setup || exit 1
           shellcheck -e SC1090,SC1091 unix/macos/macos-setup || exit 1
 
           echo "All shell scripts passed ShellCheck"
 
-  test-non-interactive:
-    name: Test Non-Interactive Mode
+  test-fedora-setup:
+    name: Fedora End-to-End Test
     runs-on: ubuntu-latest
     container:
       image: fedora:latest
+    needs: shellcheck
     steps:
       - name: Install dependencies
         run: |
           dnf update -y
-          dnf install -y git jq stow
+          dnf install -y git jq stow sudo findutils
 
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Test NON_INTERACTIVE mode
+      - name: Validate configs
+        run: |
+          # Validate JSON configs
+          jq empty unix/fedora/config.json
+          jq empty unix/macos/config.json
+          echo "Config files are valid JSON"
+
+      - name: Check package lists
+        run: |
+          for platform in fedora macos; do
+            cd "unix/$platform/packages"
+            for file in *.packages; do
+              echo "Checking $file..."
+              [ -s "$file" ] || (echo "$file is empty"; exit 1)
+            done
+            cd /workspace
+          done
+          echo "All package list files have content"
+
+      - name: Create test dotfiles repo
+        run: |
+          # Create a minimal dotfiles repo for testing
+          mkdir -p /tmp/test-dotfiles/home/{config,ssh,local/bin}
+          mkdir -p /tmp/test-dotfiles/home/zsh
+          mkdir -p /tmp/test-dotfiles/fonts
+
+          # Create some test files
+          echo '#!/bin/bash' > /tmp/test-dotfiles/home/local/bin/test-cmd
+          echo 'echo "test"' >> /tmp/test-dotfiles/home/local/bin/test-cmd
+          chmod +x /tmp/test-dotfiles/home/local/bin/test-cmd
+
+          echo 'export PATH="$HOME/.local/bin:$PATH"' > /tmp/test-dotfiles/home/zsh/zshenv
+          echo '# ssh config' > /tmp/test-dotfiles/home/ssh/config
+          echo '# git config' > /tmp/test-dotfiles/home/config/gitconfig
+
+          # Initialize as git repo
+          cd /tmp/test-dotfiles
+          git init
+          git config user.email "test@test.com"
+          git config user.name "Test"
+          git add .
+          git commit -m "Initial dotfiles"
+
+      - name: Create test config with dotfiles
+        run: |
+          cd unix/fedora
+
+          # Create a modified config.json that points to test dotfiles
+          jq '.dotfiles.stow_source = "/tmp/test-dotfiles/home"
+              | .dotfiles.fonts_source = "/tmp/test-dotfiles/fonts"
+              | .dotfiles.stow_packages = ["config", "ssh", "local", "zsh"]
+              | .dotfiles.config_root = "/tmp/test-config"
+              | .services.enable = []
+              | .services.disable = []
+              | .repositories.copr.repos = []
+              | .repositories.external = []
+              | .multimedia.install_codecs = false
+              | .multimedia.swap_to_full_ffmpeg = false
+              | .performance.enable_zram = false
+              | .hardware.asus.auto_detect = false
+              | .hardware.nvidia.auto_detect = false
+              | .system.hostname = "test"
+              ' config.json > /tmp/test-config.json
+
+          echo "Test config created"
+
+      - name: Test helpers load correctly
         run: |
           cd unix/fedora
           export OMAFORGE_PATH="$(pwd)"
           export OMAFORGE_INSTALL="$OMAFORGE_PATH/install"
-          export OMAFORGE_CONFIG="$OMAFORGE_PATH/config.json"
+          export OMAFORGE_CONFIG="/tmp/test-config.json"
+          export NON_INTERACTIVE=true
+          export OMAFORGE_INSTALL_LOG_FILE="/tmp/omaforge-test.log"
 
-          # Source helpers
+          # Source helpers - should not error
           source install/helpers/all.sh
 
-          # Test confirm function with NON_INTERACTIVE
+          # Test functions exist
+          type log_info
+          type log_success
+          type log_warning
+          type log_error
+          type run_logged
+          type confirm
+          type get_config
+          type cmd_exists
+
+          echo "Helpers loaded and functions available"
+
+      - name: Test run_logged execution
+        run: |
+          cd unix/fedora
+          export OMAFORGE_PATH="$(pwd)"
+          export OMAFORGE_INSTALL="$OMAFORGE_PATH/install"
+          export OMAFORGE_CONFIG="/tmp/test-config.json"
+          export NON_INTERACTIVE=true
+          export OMAFORGE_INSTALL_LOG_FILE="/tmp/omaforge-test.log"
+
+          source install/helpers/all.sh
+
+          # Test run_logged with a simple script
+          cat > /tmp/test-run-logged.sh << 'EOF'
+          #!/bin/bash
+          echo "test output"
+          echo "test error" >&2
+          exit 0
+          EOF
+          chmod +x /tmp/test-run-logged.sh
+
+          run_logged /tmp/test-run-logged.sh
+
+          # Verify output went to log file
+          cat /tmp/omaforge-test.log
+
+          echo "run_logged works correctly"
+
+      - name: Test dotfiles directories
+        run: |
+          cd unix/fedora
+          export OMAFORGE_PATH="$(pwd)"
+          export OMAFORGE_INSTALL="$OMAFORGE_PATH/install"
+          export OMAFORGE_CONFIG="/tmp/test-config.json"
+          export NON_INTERACTIVE=true
+          export OMAFORGE_INSTALL_LOG_FILE="/tmp/omaforge-test.log"
+
+          source install/helpers/all.sh
+
+          # Run directories setup
+          run_logged "$OMAFORGE_INSTALL/dotfiles/directories.sh"
+
+          # Verify directories were created
+          ls -la ~/.config
+          ls -la ~/.local/bin
+          ls -la ~/.ssh
+
+          echo "Directories created successfully"
+
+      - name: Test dotfiles stow
+        run: |
+          cd unix/fedora
+          export OMAFORGE_PATH="$(pwd)"
+          export OMAFORGE_INSTALL="$OMAFORGE_PATH/install"
+          export OMAFORGE_CONFIG="/tmp/test-config.json"
+          export NON_INTERACTIVE=true
+          export OMAFORGE_INSTALL_LOG_FILE="/tmp/omaforge-test.log"
+
+          source install/helpers/all.sh
+
+          # Run stow setup
+          run_logged "$OMAFORGE_INSTALL/dotfiles/stow.sh"
+
+          # Verify files were stowed
+          ls -la ~/.ssh/config
+          ls -la ~/.local/bin/test-cmd
+          ls -la ~/.zshenv
+
+          # Verify content
+          grep -q "test" ~/.local/bin/test-cmd
+          grep -q "PATH" ~/.zshenv
+
+          echo "Dotfiles stowed successfully"
+
+      - name: Test config scripts load
+        run: |
+          cd unix/fedora
+          export OMAFORGE_PATH="$(pwd)"
+          export OMAFORGE_INSTALL="$OMAFORGE_PATH/install"
+          export OMAFORGE_CONFIG="/tmp/test-config.json"
+          export NON_INTERACTIVE=true
+          export OMAFORGE_INSTALL_LOG_FILE="/tmp/omaforge-test.log"
+
+          source install/helpers/all.sh
+
+          # Test that config all.sh loads without errors
+          # (Don't actually run, just test it can be sourced)
+          bash -n install/config/all.sh
+          echo "Config all.sh syntax valid"
+
+          bash -n install/packaging/all.sh
+          echo "Packaging all.sh syntax valid"
+
+          bash -n install/post-install/all.sh
+          echo "Post-install all.sh syntax valid"
+
+      - name: Test hardware detection scripts
+        run: |
+          cd unix/fedora
+          export OMAFORGE_PATH="$(pwd)"
+          export OMAFORGE_INSTALL="$OMAFORGE_PATH/install"
+          export OMAFORGE_CONFIG="/tmp/test-config.json"
+          export NON_INTERACTIVE=true
+          export OMAFORGE_INSTALL_LOG_FILE="/tmp/omaforge-test.log"
+
+          source install/helpers/all.sh
+
+          # Test hw-asus command exists
+          bash -n "$OMAFORGE_PATH/bin/omaforge-hw-asus"
+          echo "omaforge-hw-asus syntax valid"
+
+          bash -n "$OMAFORGE_PATH/bin/omaforge-hw-nvidia"
+          echo "omaforge-hw-nvidia syntax valid"
+
+      - name: Test non-interactive mode
+        run: |
+          cd unix/fedora
+          export OMAFORGE_PATH="$(pwd)"
+          export OMAFORGE_INSTALL="$OMAFORGE_PATH/install"
+          export OMAFORGE_CONFIG="/tmp/test-config.json"
+          export NON_INTERACTIVE=true
+          export OMAFORGE_INSTALL_LOG_FILE="/tmp/omaforge-test.log"
+
+          source install/helpers/all.sh
+
+          # Test confirm with default Y
           if confirm "Test prompt" "Y"; then
             echo "NON_INTERACTIVE auto-confirmed (default Y)"
           else
-            echo "NON_INTERACTIVE should have auto-confirmed"
+            echo "ERROR: NON_INTERACTIVE should auto-confirm"
             exit 1
           fi
 
+          # Test confirm with default N
           if ! confirm "Test prompt" "N"; then
             echo "NON_INTERACTIVE auto-declined (default N)"
           else
-            echo "NON_INTERACTIVE should have auto-declined"
+            echo "ERROR: NON_INTERACTIVE should auto-decline"
             exit 1
           fi
+
+  test-macos-setup:
+    name: macOS End-to-End Test
+    runs-on: macos-latest
+    needs: shellcheck
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          brew install jq stow
+
+      - name: Validate configs
+        run: |
+          jq empty unix/macos/config.json
+          echo "macOS config.json is valid"
+
+      - name: Create test dotfiles repo
+        run: |
+          # Create a minimal dotfiles repo for testing
+          mkdir -p /tmp/test-dotfiles/home/{config,ssh,local/bin}
+          mkdir -p /tmp/test-dotfiles/home/zsh
+          mkdir -p /tmp/test-dotfiles/fonts
+
+          # Create some test files
+          echo '#!/bin/bash' > /tmp/test-dotfiles/home/local/bin/test-cmd
+          echo 'echo "test"' >> /tmp/test-dotfiles/home/local/bin/test-cmd
+          chmod +x /tmp/test-dotfiles/home/local/bin/test-cmd
+
+          echo 'export PATH="$HOME/.local/bin:$PATH"' > /tmp/test-dotfiles/home/zsh/zshenv
+          echo '# ssh config' > /tmp/test-dotfiles/home/ssh/config
+          echo '# git config' > /tmp/test-dotfiles/home/config/gitconfig
+
+          # Initialize as git repo
+          cd /tmp/test-dotfiles
+          git init
+          git config user.email "test@test.com"
+          git config user.name "Test"
+          git add .
+          git commit -m "Initial dotfiles"
+
+      - name: Create test config with dotfiles
+        run: |
+          cd unix/macos
+
+          # Create a modified config.json that points to test dotfiles
+          jq '.dotfiles.stow_source = "/tmp/test-dotfiles/home"
+              | .dotfiles.fonts_source = "/tmp/test-dotfiles/fonts"
+              | .dotfiles.stow_packages = ["config", "ssh", "local", "zsh"]
+              | .dotfiles.config_root = "/tmp/test-config"
+              | .services.enable = []
+              | .services.disable = []
+              | .repositories.copr.repos = []
+              | .repositories.external = []
+              | .multimedia.install_codecs = false
+              | .multimedia.swap_to_full_ffmpeg = false
+              | .performance.enable_zram = false
+              | .hardware.asus.auto_detect = false
+              | .hardware.nvidia.auto_detect = false
+              | .system.hostname = "test"
+              ' config.json > /tmp/test-config.json
+
+          echo "Test config created"
+
+      - name: Test helpers load correctly
+        run: |
+          cd unix/macos
+          export OMAFORGE_PATH="$(pwd)"
+          export OMAFORGE_INSTALL="$OMAFORGE_PATH/install"
+          export OMAFORGE_CONFIG="/tmp/test-config.json"
+          export NON_INTERACTIVE=true
+          export OMAFORGE_INSTALL_LOG_FILE="$HOME/.local/state/omaforge/install.log"
+
+          # Source helpers - should not error
+          source install/helpers/all.sh
+
+          # Test functions exist
+          type log_info
+          type log_success
+          type log_warning
+          type log_error
+          type run_logged
+          type confirm
+          type get_config
+          type cmd_exists
+
+          echo "Helpers loaded and functions available"
+
+      - name: Test run_logged execution
+        run: |
+          cd unix/macos
+          export OMAFORGE_PATH="$(pwd)"
+          export OMAFORGE_INSTALL="$OMAFORGE_PATH/install"
+          export OMAFORGE_CONFIG="/tmp/test-config.json"
+          export NON_INTERACTIVE=true
+          export OMAFORGE_INSTALL_LOG_FILE="$HOME/.local/state/omaforge/install.log"
+
+          source install/helpers/all.sh
+
+          # Test run_logged with a simple script
+          cat > /tmp/test-run-logged.sh << 'EOF'
+          #!/bin/bash
+          echo "test output"
+          echo "test error" >&2
+          exit 0
+          EOF
+          chmod +x /tmp/test-run-logged.sh
+
+          run_logged /tmp/test-run-logged.sh
+
+          # Verify output went to log file
+          cat "$HOME/.local/state/omaforge/install.log"
+
+          echo "run_logged works correctly"
+
+      - name: Test dotfiles directories
+        run: |
+          cd unix/macos
+          export OMAFORGE_PATH="$(pwd)"
+          export OMAFORGE_INSTALL="$OMAFORGE_PATH/install"
+          export OMAFORGE_CONFIG="/tmp/test-config.json"
+          export NON_INTERACTIVE=true
+          export OMAFORGE_INSTALL_LOG_FILE="$HOME/.local/state/omaforge/install.log"
+
+          source install/helpers/all.sh
+
+          # Run directories setup
+          run_logged "$OMAFORGE_INSTALL/dotfiles/directories.sh"
+
+          # Verify directories were created
+          ls -la ~/.config
+          ls -la ~/.local/bin
+          ls -la ~/.ssh
+
+          echo "Directories created successfully"
+
+      - name: Test dotfiles stow
+        run: |
+          cd unix/macos
+          export OMAFORGE_PATH="$(pwd)"
+          export OMAFORGE_INSTALL="$OMAFORGE_PATH/install"
+          export OMAFORGE_CONFIG="/tmp/test-config.json"
+          export NON_INTERACTIVE=true
+          export OMAFORGE_INSTALL_LOG_FILE="$HOME/.local/state/omaforge/install.log"
+
+          source install/helpers/all.sh
+
+          # Run stow setup
+          run_logged "$OMAFORGE_INSTALL/dotfiles/stow.sh"
+
+          # Verify files were stowed
+          ls -la ~/.ssh/config
+          ls -la ~/.local/bin/test-cmd
+          ls -la ~/.zshenv
+
+          # Verify content
+          grep -q "test" ~/.local/bin/test-cmd
+          grep -q "PATH" ~/.zshenv
+
+          echo "Dotfiles stowed successfully"
+
+      - name: Test non-interactive mode
+        run: |
+          cd unix/macos
+          export OMAFORGE_PATH="$(pwd)"
+          export OMAFORGE_INSTALL="$OMAFORGE_PATH/install"
+          export OMAFORGE_CONFIG="/tmp/test-config.json"
+          export NON_INTERACTIVE=true
+          export OMAFORGE_INSTALL_LOG_FILE="$HOME/.local/state/omaforge/install.log"
+
+          source install/helpers/all.sh
+
+          # Test confirm with default Y
+          if confirm "Test prompt" "Y"; then
+            echo "NON_INTERACTIVE auto-confirmed (default Y)"
+          else
+            echo "ERROR: NON_INTERACTIVE should auto-confirm"
+            exit 1
+          fi
+
+          # Test confirm with default N
+          if ! confirm "Test prompt" "N"; then
+            echo "NON_INTERACTIVE auto-declined (default N)"
+          else
+            echo "ERROR: NON_INTERACTIVE should auto-decline"
+            exit 1
+          fi
+
+  test-common-scripts:
+    name: Common Scripts Test
+    runs-on: ubuntu-latest
+    needs: shellcheck
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y stow
+
+      - name: Test common helpers
+        run: |
+          export OMAFORGE_PATH="$(pwd)"
+          export OMAFORGE_INSTALL="$OMAFORGE_PATH/unix/fedora/install"
+          export OMAFORGE_CONFIG="$OMAFORGE_PATH/unix/fedora/config.json"
+          export OMAFORGE_INSTALL_LOG_FILE="/tmp/omaforge-test.log"
+          export NON_INTERACTIVE=true
+
+          source unix/common/helpers/logging.sh
+          source unix/common/helpers/common.sh
+
+          # Test functions exist
+          type log_info
+          type log_success
+          type log_warning
+          type log_error
+          type run_logged
+          type confirm
+          type cmd_exists
+
+          echo "Common helpers loaded successfully"
+
+      - name: Test common dotfiles scripts
+        run: |
+          export OMAFORGE_PATH="$(pwd)"
+          export OMAFORGE_INSTALL="$OMAFORGE_PATH/unix/fedora/install"
+          export OMAFORGE_CONFIG="$OMAFORGE_PATH/unix/fedora/config.json"
+          export OMAFORGE_INSTALL_LOG_FILE="/tmp/omaforge-test.log"
+          export NON_INTERACTIVE=true
+
+          source unix/common/helpers/logging.sh
+          source unix/common/helpers/common.sh
+
+          # Test that scripts can be sourced
+          source unix/common/dotfiles/stow.sh
+          source unix/common/dotfiles/directories.sh
+          source unix/common/dotfiles/zsh.sh
+
+          # Test stow function exists
+          type stow_dotfiles
+
+          echo "Common dotfiles scripts loaded successfully"
+
+      - name: Test common config scripts
+        run: |
+          export OMAFORGE_PATH="$(pwd)"
+          export OMAFORGE_INSTALL="$OMAFORGE_PATH/unix/fedora/install"
+          export OMAFORGE_CONFIG="$OMAFORGE_PATH/unix/fedora/config.json"
+          export OMAFORGE_INSTALL_LOG_FILE="/tmp/omaforge-test.log"
+          export NON_INTERACTIVE=true
+
+          source unix/common/helpers/logging.sh
+          source unix/common/helpers/common.sh
+
+          # Test that scripts can be sourced
+          source unix/common/config/skillset.sh
+
+          echo "Common config scripts loaded successfully"
