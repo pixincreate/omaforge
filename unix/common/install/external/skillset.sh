@@ -51,17 +51,37 @@ ensure_capsync_config() {
     log_info "Capsync config already present"
   else
     log_info "Initializing capsync configuration"
-    capsync init
+
+    if [[ -f "$HOME/.cargo/env" ]]; then
+      source "$HOME/.cargo/env"
+    fi
+
+    if command -v capsync &>/dev/null; then
+      capsync init
+    else
+      log_warning "capsync not found in PATH, skipping init"
+      log_info "Run 'cargo install capsync' and then 'capsync init' after setup"
+    fi
   fi
 }
 
 sync_skills() {
   log_info "Syncing skills with capsync"
-  if capsync sync; then
-    log_success "Skills synced successfully"
+
+  if [[ -f "$HOME/.cargo/env" ]]; then
+    source "$HOME/.cargo/env"
+  fi
+
+  if command -v capsync &>/dev/null; then
+    if capsync sync; then
+      log_success "Skills synced successfully"
+    else
+      log_error "Failed to sync skills"
+      return 1
+    fi
   else
-    log_error "Failed to sync skills"
-    return 1
+    log_warning "capsync not found in PATH, skipping sync"
+    log_info "Run 'cargo install capsync' and then 'capsync sync' after setup"
   fi
 }
 
