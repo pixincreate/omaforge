@@ -109,10 +109,11 @@ Both macOS and Fedora support running specific modules:
 ./fedora-setup --only config/git
 ./fedora-setup --only config/kde          # KDE Plasma defaults
 ./fedora-setup --only config/services     # Enable services
-./fedora-setup --only config/performance  # Performance tuning
+./fedora-setup --only config/performance  # Performance tuning (zram, shutdown timeout)
 ./fedora-setup --only config/secureboot   # Secure Boot setup
-./fedora-setup --only config/hardware/asus    # ASUS laptop
+./fedora-setup --only config/hardware/asus    # ASUS laptop (sleep hooks, GPU power)
 ./fedora-setup --only config/hardware/nvidia  # NVIDIA drivers
+./fedora-setup --only external/skillset   # External repo (skillset)
 ```
 
 ## Dotfiles Management
@@ -186,9 +187,19 @@ Interactive menu to reset specific components.
 ├── unix/
 │   ├── setup              # Common entry point (OS detection)
 │   ├── common/            # Cross-platform scripts
+│   │   ├── helpers/       # Logging, common functions
+│   │   ├── dotfiles/      # Stow, fonts, zsh
+│   │   ├── config/        # Git, NextDNS, Rust
+│   │   └── external/      # External git repos (skillset)
 │   ├── fedora/            # Fedora-specific setup
+│   │   ├── install/
+│   │   │   ├── config/    # System config (KDE, hardware, performance)
+│   │   │   ├── dotfiles/  # Dotfiles management
+│   │   │   └── external/  # External repos
+│   │   └── packages/      # Package lists
 │   └── macos/             # macOS-specific setup
 ├── windows/               # Windows configuration (see windows/README.md)
+├── default/               # Default configs (skills, wallpapers)
 └── docs/                  # Documentation
 ```
 
