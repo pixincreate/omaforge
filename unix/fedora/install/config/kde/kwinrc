@@ -4,10 +4,15 @@ GLPreferBufferSwap=a
 LatencyPolicy=LatencyExtremelyLow
 
 [Desktops]
+Id_1=56c28579-6724-4ac8-a4a7-504cca233378
+Id_2=f3b359f6-f996-4264-a8f7-f581705d9292
+Id_3=8cdd0bbf-f813-4af7-abd6-c0fdfb9edafa
+Id_4=f3076806-19d8-4a0f-932a-132c47ef1f12
 Name_1=browser
 Name_2=dev
 Name_3=obsidian
 Name_4=terminal
+Number=4
 Rows=1
 
 [Effect-blur]
@@ -64,6 +69,22 @@ stackedLayoutOrder=0
 stairLayoutOrder=0
 threeColumnLayoutOrder=0
 tileLayoutOrder=2
+
+[Tiling][56c28579-6724-4ac8-a4a7-504cca233378][03d92672-3a7d-4388-90a0-06bd1374355d]
+padding=4
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
+
+[Tiling][8cdd0bbf-f813-4af7-abd6-c0fdfb9edafa][03d92672-3a7d-4388-90a0-06bd1374355d]
+padding=4
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
+
+[Tiling][f3076806-19d8-4a0f-932a-132c47ef1f12][03d92672-3a7d-4388-90a0-06bd1374355d]
+padding=4
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
+
+[Tiling][f3b359f6-f996-4264-a8f7-f581705d9292][03d92672-3a7d-4388-90a0-06bd1374355d]
+padding=4
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
 
 [Xwayland]
 Scale=1
