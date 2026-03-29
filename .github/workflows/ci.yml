@@ -528,5 +528,5 @@ jobs:
           source unix/common/helpers/common.sh
 
           # Test syntax of config scripts (can't source skillset.sh - clones private repo)
-          bash -n unix/common/install/config/skillset.sh
+          bash -n unix/common/install/external/skillset.sh
           echo "Common config scripts syntax valid"
