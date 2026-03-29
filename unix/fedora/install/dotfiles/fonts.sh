@@ -17,22 +17,27 @@ main() {
     local fonts_source
     fonts_source=$(download_github_fonts)
     local download_status=$?
-    
+
+    # If fonts already installed (empty return), exit successfully
+    if [[ -z "$fonts_source" && $download_status -eq 0 ]]; then
+        return 0
+    fi
+
     if [[ $download_status -ne 0 ]]; then
         return 1
     fi
-    
+
     # Get temp_dir from fonts_source path for cleanup
     local temp_dir
     temp_dir=$(dirname "$fonts_source")
-    
+
     # Install fonts (target auto-detected as ~/.local/share/fonts on Linux)
     install_fonts "$fonts_source"
     local install_status=$?
-    
+
     # Cleanup
     rm -rf "$temp_dir"
-    
+
     return $install_status
 }
 
