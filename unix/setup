@@ -83,7 +83,7 @@ install_essentials() {
 clone_dotfiles() {
     if [[ ! -d "$DOTFILES_PATH" ]]; then
         log_info "Cloning dotfiles repository..."
-        git clone --recurse-submodules "https://github.com/${DOTFILES_REPO}.git" "$DOTFILES_PATH"
+        git clone --recurse-submodules -j8 "https://github.com/${DOTFILES_REPO}.git" "$DOTFILES_PATH"
         log_success "Dotfiles cloned to $DOTFILES_PATH"
     else
         log_info "Dotfiles already exist, updating..."
