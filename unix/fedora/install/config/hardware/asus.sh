@@ -157,4 +157,23 @@ sudo chmod 644 /etc/udev/rules.d/99-asus-profile-toast.rules
 sudo udevadm control --reload-rules
 sudo systemctl daemon-reload
 
+SLEEP_SCRIPTS_DIR="$OMAFORGE_INSTALL/config/hardware/asus/system-sleep"
+
+if [[ -d "$SLEEP_SCRIPTS_DIR" ]]; then
+    log_info "Installing ASUS sleep hooks"
+
+    for script in "$SLEEP_SCRIPTS_DIR"/*; do
+        [[ -f "$script" ]] || continue
+
+        filename=$(basename "$script")
+        target="/usr/lib/systemd/system-sleep/$filename"
+
+        sudo cp "$script" "$target"
+        sudo chmod 755 "$target"
+        log_info "Installed: $filename"
+    done
+
+    log_success "ASUS sleep hooks installed"
+fi
+
 log_success "ASUS system optimizations applied"
