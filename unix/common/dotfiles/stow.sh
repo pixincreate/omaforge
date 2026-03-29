@@ -38,8 +38,19 @@ stow_dotfiles() {
             echo "[SUCCESS] Successfully stowed: $pkg"
         else
             echo "[WARNING] Stow conflict detected for: $pkg"
-            echo "[INFO] To resolve, run: stow --no-folding --restow --adopt --dir=\"$stow_dir\" --target=\"$target_dir\" \"$pkg\""
-            failed=$((failed + 1))
+
+            if confirm "Adopt existing files for $pkg? (takes ownership of existing files)" "N"; then
+                echo "[INFO] Adopting existing files for: $pkg"
+                if stow --no-folding --restow --adopt --dir="$stow_dir" --target="$target_dir" "$pkg"; then
+                    echo "[SUCCESS] Successfully stowed with adopt: $pkg"
+                else
+                    echo "[ERROR] Failed to stow $pkg even with --adopt"
+                    failed=$((failed + 1))
+                fi
+            else
+                echo "[INFO] Skipped stowing: $pkg"
+                failed=$((failed + 1))
+            fi
         fi
     done
 
