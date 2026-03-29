@@ -34,6 +34,7 @@ You can run specific parts of the setup without running everything:
 # Run specific module
 ./fedora-setup --only dotfiles/stow        # Restow all dotfiles
 ./fedora-setup --only dotfiles/zsh         # Reconfigure ZSH only
+./fedora-setup --only dotfiles/ghostty     # Setup Ghostty terminal
 ./fedora-setup --only packaging/base       # Install only base packages
 ./fedora-setup --only config/git           # Reconfigure Git only
 ./fedora-setup --only config/hardware/asus # ASUS hardware setup only
@@ -143,6 +144,7 @@ Available packages: `cargo`, `config`, `git`, `local`, `Pictures`, `ssh`, `zsh`
 - Performance tuning (zram, fstrim)
 - Git/SSH, NextDNS, dotfiles, ZSH
 - Services (PostgreSQL, Redis, Docker)
+- Ghostty terminal with themes from iTerm2-Color-Schemes
 
 ## Reset/Re-run Components
 
@@ -199,6 +201,36 @@ ls -la ~/.ssh/
 systemctl status service-name
 journalctl -u service-name
 ```
+
+## Hibernation Setup
+
+The system configures zram swap by default (24GB). To enable hibernation:
+
+1. Create swapfile equal to RAM size:
+   ```bash
+   sudo fallocate -l 24G /swapfile
+   sudo chmod 600 /swapfile
+   sudo mkswap /swapfile
+   sudo swapon /swapfile
+   ```
+
+2. Add to `/etc/fstab`:
+   ```
+   /swapfile none swap defaults 0 0
+   ```
+
+3. Configure resume kernel parameter:
+   ```bash
+   sudo grubby --update-kernel=ALL --args="resume=UUID=$(findmnt -no UUID -T /swapfile) resume_offset=$(sudo filefrag -v /swapfile | awk 'NR==4{print $4}' | tr -d '.')"
+   ```
+
+4. Rebuild initramfs and reboot:
+   ```bash
+   sudo dracut -f
+   sudo reboot
+   ```
+
+**Note**: systemd ignores zram for hibernate and uses the swapfile instead. zram remains active for general swap use.
 
 ## Notes
 
