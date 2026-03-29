@@ -28,7 +28,27 @@ configure_hibernation() {
   setup_encrypted_swap
 }
 
+is_hibernation_configured() {
+  local luks_name="swap"
+
+  if [[ -e "/dev/mapper/${luks_name}" ]]; then
+    return 0
+  fi
+
+  if grep -q "resume=" /proc/cmdline 2>/dev/null; then
+    return 0
+  fi
+
+  return 1
+}
+
 setup_encrypted_swap() {
+  if is_hibernation_configured; then
+    log_info "Hibernation appears to be already configured"
+    log_info "Resume device: $(grep -o 'resume=[^ ]*' /proc/cmdline 2>/dev/null || echo 'detected in /dev/mapper/swap')"
+    return 0
+  fi
+
   local mem_total_human
   mem_total_human=$(free --human | grep Mem | awk '{print $2}')
 
