@@ -21,7 +21,7 @@ create_directories() {
         "$HOME/Pictures/Wallpapers"
         "$HOME/Documents"
         "$HOME/Downloads"
-        "$HOME/Dev"
+        "$HOME/dev"
     )
 
     local platform
