@@ -187,20 +187,27 @@ fonts_already_installed() {
   local fonts_target="${1:-$HOME/.local/share/fonts}"
   local -a font_names=()
 
-  for font_def in "${FONTS[@]}" "${NERD_FONTS[@]}"; do
+  for font_def in "${FONTS[@]}"; do
+    local name="${font_def##*|}"
+    font_names+=("$name")
+  done
+
+  for font_def in "${NERD_FONTS[@]}"; do
     local name="${font_def%%|*}"
     font_names+=("$name")
   done
 
   local found_families=0
+  local total_families=${#font_names[@]}
+
   for family in "${font_names[@]}"; do
-    if find "$fonts_target" -type f \( -name "*${family}*" -o -name "*${family,,}*" \) -print -quit 2>/dev/null | grep -q .; then
+    local search_pattern="${family// /}"
+    search_pattern="${search_pattern//-/}"
+    if find "$fonts_target" -type f -iname "*${search_pattern}*" -print -quit 2>/dev/null | grep -q .; then
       found_families=$((found_families + 1))
     fi
   done
 
-  local total_families
-  total_families=$((${#FONTS[@]} + ${#NERD_FONTS[@]}))
   local min_required=$((total_families * 70 / 100))
 
   if (( found_families >= min_required )); then
@@ -218,6 +225,7 @@ download_github_fonts() {
   local total_downloaded=0
 
   local fonts_target="$HOME/.local/share/fonts"
+  echo >&2 "[INFO] Checking if fonts already installed at $fonts_target..."
   if fonts_already_installed "$fonts_target"; then
     echo >&2 "[INFO] Fonts already installed at $fonts_target"
     echo >&2 "[INFO] Skipping download. Use --force to re-download."
@@ -226,7 +234,7 @@ download_github_fonts() {
     return 0
   fi
 
-  echo >&2 "[INFO] Downloading fonts from GitHub releases..."
+  echo >&2 "[INFO] Fonts not found or incomplete, downloading from GitHub releases..."
 
   for font_def in "${FONTS[@]}"; do
     IFS='|' read -r repo asset_pattern url_template font_name <<< "$font_def"
