@@ -1,0 +1,14 @@
+#!/bin/bash
+# Lazy-unmount kio-fuse filesystems before suspend/hibernate to prevent
+# the kernel's process freeze from timing out. FUSE daemons can block
+# in uninterruptible sleep during freeze, causing suspend to fail.
+# After wake, kio-fuse restarts automatically when KDE needs it.
+
+if [[ "$1" == "pre" ]]; then
+  while IFS=' ' read -r _ mountpoint fstype _; do
+    if [[ "$fstype" == "fuse.kio-fuse" ]]; then
+      mountpoint=$(printf '%b' "$mountpoint")
+      fusermount3 -uz "$mountpoint" 2>/dev/null || fusermount -uz "$mountpoint" 2>/dev/null || true
+    fi
+  done < /proc/mounts
+fi

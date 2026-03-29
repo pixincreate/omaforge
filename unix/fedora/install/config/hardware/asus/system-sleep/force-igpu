@@ -1,0 +1,18 @@
+#!/bin/bash
+# Ensure NVIDIA dGPU is powered off after resume on ASUS TUF laptops
+# Prevents battery drain when dGPU stays powered on after suspend
+#
+# The Vfio trick: can't go directly from nvidia → powered off.
+# Must detach nvidia driver first via Vfio (null driver), then power off.
+
+if [[ "$1" == "post" ]]; then
+  # Small delay so device is fully re-enumerated
+  sleep 4
+
+  # Force-bind dGPU to vfio (detaches nvidia driver)
+  /usr/bin/supergfxctl -m Vfio 2>/dev/null || true
+  sleep 1
+
+  # Go back to Integrated, which powers off the dGPU
+  /usr/bin/supergfxctl -m Integrated 2>/dev/null || true
+fi
