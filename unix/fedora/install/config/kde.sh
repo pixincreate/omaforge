@@ -1,8 +1,8 @@
 #!/bin/bash
 
-KDE_CONFIG_DIR="$OMAFORGE_INSTALL/config/kde"
+log_info "Installing KDE Plasma configuration"
 
-echo "Installing KDE Plasma configuration"
+KDE_CONFIG_DIR="$OMAFORGE_INSTALL/config/kde"
 
 if [[ ! -d "$KDE_CONFIG_DIR" ]]; then
   log_warning "KDE config directory not found: $KDE_CONFIG_DIR"
@@ -16,18 +16,17 @@ fi
 
 for file in "$KDE_CONFIG_DIR"/*; do
   [[ -f "$file" ]] || continue
-  
+
   filename=$(basename "$file")
   target="$HOME/.config/$filename"
-  
-  # Back up existing config if it differs (prevents data loss on reinstall)
+
   if [[ -f "$target" ]]; then
     if ! cmp -s "$file" "$target"; then
       log_info "Backing up existing: $filename → ${filename}.bak"
       cp "$target" "${target}.bak"
     fi
   fi
-  
+
   cp "$file" "$target"
   log_info "Installed: $filename"
 done
