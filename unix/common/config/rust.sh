@@ -87,6 +87,4 @@ install_rust_tools() {
     echo "[SUCCESS] Rust tools installation completed"
 }
 
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    setup_rust "$@"
-fi
+setup_rust "$@"

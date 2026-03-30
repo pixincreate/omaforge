@@ -2,6 +2,32 @@
 
 source "${OMAFORGE_INSTALL:-"$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"}/helpers/all.sh"
 
+configure_hibernation() {
+  local hibernation_config
+  hibernation_config=$(get_config '.hibernation.enabled')
+
+  if [[ $hibernation_config != "true" ]]; then
+    if ! confirm "Enable hibernation support?"; then
+      log_info "Hibernation setup skipped"
+      return 0
+    fi
+  fi
+
+  log_info "Configuring hibernation support"
+
+  if [[ ! -d /sys/firmware/efi ]]; then
+    log_error "EFI not detected - hibernation requires EFI system"
+    return 1
+  fi
+
+  if ! mokutil --sb-state 2>/dev/null | grep -q "SecureBoot enabled"; then
+    log_warning "Secure Boot not enabled - hibernation may have issues"
+    log_info "Continuing with encrypted swap setup anyway"
+  fi
+
+  setup_encrypted_swap
+}
+
 is_hibernation_configured() {
   local luks_name="swap"
 
@@ -105,25 +131,4 @@ setup_encrypted_swap() {
   log_info "Test with: systemctl hibernate"
 }
 
-hibernation_config=$(get_config '.hibernation.enabled')
-
-if [[ $hibernation_config != "true" ]]; then
-  if ! confirm "Enable hibernation support?"; then
-    log_info "Hibernation setup skipped"
-    exit 0
-  fi
-fi
-
-log_info "Configuring hibernation support"
-
-if [[ ! -d /sys/firmware/efi ]]; then
-  log_error "EFI not detected - hibernation requires EFI system"
-  exit 1
-fi
-
-if ! mokutil --sb-state 2>/dev/null | grep -q "SecureBoot enabled"; then
-  log_warning "Secure Boot not enabled - hibernation may have issues"
-  log_info "Continuing with encrypted swap setup anyway"
-fi
-
-setup_encrypted_swap
+configure_hibernation

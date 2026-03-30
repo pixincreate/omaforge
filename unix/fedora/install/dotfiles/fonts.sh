@@ -20,6 +20,7 @@ main() {
 
     # If fonts already installed (empty return), exit successfully
     if [[ -z "$fonts_source" && $download_status -eq 0 ]]; then
+        log_info "Fonts already installed, skipping download"
         return 0
     fi
 

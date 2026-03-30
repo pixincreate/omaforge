@@ -58,6 +58,4 @@ setup_nextdns() {
     echo "[INFO] NextDNS will start automatically on system boot"
 }
 
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    setup_nextdns "$@"
-fi
+setup_nextdns "$@"

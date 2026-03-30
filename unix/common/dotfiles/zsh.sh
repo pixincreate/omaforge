@@ -170,6 +170,4 @@ EOF
     echo "[SUCCESS] ZSH configuration completed"
 }
 
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    setup_zsh "$@"
-fi
+setup_zsh "$@"

@@ -78,6 +78,4 @@ create_directories() {
     echo "[SUCCESS] Directory structure created"
 }
 
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    create_directories "$@"
-fi
+create_directories "$@"

@@ -275,6 +275,4 @@ download_github_fonts() {
   echo "$fonts_source"
 }
 
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-  install_fonts "$@"
-fi
+install_fonts "$@"

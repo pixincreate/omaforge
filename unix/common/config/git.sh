@@ -132,7 +132,4 @@ EOF
     echo "[SUCCESS] Git and SSH configuration completed"
 }
 
-# If script is executed directly (not sourced)
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    setup_git "$@"
-fi
+setup_git "$@"

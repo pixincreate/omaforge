@@ -62,6 +62,4 @@ stow_dotfiles() {
     echo "[SUCCESS] Dotfiles stowing completed"
 }
 
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    stow_dotfiles "$@"
-fi
+stow_dotfiles "$@"
