@@ -86,5 +86,3 @@ install_rust_tools() {
 
     echo "[SUCCESS] Rust tools installation completed"
 }
-
-setup_rust "$@"

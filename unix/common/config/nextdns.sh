@@ -57,5 +57,3 @@ setup_nextdns() {
     echo "[SUCCESS] NextDNS configured with ID: $config_id"
     echo "[INFO] NextDNS will start automatically on system boot"
 }
-
-setup_nextdns "$@"

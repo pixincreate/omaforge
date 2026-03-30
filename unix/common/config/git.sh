@@ -131,5 +131,3 @@ EOF
 
     echo "[SUCCESS] Git and SSH configuration completed"
 }
-
-setup_git "$@"
