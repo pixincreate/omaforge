@@ -70,7 +70,15 @@ run_logged() {
     local script="$1"
     export CURRENT_SCRIPT="$script"
 
-    mkdir -p "$(dirname "$OMAFORGE_INSTALL_LOG_FILE")"
+    local log_dir
+    log_dir=$(dirname "$OMAFORGE_INSTALL_LOG_FILE")
+    mkdir -p "$log_dir"
+
+    # Truncate log on first run of the session
+    if [[ -z "${OMAFORGE_LOG_INITIALIZED:-}" ]]; then
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] Omaforge install started" >"$OMAFORGE_INSTALL_LOG_FILE"
+        export OMAFORGE_LOG_INITIALIZED=1
+    fi
 
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting: $script" >>"$OMAFORGE_INSTALL_LOG_FILE"
 
