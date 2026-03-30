@@ -274,5 +274,3 @@ download_github_fonts() {
 
   echo "$fonts_source"
 }
-
-install_fonts "$@"
