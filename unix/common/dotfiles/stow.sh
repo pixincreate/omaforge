@@ -61,5 +61,3 @@ stow_dotfiles() {
 
     echo "[SUCCESS] Dotfiles stowing completed"
 }
-
-stow_dotfiles "$@"

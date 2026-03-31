@@ -77,5 +77,3 @@ create_directories() {
 
     echo "[SUCCESS] Directory structure created"
 }
-
-create_directories "$@"

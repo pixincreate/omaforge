@@ -169,5 +169,3 @@ EOF
 
     echo "[SUCCESS] ZSH configuration completed"
 }
-
-setup_zsh "$@"
