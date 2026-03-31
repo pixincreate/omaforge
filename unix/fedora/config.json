@@ -68,9 +68,6 @@
     "enable_hardware_accel": true,
     "swap_to_full_ffmpeg": true
   },
-  "hibernation": {
-    "enabled": true
-  },
   "performance": {
     "enable_zram": true,
     "zram_size_mb": 24576,
