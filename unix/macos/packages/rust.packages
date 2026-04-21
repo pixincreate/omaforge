@@ -4,6 +4,7 @@ capsync
 cargo-audit
 cargo-cache
 cargo-deny
+cargo-edit
 cargo-fuzz
 cargo-hack
 cargo-tree
