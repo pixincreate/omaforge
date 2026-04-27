@@ -50,6 +50,10 @@ path=(
 export DISABLE_OPENCOLLECTIVE=1
 export ADBLOCK=1
 
+# Disable OMO tracking
+export OMO_DISABLE_POSTHOG=1
+export OMO_SEND_ANONYMOUS_TELEMETRY=0
+
 PQ_LIB_DIR="$(brew --prefix libpq)/lib"
 
 export CPPFLAGS="-I$(brew --prefix)/opt/llvm/include"
@@ -74,11 +78,23 @@ EOF
             cat > "$additionals_file" <<'EOF'
 # omaforge bin
 export PATH="$HOME/.omaforge/unix/fedora/bin:$PATH"
+
 # Fedora specific configurations
 export SYS_HEALTH="${HOME}/.omaforge/unix/fedora/health-check.sh"
+
 alias cleanup="sudo dnf autoremove && flatpak uninstall --unused"
 alias dnf-clean='sudo dnf autoremove && sudo dnf clean all'
 alias secure_boot_retrigger='sudo kmodgenca -a && sudo mokutil --import /etc/pki/akmods/certs/public_key.der'
+
+
+# Disable NPM ads
+export DISABLE_OPENCOLLECTIVE=1
+export ADBLOCK=1
+
+# Disable OMO tracking
+export OMO_DISABLE_POSTHOG=1
+export OMO_SEND_ANONYMOUS_TELEMETRY=0
+
 
 export GDK_BACKEND=wayland
 export QT_QPA_PLATFORM=wayland
