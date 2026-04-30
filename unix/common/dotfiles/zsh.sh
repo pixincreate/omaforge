@@ -86,6 +86,9 @@ alias cleanup="sudo dnf autoremove && flatpak uninstall --unused"
 alias dnf-clean='sudo dnf autoremove && sudo dnf clean all'
 alias trigger_secure_boot='sudo kmodgenca -a && sudo mokutil --import /etc/pki/akmods/certs/public_key.der'
 
+# Set Zed-Preview alias to Zed
+alias zed=zed-preview
+
 # Disable NPM ads
 export DISABLE_OPENCOLLECTIVE=1
 export ADBLOCK=1
