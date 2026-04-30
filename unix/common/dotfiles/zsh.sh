@@ -63,7 +63,7 @@ export CC="$(brew --prefix)/opt/llvm/bin/clang"
 export OLLAMA_LIBRARY_PATH=$(brew --prefix)/lib
 
 # omaforge bin
-export PATH="$HOME/.omaforge/unix/macos/bin:$PATH"
+export PATH="$HOME/dev/.omaforge/unix/macos/bin:$PATH"
 
 # macOS aliases
 alias flush-dns='sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder'
@@ -77,15 +77,14 @@ EOF
         fedora)
             cat > "$additionals_file" <<'EOF'
 # omaforge bin
-export PATH="$HOME/.omaforge/unix/fedora/bin:$PATH"
+export PATH="$HOME/dev/.omaforge/unix/fedora/bin:$PATH"
 
 # Fedora specific configurations
-export SYS_HEALTH="${HOME}/.omaforge/unix/fedora/health-check.sh"
+export SYS_HEALTH="${HOME}/dev/.omaforge/unix/fedora/health-check.sh"
 
 alias cleanup="sudo dnf autoremove && flatpak uninstall --unused"
 alias dnf-clean='sudo dnf autoremove && sudo dnf clean all'
-alias secure_boot_retrigger='sudo kmodgenca -a && sudo mokutil --import /etc/pki/akmods/certs/public_key.der'
-
+alias trigger_secure_boot='sudo kmodgenca -a && sudo mokutil --import /etc/pki/akmods/certs/public_key.der'
 
 # Disable NPM ads
 export DISABLE_OPENCOLLECTIVE=1
@@ -94,7 +93,6 @@ export ADBLOCK=1
 # Disable OMO tracking
 export OMO_DISABLE_POSTHOG=1
 export OMO_SEND_ANONYMOUS_TELEMETRY=0
-
 
 export GDK_BACKEND=wayland
 export QT_QPA_PLATFORM=wayland
@@ -130,7 +128,7 @@ alias pkg-clean='pkg autoclean && pkg clean'
 # Android/Termux specific configurations
 alias backup_termux='tar -zcf /sdcard/backups/termux/termux-backup.tar.gz -C /data/data/com.termux/files ./home ./usr'
 alias restore_termux='tar -zxf /sdcard/backups/termux/termux-backup.tar.gz -C /data/data/com.termux/files --recursive-unlink --preserve-permissions'
-alias CONFIGS="${HOME}/.omaforge"
+alias CONFIGS="${HOME}/dev/.dotfiles"
 EOF
             ;;
 
