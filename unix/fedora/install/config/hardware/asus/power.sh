@@ -38,7 +38,10 @@ fi
 real_user="${SUDO_USER:-$USER}"
 
 if [[ "$real_user" =~ ^[a-zA-Z0-9_-]+$ ]]; then
-  sudo tee /etc/systemd/system/asus-profile-notify@.service >/dev/null <<'EOF'
+  user_systemd_dir="/home/$real_user/.config/systemd/user"
+
+  mkdir -p "$user_systemd_dir"
+  tee "$user_systemd_dir/asus-profile-notify@.service" >/dev/null <<'EOF'
 [Unit]
 Description=ASUS Profile Change Notification for %i
 [Service]
@@ -48,12 +51,14 @@ Environment="DISPLAY=:0"
 ExecStart=%h/.local/bin/asus-profile-notify.sh
 EOF
 
+  sudo -u "$real_user" systemctl --user daemon-reload 2>/dev/null || true
+  sudo -u "$real_user" systemctl --user enable asus-profile-notify@.service 2>/dev/null || true
+
   sudo tee /etc/udev/rules.d/99-asus-profile-toast.rules >/dev/null <<EOF
-KERNEL=="platform-profile-*", SUBSYSTEM=="platform-profile", ACTION=="change", TAG+="systemd", ENV{SYSTEMD_USER}="$real_user", ENV{SYSTEMD_WANTS}="asus-profile-notify@$real_user.service"
+KERNEL=="platform-profile-*", SUBSYSTEM=="platform-profile", ACTION=="change", TAG+="systemd", ENV{SYSTEMD_USER_WANTS}="asus-profile-notify@$real_user.service"
 EOF
 
   sudo udevadm control --reload-rules
-  sudo systemctl daemon-reload
   log_success "ASUS notifications configured"
 fi
 
