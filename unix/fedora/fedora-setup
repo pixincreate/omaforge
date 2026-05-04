@@ -41,7 +41,7 @@ while [[ $# -gt 0 ]]; do
             echo ""
             echo "Options:"
             echo "  --only <module>    Run only a specific module"
-            echo "                     Examples: asus, config/hardware/asus, packaging/flatpak"
+            echo "                     Examples: config/hardware/asus, packaging/flatpak, config/git"
             echo "  --help, -h        Show this help message"
             echo ""
             echo "Examples:"
@@ -80,12 +80,40 @@ source "$OMAFORGE_INSTALL/helpers/all.sh"
 run_single_module() {
     local module="$1"
 
-    # Add .sh if not present
+    # Normalize: add .sh if not present
     [[ "$module" != *.sh ]] && module="$module.sh"
 
-    # Find the module file
     local module_path
-    module_path=$(find "$OMAFORGE_INSTALL" -name "$module" -type f | head -1)
+
+    if [[ "$module" == */* ]]; then
+        # Path format: packaging/all.sh - match full path under install/
+        # This handles cases like packaging/all, config/hardware/asus, etc.
+        module_path=$(find "$OMAFORGE_INSTALL" -path "*/$module" -type f)
+    else
+        # Name format: all.sh - find all matches and fail if ambiguous
+        # This prevents silent mis-selection when multiple modules share the same filename
+        local candidates
+        candidates=$(find "$OMAFORGE_INSTALL" -name "$module" -type f)
+        local count
+        count=$(echo "$candidates" | wc -l | xargs)
+        # count=0 means no matches, count=1 means exactly one, count>1 means ambiguous
+
+        if [[ $count -eq 0 ]]; then
+            echo "[ERROR] Module not found: $module"
+            exit 1
+        elif [[ $count -gt 1 ]]; then
+            echo "[ERROR] Ambiguous module name: $module"
+            echo "Found $count matches:"
+            echo "$candidates" | while read -r path; do
+                [[ -n "$path" ]] && echo "  - $path"
+            done
+            echo ""
+            echo "Specify the full path to disambiguate (e.g., packaging/all or config/hardware/all)"
+            exit 1
+        fi
+
+        module_path="$candidates"
+    fi
 
     if [[ -z "$module_path" ]]; then
         echo "[ERROR] Module not found: $module"
