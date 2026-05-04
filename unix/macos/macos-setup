@@ -41,7 +41,7 @@ while [[ $# -gt 0 ]]; do
             echo ""
             echo "Options:"
             echo "  --only <module>    Run only a specific module"
-            echo "                     Examples: config/git, packaging/homebrew"
+            echo "                     Examples: config/git, dotfiles/stow, packaging/brew"
             echo "  --help, -h        Show this help message"
             echo ""
             echo "Examples:"
@@ -92,25 +92,40 @@ source "$OMAFORGE_INSTALL/helpers/all.sh"
 run_single_module() {
     local module="$1"
 
-    # Handle paths like "config/nextdns" or "dotfiles/stow"
-    if [[ "$module" == */* ]]; then
-        local module_path="$OMAFORGE_INSTALL/$module"
-        [[ "$module" != *.sh ]] && module_path="$module_path.sh"
-
-        if [[ -f "$module_path" ]]; then
-            echo "[INFO] Running: $module_path"
-            run_logged "$module_path"
-            echo "[SUCCESS] Completed"
-            return 0
-        fi
-    fi
-
-    # Add .sh if not present
+    # Normalize: add .sh if not present
     [[ "$module" != *.sh ]] && module="$module.sh"
 
-    # Find the module file
     local module_path
-    module_path=$(find "$OMAFORGE_INSTALL" -name "$module" -type f | head -1)
+
+    if [[ "$module" == */* ]]; then
+        # Path format: config/git.sh - match full path under install/
+        # This handles cases like config/git, dotfiles/stow, etc.
+        module_path=$(find "$OMAFORGE_INSTALL" -path "*/$module" -type f)
+    else
+        # Name format: git.sh - find all matches and fail if ambiguous
+        # This prevents silent mis-selection when multiple modules share the same filename
+        local candidates
+        candidates=$(find "$OMAFORGE_INSTALL" -name "$module" -type f)
+        local count
+        count=$(echo "$candidates" | wc -l | xargs)
+        # count=0 means no matches, count=1 means exactly one, count>1 means ambiguous
+
+        if [[ $count -eq 0 ]]; then
+            echo "[ERROR] Module not found: $module"
+            exit 1
+        elif [[ $count -gt 1 ]]; then
+            echo "[ERROR] Ambiguous module name: $module"
+            echo "Found $count matches:"
+            echo "$candidates" | while read -r path; do
+                [[ -n "$path" ]] && echo "  - $path"
+            done
+            echo ""
+            echo "Specify the full path to disambiguate (e.g., config/git or dotfiles/zsh)"
+            exit 1
+        fi
+
+        module_path="$candidates"
+    fi
 
     if [[ -z "$module_path" ]]; then
         echo "[ERROR] Module not found: $module"

@@ -31,7 +31,7 @@ Edit `config.json`:
 You can run specific parts of the setup without running everything:
 
 ```bash
-# Run specific module
+# Run specific module (use full path to avoid ambiguity)
 ./macos-setup --only dotfiles/stow        # Restow all dotfiles
 ./macos-setup --only dotfiles/zsh         # Reconfigure ZSH only
 ./macos-setup --only packaging/brew       # Install only brew packages
@@ -40,6 +40,8 @@ You can run specific parts of the setup without running everything:
 # See all available modules
 find install -name "*.sh" | grep -v all.sh
 ```
+
+**Note**: Module names must be unambiguous. If multiple modules share the same filename (e.g., `all.sh` in multiple directories), use the full path to disambiguate. Using just the filename will show an error listing all matches.
 
 ## Package Management
 
