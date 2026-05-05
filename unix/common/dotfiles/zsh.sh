@@ -79,6 +79,9 @@ EOF
 # omaforge bin
 export PATH="$HOME/dev/.omaforge/unix/fedora/bin:$PATH"
 
+# npm global packages
+export PATH="$HOME/.npm-global/bin:$PATH"
+
 # Fedora specific configurations
 export SYS_HEALTH="${HOME}/dev/.omaforge/unix/fedora/health-check.sh"
 
