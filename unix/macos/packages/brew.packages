@@ -30,6 +30,7 @@ gh
 jq
 tree
 grpcurl
+uv
 
 # System tools
 htop
