@@ -50,6 +50,9 @@ path=(
 export DISABLE_OPENCOLLECTIVE=1
 export ADBLOCK=1
 
+# Disable Homebrew auto updating packages
+HOMEBREW_NO_AUTO_UPDATE=1
+
 # Disable OMO tracking
 export OMO_DISABLE_POSTHOG=1
 export OMO_SEND_ANONYMOUS_TELEMETRY=0
