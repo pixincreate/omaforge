@@ -1,5 +1,6 @@
 #!/bin/bash
-# Add packages to package lists declaratively
+# omaforge:summary=Add packages to package lists declaratively
+# omaforge:usage=omaforge add <package-type> <package-name>
 
 set -euo pipefail
 

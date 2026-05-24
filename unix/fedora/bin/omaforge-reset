@@ -1,4 +1,6 @@
 #!/bin/bash
+# omaforge:summary=Interactive menu to reset dotfiles, config, and packages
+# omaforge:usage=omaforge reset
 
 set -euo pipefail
 

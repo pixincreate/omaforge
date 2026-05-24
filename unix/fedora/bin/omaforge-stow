@@ -1,10 +1,12 @@
 #!/bin/bash
-# Stow specific dotfile packages
+# omaforge:summary=Stow dotfile packages (stow/unstow/restow)
+# omaforge:usage=omaforge stow [-a] [-d] [-R] [package...]
 
 set -euo pipefail
 
 OMAFORGE_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-source "$OMAFORGE_PATH/install/helpers/all.sh"
+OMAFORGE_INSTALL="$OMAFORGE_PATH/install"
+source "$OMAFORGE_INSTALL/helpers/all.sh"
 
 show_usage() {
     echo "Usage: omaforge-stow [OPTIONS] [PACKAGE...]"

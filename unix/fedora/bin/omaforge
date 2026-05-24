@@ -1,0 +1,52 @@
+#!/bin/bash
+# omaforge:summary=Unified command dispatcher for omaforge tools
+# omaforge:usage=omaforge <command> [args]
+
+set -euo pipefail
+
+BIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+show_help() {
+  echo "Usage: omaforge <command> [args]"
+  echo ""
+  echo "Available commands:"
+  echo ""
+
+  for script in "$BIN_DIR"/omaforge-*; do
+    [[ -x "$script" ]] || continue
+    cmd_name=$(basename "$script" | sed 's/^omaforge-//')
+    summary=$(grep -m1 '^# omaforge:summary=' "$script" 2>/dev/null | sed 's/^# omaforge:summary=//')
+    if [[ -n "$summary" ]]; then
+      printf "  %-20s %s\n" "$cmd_name" "$summary"
+    else
+      printf "  %-20s %s\n" "$cmd_name" "(no description)"
+    fi
+  done
+
+  echo ""
+  echo "For detailed help on a command, run: omaforge <command> --help"
+}
+
+if [[ $# -eq 0 ]]; then
+  show_help
+  exit 0
+fi
+
+case "$1" in
+  -h|--help)
+    show_help
+    exit 0
+    ;;
+esac
+
+SUBCOMMAND="$1"
+shift
+SUBCOMMAND_SCRIPT="$BIN_DIR/omaforge-$SUBCOMMAND"
+
+if [[ ! -x "$SUBCOMMAND_SCRIPT" ]]; then
+  echo "Error: unknown command '$SUBCOMMAND'"
+  echo "Run 'omaforge' without arguments to see available commands."
+  exit 1
+fi
+
+exec "$SUBCOMMAND_SCRIPT" "$@"

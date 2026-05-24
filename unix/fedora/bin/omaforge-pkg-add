@@ -1,5 +1,6 @@
 #!/bin/bash
-# Add and install packages
+# omaforge:summary=Install RPM packages via DNF
+# omaforge:usage=omaforge pkg-add <package> [package2 ...]
 
 set -euo pipefail
 

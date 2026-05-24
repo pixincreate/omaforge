@@ -1,4 +1,6 @@
 #!/bin/bash
+# omaforge:summary=Remove a web app desktop application
+# omaforge:usage=omaforge webapp-remove [app_name...]
 
 ICON_DIR="$HOME/.local/share/applications/icons"
 DESKTOP_DIR="$HOME/.local/share/applications"

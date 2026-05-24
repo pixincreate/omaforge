@@ -1,4 +1,7 @@
 #!/bin/bash
+# omaforge:summary=Run pending omaforge migrations
+# omaforge:usage=omaforge migrate
+
 set -eEuo pipefail
 
 # Where we store an empty file for each migration that has already been performed

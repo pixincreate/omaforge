@@ -1,5 +1,6 @@
 #!/bin/bash
-# Interactive package management menu
+# omaforge:summary=Interactive DNF/Flatpak package manager menu
+# omaforge:usage=omaforge pkg-manage
 
 set -euo pipefail
 
