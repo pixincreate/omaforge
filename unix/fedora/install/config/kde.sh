@@ -20,15 +20,22 @@ for file in "$KDE_CONFIG_DIR"/*; do
   filename=$(basename "$file")
   target="$HOME/.config/$filename"
 
-  if [[ -f "$target" ]]; then
-    if ! cmp -s "$file" "$target"; then
-      log_info "Backing up existing: $filename → ${filename}.bak"
-      cp "$target" "${target}.bak"
+  if [[ -L "$target" ]]; then
+    current_target=$(readlink "$target")
+    if [[ $current_target == "$file" ]]; then
+      continue
     fi
+    log_info "Updating symlink: $filename"
+    ln -sf "$file" "$target"
+  elif [[ -f "$target" ]]; then
+    log_info "Backing up existing: $filename → ${filename}.bak"
+    cp "$target" "${target}.bak"
+    ln -sf "$file" "$target"
+    log_info "Symlinked: $filename"
+  else
+    ln -sf "$file" "$target"
+    log_info "Symlinked: $filename"
   fi
-
-  cp "$file" "$target"
-  log_info "Installed: $filename"
 done
 
-log_success "KDE configuration installed"
+log_success "KDE configuration installed (symlinked)"
