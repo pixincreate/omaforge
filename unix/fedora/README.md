@@ -190,6 +190,7 @@ Symlinked config files (backed up if regular files existed):
 - Performance tuning (zram, fstrim)
 - Git/SSH, NextDNS, dotfiles, ZSH
 - Services (PostgreSQL, Redis, Docker)
+
 ## Reset/Re-run Components
 
 If you need to reset or re-run specific parts:
