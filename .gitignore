@@ -21,3 +21,6 @@ generated
 buffers
 current_preset
 current.conf
+
+# AI Generated files
+.sisyphus
