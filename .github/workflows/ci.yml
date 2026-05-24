@@ -17,35 +17,63 @@ on:
       - ".github/workflows/**"
 
 jobs:
-  shellcheck:
-    name: ShellCheck Linting
+  lint:
+    name: Lint Checks
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Run ShellCheck
+      - name: Install tools
         run: |
+          sudo apt-get update
           sudo apt-get install -y shellcheck
+          npm install -g markdownlint-cli prettier
 
-          # Check all shell scripts
+      - name: ShellCheck
+        run: |
+          # Check all .sh files
           find . -name "*.sh" -type f | while read -r script; do
             echo "Checking $script..."
             shellcheck -e SC1090,SC1091 "$script" || exit 1
           done
 
           # Check main setup scripts (no .sh extension)
-          shellcheck -e SC1090,SC1091 unix/fedora/fedora-setup || exit 1
-          shellcheck -e SC1090,SC1091 unix/macos/macos-setup || exit 1
+          for f in unix/fedora/fedora-setup unix/macos/macos-setup; do
+            echo "Checking $f..."
+            shellcheck -e SC1090,SC1091 "$f" || exit 1
+          done
+
+          # Check bin scripts
+          for dir in unix/fedora/bin unix/macos/bin; do
+            for f in "$dir"/*; do
+              [ -f "$f" ] || continue
+              echo "Checking $f..."
+              shellcheck -e SC1090,SC1091 "$f" || exit 1
+            done
+          done
 
           echo "All shell scripts passed ShellCheck"
+
+      - name: Markdown lint
+        run: |
+          markdownlint \
+            AGENTS.md \
+            README.md \
+            unix/fedora/README.md \
+            unix/macos/README.md \
+            default/omaforge-skill/SKILL.md
+
+      - name: Prettier check
+        run: |
+          prettier --check "**/*.md"
 
   test-fedora-setup:
     name: Fedora End-to-End Test
     runs-on: ubuntu-latest
     container:
       image: fedora:latest
-    needs: shellcheck
+    needs: lint
     steps:
       - name: Install dependencies
         run: |
@@ -275,7 +303,7 @@ jobs:
   test-macos-setup:
     name: macOS End-to-End Test
     runs-on: macos-latest
-    needs: shellcheck
+    needs: lint
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -463,7 +491,7 @@ jobs:
   test-common-scripts:
     name: Common Scripts Test
     runs-on: ubuntu-latest
-    needs: shellcheck
+    needs: lint
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

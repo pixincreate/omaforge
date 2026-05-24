@@ -34,9 +34,9 @@ main() {
         case $choice in
             1)
                 echo -ne "\n${YELLOW}Enter package names (space-separated): ${NC}"
-                read -r packages
-                if [[ -n "$packages" ]]; then
-                    omaforge-pkg-add $packages
+                read -r -a packages
+                if [[ ${#packages[@]} -gt 0 ]]; then
+                    omaforge-pkg-add "${packages[@]}"
                     read -p "Press Enter to continue..."
                 fi
                 ;;

@@ -1,5 +1,6 @@
 #!/bin/bash
-# Stow specific dotfile packages
+# omaforge:summary=Stow dotfile packages (stow/unstow/restow)
+# omaforge:usage=omaforge stow [options] [packages]
 
 set -euo pipefail
 

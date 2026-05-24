@@ -9,9 +9,11 @@ description: >
 
 # Omaforge Skill
 
-Development workflow for [omaforge](https://github.com/omaforge) - an opinionated system installer for Fedora Linux and macOS.
+Development workflow for [omaforge](https://github.com/omaforge) - an opinionated
+system installer for Fedora Linux and macOS.
 
-**This skill is for development contributions. For end-user customization, see omaforge-config skill.**
+**This skill is for development contributions. For end-user customization,
+see omaforge-config skill.**
 
 ## When This Skill MUST Be Used
 
@@ -21,13 +23,15 @@ Development workflow for [omaforge](https://github.com/omaforge) - an opinionate
 - Modifying package lists in `packages/` directories
 - Adding or editing `omaforge-*` bin commands
 - Creating or modifying migration scripts in `migrations/`
-- Changing installer phases (preflight, repositories, packaging, config, dotfiles, post-install)
+- Changing installer phases (preflight, repositories, packaging, config,
+  dotfiles, post-install)
 - Updating helper functions (logging, common utilities)
 - Working with configuration templates
 
 **If you're about to edit a script in this repo, STOP and use this skill first.**
 
 **Do NOT use this skill for**:
+
 - Editing user `~/.config/` files on a running omaforge system
 - Modifying omaforge's installed output (use omaforge-config skill instead)
 - Tasks unrelated to omaforge development
@@ -36,13 +40,13 @@ Development workflow for [omaforge](https://github.com/omaforge) - an opinionate
 
 Omaforge supports both Fedora Linux and macOS with a shared codebase:
 
-```
+```text
 omaforge/
 ├── unix/
 │   ├── common/              # Shared helpers (logging, common functions)
 │   │   └── helpers/
 │   ├── fedora/              # Fedora-specific installer
-│   │   ├── bin/             # omaforge-* commands
+│   │   ├── bin/             # omaforge-* commands + omaforge dispatcher
 │   │   ├── packages/        # Package lists (*.packages)
 │   │   ├── config/          # Config templates
 │   │   ├── dotfiles/        # User dotfiles
@@ -61,9 +65,57 @@ omaforge/
 └── default/                 # Default configs (stowed to ~/.config/)
 ```
 
+### Unified CLI Dispatcher
+
+The Fedora distribution includes a unified CLI dispatcher at
+`unix/fedora/bin/omaforge` that discovers all `omaforge-*` scripts and provides
+a single entry point:
+
+```bash
+omaforge                    # List all available commands with descriptions
+omaforge stow --all         # Same as ./bin/omaforge-stow --all
+omaforge add base neovim    # Same as ./bin/omaforge-add base neovim
+```
+
+The dispatcher reads `# omaforge:summary=` and `# omaforge:usage=` metadata
+lines from each script. **Every new or edited bin script MUST include these
+annotations** so the command appears in the help output.
+
+```bash
+# omaforge:summary=Short description of the command
+# omaforge:usage=omaforge <cmd> [options] [args]
+```
+
+macOS scripts are standalone and do not use the dispatcher, but **must still
+include the metadata headers** for consistency and cross-platform compatibility.
+
+## Cross-Platform Mirroring
+
+Omaforge has mirrored directory structures under `unix/fedora/` and
+`unix/macos/`. **When you make changes to scripts, package lists, or
+configuration that are not inherently platform-specific, you must mirror
+the same change to the counterpart platform.**
+
+Examples of changes that need mirroring:
+
+- A new `omaforge-*` bin script added to Fedora → add the equivalent to macOS
+- A new shared package added to Fedora package list → add to macOS equivalent
+- A new install module that isn't hardware-specific → create on both platforms
+
+Changes that are **platform-specific** (no mirroring needed):
+
+- Fedora-only hardware support (ASUS, NVIDIA)
+- macOS-only system configuration (hostname, defaults)
+- Package managers (DNF vs Homebrew)
+- Platform-specific helpers and dependencies
+
+When mirroring, adapt the implementation for the target platform's package
+manager and tools (DNF → `brew`, systemctl → `launchctl`, etc.), but keep the
+same script name, metadata headers, and argument interface.
+
 ## Command Naming
 
-All commands start with `omaforge-`. Prefixes indicate purpose:
+All standalone scripts use the `omaforge-` prefix. Prefixes indicate purpose:
 
 - `cmd-` - check if commands exist, misc utility commands
 - `pkg-` - package management helpers
@@ -98,7 +150,7 @@ See [AGENTS.md](./AGENTS.md) for full coding standards. Summary:
 
 ## Execution Model
 
-```
+```text
 fedora-setup / macos-setup
     ├── source helpers/all.sh          # Libraries use source
     ├── run_logged preflight/all.sh    # Work scripts use run_logged
@@ -110,6 +162,7 @@ fedora-setup / macos-setup
 ```
 
 **Key patterns**:
+
 - `run_logged` executes scripts in subshells with logging
 - Libraries (`helpers/all.sh`) use `source` to inject functions
 - Work scripts can `return` at top level (subshell context)
@@ -118,12 +171,14 @@ fedora-setup / macos-setup
 ## Package Management
 
 ### Fedora
+
 - Package manager: `dnf`
 - Package lists: `unix/fedora/packages/*.packages`
 - COPR repos: `unix/fedora/install/repositories/`
 - Flatpak: `unix/fedora/packages/flatpak.packages`
 
 ### macOS
+
 - Package manager: `brew`
 - Package lists: `unix/macos/packages/brew.packages`
 - Casks: `unix/macos/packages/casks.packages`
@@ -148,11 +203,13 @@ omaforge-dev-add-migration --no-edit
 ### Adding a New Package
 
 1. Add to appropriate package list:
+
    ```bash
    echo "neovim" >> unix/fedora/packages/base.packages
    ```
 
 2. Test installation:
+
    ```bash
    ./unix/fedora/fedora-setup --only packaging/base
    ```
@@ -160,20 +217,26 @@ omaforge-dev-add-migration --no-edit
 ### Adding a New Command
 
 1. Create in `unix/{fedora,macos}/bin/`:
+
    ```bash
    #!/bin/bash
-   # omaforge-<category>-<action> description
+   # omaforge:summary=Short description of the command
+   # omaforge:usage=omaforge <cmd> [options] [args]
 
    set -euo pipefail
    # ... implementation
    ```
 
 2. Make executable:
+
    ```bash
    chmod +x unix/fedora/bin/omaforge-<name>
+   chmod +x unix/macos/bin/omaforge-<name>
    ```
 
 3. Add to PATH in installer setup
+4. If the command is not platform-specific, add it to both Fedora and macOS
+   (follow the Cross-Platform Mirroring section)
 
 ### Adding Hardware Detection
 
@@ -183,14 +246,16 @@ omaforge-dev-add-migration --no-edit
 
 ## Safe Patterns
 
-### DO:
+### DO
+
 - ✅ Use `run_logged` for work scripts
 - ✅ Use `omaforge-cmd-*` helpers for command checks
 - ✅ Keep platform-specific code in platform directories
 - ✅ Share common code in `unix/common/`
 - ✅ Test with `--only` flag for specific phases
 
-### DON'T:
+### DON'T
+
 - ❌ Never `source` work scripts (use `run_logged`)
 - ❌ Never use `#!/usr/bin/env bash`
 - ❌ Never use `local` outside functions
@@ -226,7 +291,8 @@ When contributing changes:
 
 ## Example Contributions
 
-- "Add support for Rust toolchain" → Update `packages/rust.packages`, add install script
+- "Add support for Rust toolchain" → Update `packages/rust.packages`,
+  add install script
 - "Fix ASUS audio issues" → Edit `install/config/hardware/asus.sh`
 - "Add PostgreSQL package" → Add to `packages/development.packages`
 - "Create new migration for config change" → `omaforge-dev-add-migration`
@@ -234,6 +300,7 @@ When contributing changes:
 ## Out of Scope
 
 This skill does not cover:
+
 - User configuration editing (use omaforge-config skill)
 - Non-installer shell scripting
 - System administration after installation

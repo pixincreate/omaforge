@@ -20,8 +20,7 @@ if [ "$#" -eq 0 ]; then
     exit 0
   fi
 
-  IFS=$'\n' SORTED_WEB_APPS=($(sort <<<"${WEB_APPS[*]}"))
-  unset IFS
+  mapfile -t SORTED_WEB_APPS < <(printf "%s\n" "${WEB_APPS[@]}" | sort)
 
   echo ""
   echo "Installed web apps:"

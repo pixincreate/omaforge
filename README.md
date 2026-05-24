@@ -1,17 +1,7 @@
 # Omaforge
 
-```
-
- ▄██████▄    ▄▄▄▄███▄▄▄▄      ▄████████    ▄████████  ▄██████▄     ▄████████    ▄██████▄     ▄████████
-███    ███ ▄██▀▀▀███▀▀▀██▄   ███    ███   ███    ███ ███    ███   ███    ███   ███    ███   ███    ███
-███    ███ ███   ███   ███   ███    ███   ███    █▀  ███    ███   ███    ███   ███    █▀    ███    █▀
-███    ███ ███   ███   ███   ███    ███  ▄███▄▄▄     ███    ███  ▄███▄▄▄▄██▀  ▄███         ▄███▄▄▄
-███    ███ ███   ███   ███ ▀███████████ ▀▀███▀▀▀     ███    ███ ▀▀███▀▀▀▀▀   ▀▀███ ████▄  ▀▀███▀▀▀
-███    ███ ███   ███   ███   ███    ███   ███        ███    ███ ▀███████████   ███    ███   ███    █▄
-███    ███ ███   ███   ███   ███    ███   ███        ███    ███   ███    ███   ███    ███   ███    ███
- ▀██████▀   ▀█   ███   █▀    ███    █▀    ███         ▀██████▀    ███    ███   ████████▀    ██████████
-                                                                   ███    ███
-
+```text
+See docs/banner.txt for the full logo.
 ```
 
 Automated system setup for Fedora Linux and macOS.
@@ -75,6 +65,21 @@ git clone https://github.com/pixincreate/omaforge.git ~/.omaforge
 cd ~/.omaforge/unix/fedora
 ./fedora-setup
 ```
+
+## Unified CLI
+
+Omaforge includes a unified CLI dispatcher. Run it from anywhere after setup:
+
+```bash
+omaforge                    # List all available commands with descriptions
+omaforge add base neovim    # Add a package to a list
+omaforge pkg-manage         # Interactive package manager
+omaforge stow --all         # Stow all dotfiles
+omaforge webapp-install "ChatGPT" "https://chat.openai.com" "icon.png"
+```
+
+The dispatcher auto-discovers all `omaforge-*` scripts and shows their descriptions.
+Use `omaforge` without arguments whenever you need to see what's available.
 
 ## Running Individual Components
 
@@ -182,7 +187,8 @@ Interactive menu to reset specific components.
 
 ## Structure
 
-```
+```text
+
 .
 ├── unix/
 │   ├── setup              # Common entry point (OS detection)
@@ -210,13 +216,18 @@ Interactive menu to reset specific components.
 - **Git & SSH**: ed25519 keys with automatic configuration
 - **Shell**: ZSH with zgenom plugin manager
 - **Dotfiles**: GNU Stow for symlink management
-- **Fonts**: Iosevka, CaskaydiaCove Nerd Font, Meslo Nerd Font, JetBrains Mono, Inter, Geist
+- **Fonts**: Iosevka, CaskaydiaCove Nerd Font, Meslo Nerd Font,
+  JetBrains Mono, Inter, Geist
 - **Rust**: Rustup with configurable cargo tools
 - **NextDNS**: Automated DNS configuration
 
 ### Fedora-Specific
 
-- **KDE Plasma**: Keybindings, Krohnkite tiling, theme defaults
+- **KDE Plasma**: Keybindings, Krohnkite tiling, theme defaults,
+  KDE config symlink management
+- **KDE Config**: Config files (`kwinrc`, `kdeglobals`,
+  `kglobalshortcutsrc`, `kwinrulesrc`, `plasmaparc`) are symlinked
+  via `kde.sh` so changes stay tracked in the repo
 - **Package Management**: DNF optimization, Flatpak, Rust tools
 - **Repositories**: RPM Fusion, COPR, Terra
 - **Web Applications**: Twitter, ChatGPT (incognito), Grok (incognito)
@@ -231,7 +242,7 @@ Interactive menu to reset specific components.
 - **Applications**: CLI tools and GUI applications
 - **System**: Hostname and system preferences
 
-## Configuration
+## Declarative Configuration
 
 Each platform has a `config.json` for declarative configuration:
 

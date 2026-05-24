@@ -1,6 +1,6 @@
 #!/bin/bash
-# Interactive package management for macOS
-# Add, remove, and search packages for Homebrew and Cask
+# omaforge:summary=Interactive Homebrew/Cask package manager menu
+# omaforge:usage=omaforge pkg-manage
 
 set -euo pipefail
 
@@ -66,7 +66,8 @@ add_package() {
     fi
 
     # Check package availability
-    local basename=$(basename "$package_file")
+    local basename
+    basename=$(basename "$package_file")
     if [[ "$basename" == "cask.packages" ]]; then
         echo -e "${BLUE}Searching Homebrew Cask...${NC}"
         if brew search --cask "$package" | grep -q "^$package$"; then
@@ -120,7 +121,8 @@ remove_package() {
         echo -ne "\n${YELLOW}Uninstall package? (y/N): ${NC}"
         read -r uninstall
         if [[ "$uninstall" =~ ^[Yy]$ ]]; then
-            local basename=$(basename "$package_file")
+            local basename
+            basename=$(basename "$package_file")
             if [[ "$basename" == "cask.packages" ]]; then
                 brew uninstall --cask "$package"
             else

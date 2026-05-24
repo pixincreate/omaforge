@@ -27,9 +27,9 @@ esac
 if is_flatpak; then
     # Use browser name without .desktop suffix as app ID
     app_id="${browser%.desktop}"
-    exec setsid flatpak run "$app_id" $flags"$1" "${@:2}"
+    exec setsid flatpak run "$app_id" "$flags$1" "${@:2}"
 else
     # Regular package - extract binary path
     browser_bin=$(sed -n 's/^Exec=\([^ ]*\).*/\1/p' {~/.local,/usr}/share/applications/"$browser" 2>/dev/null | head -1)
-    exec setsid "$browser_bin" $flags"$1" "${@:2}"
+    exec setsid "$browser_bin" "$flags$1" "${@:2}"
 fi

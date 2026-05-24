@@ -41,7 +41,26 @@ You can run specific parts of the setup without running everything:
 find install -name "*.sh" | grep -v all.sh
 ```
 
-**Note**: Module names must be unambiguous. If multiple modules share the same filename (e.g., `all.sh` in multiple directories), use the full path to disambiguate. Using just the filename will show an error listing all matches.
+**Note**: Module names must be unambiguous. If multiple modules share the
+same filename (e.g., `all.sh` in multiple directories), use the full path
+to disambiguate. Using just the filename will show an error listing all
+matches.
+
+## Unified CLI
+
+Use the `omaforge` dispatcher to run any command (available after Fedora setup;
+macOS uses the scripts directly via `./bin/`):
+
+```bash
+omaforge stow --all              # Stow all dotfiles
+omaforge add brew neovim         # Add a package declaratively
+omaforge pkg-manage              # Interactive package manager
+omaforge reset                   # Reset components
+```
+
+The dispatcher lives at `unix/fedora/bin/omaforge` and auto-discovers all
+`omaforge-*` scripts. macOS scripts are standalone but use the same metadata
+format and are compatible with the dispatcher when running on Fedora.
 
 ## Package Management
 
@@ -49,6 +68,7 @@ find install -name "*.sh" | grep -v all.sh
 
 ```bash
 ./bin/omaforge-pkg-manage
+# or: omaforge pkg-manage (on Fedora)
 ```
 
 Add, remove, search packages with availability checking.
@@ -60,6 +80,7 @@ Add packages to lists and install:
 ```bash
 # Add a package declaratively
 ./bin/omaforge-add brew fastfetch      # Add to brew.packages
+# or: omaforge add brew fastfetch (on Fedora)
 ./bin/omaforge-add cask firefox        # Add to cask.packages
 ./bin/omaforge-add rust exa            # Add to rust.packages
 
@@ -88,6 +109,7 @@ Manage your dotfiles selectively:
 ```bash
 # Stow all packages
 ./bin/omaforge-stow --all
+# or: omaforge stow --all (on Fedora)
 
 # Stow specific packages
 ./bin/omaforge-stow config zsh     # Only config and zsh
@@ -99,6 +121,7 @@ Manage your dotfiles selectively:
 
 # Unstow (remove symlinks)
 ./bin/omaforge-stow -d git         # Unstow git
+# or: omaforge stow -d git (on Fedora)
 ```
 
 Available packages: `cargo`, `config`, `git`, `local`, `Pictures`, `ssh`, `zsh`
@@ -116,6 +139,7 @@ If you need to reset or re-run specific parts:
 
 ```bash
 ./bin/omaforge-reset
+# or: omaforge reset (on Fedora)
 ```
 
 Interactive menu to reset:
@@ -130,10 +154,13 @@ Interactive menu to reset:
 ## Post-Install
 
 1. Add SSH key to GitHub:
+
    ```bash
    cat ~/.ssh/id_ed25519.pub
    ```
+
 2. Reload shell:
+
    ```bash
    exec zsh
    ```
