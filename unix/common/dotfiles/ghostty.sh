@@ -1,6 +1,10 @@
 #!/bin/bash
 
-source "${RIG_INSTALL:-"$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)/unix/fedora/install"}/helpers/all.sh"
+set -eEuo pipefail
+
+RIG_COMMON_HELPERS="$(cd "$(dirname "${BASH_SOURCE[0]}")/../helpers" && pwd)"
+source "$RIG_COMMON_HELPERS/logging.sh"
+source "$RIG_COMMON_HELPERS/common.sh"
 
 log_info "Setting up Ghostty configuration"
 
