@@ -21,13 +21,13 @@ IntensityAmount=0
 IntensityEffect=0
 
 [Colors:Button]
-BackgroundAlternate=97,82,138
+BackgroundAlternate=83,86,139
 BackgroundNormal=41,44,48
-DecorationFocus=121,99,177
-DecorationHover=121,99,177
-ForegroundActive=121,99,177
+DecorationFocus=101,104,178
+DecorationHover=101,104,178
+ForegroundActive=101,104,178
 ForegroundInactive=161,169,177
-ForegroundLink=202,196,220
+ForegroundLink=197,197,221
 ForegroundNegative=218,68,83
 ForegroundNeutral=246,116,0
 ForegroundNormal=252,252,252
@@ -37,11 +37,11 @@ ForegroundVisited=155,89,182
 [Colors:Complementary]
 BackgroundAlternate=30,87,116
 BackgroundNormal=32,35,38
-DecorationFocus=121,99,177
-DecorationHover=121,99,177
-ForegroundActive=121,99,177
+DecorationFocus=101,104,178
+DecorationHover=101,104,178
+ForegroundActive=101,104,178
 ForegroundInactive=161,169,177
-ForegroundLink=202,196,220
+ForegroundLink=197,197,221
 ForegroundNegative=218,68,83
 ForegroundNeutral=246,116,0
 ForegroundNormal=252,252,252
@@ -51,11 +51,11 @@ ForegroundVisited=155,89,182
 [Colors:Header]
 BackgroundAlternate=32,35,38
 BackgroundNormal=41,44,48
-DecorationFocus=121,99,177
-DecorationHover=121,99,177
-ForegroundActive=121,99,177
+DecorationFocus=101,104,178
+DecorationHover=101,104,178
+ForegroundActive=101,104,178
 ForegroundInactive=161,169,177
-ForegroundLink=202,196,220
+ForegroundLink=197,197,221
 ForegroundNegative=218,68,83
 ForegroundNeutral=246,116,0
 ForegroundNormal=252,252,252
@@ -77,13 +77,13 @@ ForegroundPositive=39,174,96
 ForegroundVisited=155,89,182
 
 [Colors:Selection]
-BackgroundAlternate=90,75,131
-BackgroundNormal=90,75,131
-DecorationFocus=121,99,177
-DecorationHover=121,99,177
-ForegroundActive=121,99,177
+BackgroundAlternate=76,79,131
+BackgroundNormal=76,79,131
+DecorationFocus=101,104,178
+DecorationHover=101,104,178
+ForegroundActive=101,104,178
 ForegroundInactive=255,255,255
-ForegroundLink=91,67,145
+ForegroundLink=67,71,160
 ForegroundNegative=176,55,69
 ForegroundNeutral=198,92,0
 ForegroundNormal=255,255,255
@@ -93,11 +93,11 @@ ForegroundVisited=155,89,182
 [Colors:Tooltip]
 BackgroundAlternate=32,35,38
 BackgroundNormal=41,44,48
-DecorationFocus=121,99,177
-DecorationHover=121,99,177
-ForegroundActive=121,99,177
+DecorationFocus=101,104,178
+DecorationHover=101,104,178
+ForegroundActive=101,104,178
 ForegroundInactive=161,169,177
-ForegroundLink=202,196,220
+ForegroundLink=197,197,221
 ForegroundNegative=218,68,83
 ForegroundNeutral=246,116,0
 ForegroundNormal=252,252,252
@@ -107,11 +107,11 @@ ForegroundVisited=155,89,182
 [Colors:View]
 BackgroundAlternate=29,31,34
 BackgroundNormal=20,22,24
-DecorationFocus=121,99,177
-DecorationHover=121,99,177
-ForegroundActive=121,99,177
+DecorationFocus=101,104,178
+DecorationHover=101,104,178
+ForegroundActive=101,104,178
 ForegroundInactive=161,169,177
-ForegroundLink=202,196,220
+ForegroundLink=197,197,221
 ForegroundNegative=218,68,83
 ForegroundNeutral=246,116,0
 ForegroundNormal=252,252,252
@@ -121,11 +121,11 @@ ForegroundVisited=155,89,182
 [Colors:Window]
 BackgroundAlternate=41,44,48
 BackgroundNormal=32,35,38
-DecorationFocus=121,99,177
-DecorationHover=121,99,177
-ForegroundActive=121,99,177
+DecorationFocus=101,104,178
+DecorationHover=101,104,178
+ForegroundActive=101,104,178
 ForegroundInactive=161,169,177
-ForegroundLink=202,196,220
+ForegroundLink=197,197,221
 ForegroundNegative=218,68,83
 ForegroundNeutral=246,116,0
 ForegroundNormal=252,252,252
@@ -133,7 +133,7 @@ ForegroundPositive=39,174,96
 ForegroundVisited=155,89,182
 
 [General]
-AccentColor=121,99,177
+AccentColor=101,104,178
 ColorSchemeHash=2c3f86428c11011a7c64ee1e7f47c274d498ff10
 TerminalApplication=wezterm start --cwd .
 TerminalService=org.wezfurlong.wezterm.desktop
@@ -161,7 +161,7 @@ frameContrast=0.2
 Allow Expansion=false
 Automatically select filename extension=true
 Breadcrumb Navigation=true
-Decoration position=2
+Decoration position=0
 Show Full Path=false
 Show Inline Previews=true
 Show Preview=false
@@ -172,7 +172,10 @@ Sort directories first=true
 Sort hidden files last=false
 Sort reversed=false
 Speedbar Width=140
-View Style=Simple
+View Style=Detail
+
+[KScreen]
+ScreenScaleFactors=eDP-1=1;HDMI-A-1=1;
 
 [PreviewSettings]
 EnableRemoteFolderThumbnail=false

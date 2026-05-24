@@ -8,11 +8,15 @@ Id_1=56c28579-6724-4ac8-a4a7-504cca233378
 Id_2=f3b359f6-f996-4264-a8f7-f581705d9292
 Id_3=8cdd0bbf-f813-4af7-abd6-c0fdfb9edafa
 Id_4=f3076806-19d8-4a0f-932a-132c47ef1f12
-Name_1=browser
-Name_2=dev
-Name_3=obsidian
-Name_4=terminal
-Number=4
+Id_5=228da7d9-7881-42ab-9ddb-ba4d77bbccde
+Id_6=1da28e8c-814c-4230-bbee-437628e2525d
+Name_1=terminal
+Name_2=browser
+Name_3=dev
+Name_4=dev
+Name_5=random
+Name_6=obsidian
+Number=6
 Rows=1
 
 [Effect-blur]
