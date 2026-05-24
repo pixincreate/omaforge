@@ -57,7 +57,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Define paths with OMAFORGE prefix for consistency
+# Define paths with RIG prefix for consistency
 RIG_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export RIG_PATH
 export RIG_INSTALL="$RIG_PATH/install"
