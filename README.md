@@ -1,7 +1,11 @@
 # Rig
 
 ```text
-See docs/banner.txt for the full logo.
+██████  ██  ██████
+██   ██ ██ ██
+██████  ██ ██   ███
+██   ██ ██ ██    ██
+██   ██ ██  ██████
 ```
 
 Automated system setup for Fedora Linux and macOS.
