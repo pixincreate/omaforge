@@ -34,7 +34,6 @@ You can run specific parts of the setup without running everything:
 # Run specific module (use full path to avoid ambiguity)
 ./fedora-setup --only dotfiles/stow        # Restow all dotfiles
 ./fedora-setup --only dotfiles/zsh         # Reconfigure ZSH only
-./fedora-setup --only dotfiles/ghostty     # Setup Ghostty terminal
 ./fedora-setup --only packaging/base       # Install only base packages
 ./fedora-setup --only config/git           # Reconfigure Git only
 ./fedora-setup --only config/hardware/asus # ASUS hardware setup only
@@ -191,8 +190,6 @@ Symlinked config files (backed up if regular files existed):
 - Performance tuning (zram, fstrim)
 - Git/SSH, NextDNS, dotfiles, ZSH
 - Services (PostgreSQL, Redis, Docker)
-- Ghostty terminal with themes from iTerm2-Color-Schemes
-
 ## Reset/Re-run Components
 
 If you need to reset or re-run specific parts:

@@ -7,10 +7,6 @@ Switch to Last-Used Keyboard Layout=Meta+Alt+L,Meta+Alt+L,Switch to Last-Used Ke
 Switch to Next Keyboard Layout=Meta+Alt+K,Meta+Alt+K,Switch to Next Keyboard Layout
 _k_friendly_name=Keyboard Layout Switcher
 
-[com.mitchellh.ghostty]
-LOGO+grave=none,Meta+`,toggle_quick_terminal
-_k_friendly_name=Ghostty
-
 [kaccess]
 Toggle Screen Reader On and Off=Meta+Alt+S,Meta+Alt+S,Toggle Screen Reader On and Off
 _k_friendly_name=Accessibility
@@ -313,9 +309,6 @@ toggle do not disturb=none,,Toggle do not disturb
 [services][app.zen_browser.zen.desktop]
 _launch=Meta+Z
 new-private-window=Meta+Shift+Z
-
-[services][com.mitchellh.ghostty.desktop]
-_launch=none
 
 [services][org.kde.spectacle.desktop]
 CurrentMonitorScreenShot=
