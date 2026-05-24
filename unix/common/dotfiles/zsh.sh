@@ -92,6 +92,24 @@ alias cleanup="sudo dnf autoremove && flatpak uninstall --unused"
 alias dnf-clean='sudo dnf autoremove && sudo dnf clean all'
 alias trigger_secure_boot='sudo kmodgenca -a && sudo mokutil --import /etc/pki/akmods/certs/public_key.der'
 
+# GPU mode switching (supergfxctl on ASUS laptops)
+supergfxmnl() {
+  case "${1:-}" in
+    hybrid|integrated)
+      sudo sed -i "s/\"\(Integrated\|Hybrid\)\"/\"${(C)1}\"/" /etc/supergfxd.conf
+      sudo systemctl restart supergfxd
+      ;;
+    status)
+      echo "Mode: $(supergfxctl -g)"
+      echo "Power: $(supergfxctl -s 2>/dev/null || echo "N/A")"
+      ;;
+    *)
+      echo "Usage: supergfxmnl <hybrid|integrated|status>"
+      return 1
+      ;;
+  esac
+}
+
 # Disable NPM ads
 export DISABLE_OPENCOLLECTIVE=1
 export ADBLOCK=1
