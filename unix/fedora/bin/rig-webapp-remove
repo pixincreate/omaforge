@@ -29,7 +29,7 @@ if [ "$#" -eq 0 ]; then
   done
   echo ""
 
-  read -p "Enter app names to remove (space-separated, or 'all'): " input
+  read -rp "Enter app names to remove (space-separated, or 'all'): " input
 
   if [ "$input" = "all" ]; then
     APP_NAMES=("${SORTED_WEB_APPS[@]}")

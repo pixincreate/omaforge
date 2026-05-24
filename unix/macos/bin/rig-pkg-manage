@@ -54,14 +54,14 @@ add_package() {
 
     if [[ -z "$package" ]]; then
         echo -e "${RED}Package name cannot be empty${NC}"
-        read -p "Press Enter to continue..."
+        read -rp "Press Enter to continue..."
         return
     fi
 
     # Check if package already exists
     if grep -qx "$package" "$package_file" 2>/dev/null; then
         echo -e "${YELLOW}Package '$package' already exists in $(basename "$package_file")${NC}"
-        read -p "Press Enter to continue..."
+        read -rp "Press Enter to continue..."
         return
     fi
 
@@ -98,7 +98,7 @@ add_package() {
         fi
     fi
 
-    read -p "Press Enter to continue..."
+    read -rp "Press Enter to continue..."
 }
 
 remove_package() {
@@ -110,7 +110,7 @@ remove_package() {
 
     if [[ -z "$package" ]]; then
         echo -e "${RED}Package name cannot be empty${NC}"
-        read -p "Press Enter to continue..."
+        read -rp "Press Enter to continue..."
         return
     fi
 
@@ -133,7 +133,7 @@ remove_package() {
         echo -e "${RED}Package '$package' not found in $(basename "$package_file")${NC}"
     fi
 
-    read -p "Press Enter to continue..."
+    read -rp "Press Enter to continue..."
 }
 
 search_package() {
@@ -149,7 +149,7 @@ search_package() {
 
     if [[ -z "$search_term" ]]; then
         echo -e "${RED}Search term cannot be empty${NC}"
-        read -p "Press Enter to continue..."
+        read -rp "Press Enter to continue..."
         return
     fi
 
@@ -173,7 +173,7 @@ search_package() {
             ;;
     esac
 
-    read -p "Press Enter to continue..."
+    read -rp "Press Enter to continue..."
 }
 
 list_packages() {
@@ -183,7 +183,7 @@ list_packages() {
     echo -e "\n${BLUE}Packages in $(basename "$package_file"):${NC}"
     grep -v '^#\|^$' "$package_file" | sort || echo -e "${YELLOW}No packages found${NC}"
 
-    read -p "Press Enter to continue..."
+    read -rp "Press Enter to continue..."
 }
 
 main() {

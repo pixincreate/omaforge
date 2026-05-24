@@ -37,7 +37,7 @@ main() {
                 read -r -a packages
                 if [[ ${#packages[@]} -gt 0 ]]; then
                     rig-pkg-add "${packages[@]}"
-                    read -p "Press Enter to continue..."
+                    read -rp "Press Enter to continue..."
                 fi
                 ;;
             2)
@@ -48,7 +48,7 @@ main() {
                 read -r term
                 if [[ -n "$term" ]]; then
                     dnf search "$term"
-                    read -p "Press Enter to continue..."
+                    read -rp "Press Enter to continue..."
                 fi
                 ;;
             4)
@@ -56,7 +56,7 @@ main() {
                 read -r term
                 if [[ -n "$term" ]]; then
                     flatpak search "$term"
-                    read -p "Press Enter to continue..."
+                    read -rp "Press Enter to continue..."
                 fi
                 ;;
             5)
