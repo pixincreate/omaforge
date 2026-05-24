@@ -21,7 +21,7 @@ error_handler() {
   echo -e "\033[0;31m=========================================\033[0m"
   echo ""
   echo -e "\033[0;36mCheck the log file for details:\033[0m"
-  echo -e "\033[0;36m  sudo tail -50 /var/log/omaforge-install.log\033[0m"
+  echo -e "\033[0;36m  sudo tail -50 /var/log/rig-install.log\033[0m"
   echo ""
   exit 1
 }
@@ -59,11 +59,11 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Define paths with OMAFORGE prefix for consistency
-OMAFORGE_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-export OMAFORGE_PATH
-export OMAFORGE_INSTALL="$OMAFORGE_PATH/install"
-export OMAFORGE_CONFIG="$OMAFORGE_PATH/config.json"
-export PATH="$OMAFORGE_PATH/bin:$PATH"
+RIG_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export RIG_PATH
+export RIG_INSTALL="$RIG_PATH/install"
+export RIG_CONFIG="$RIG_PATH/config.json"
+export PATH="$RIG_PATH/bin:$PATH"
 
 # Ensure jq is available for JSON parsing
 if ! command -v jq &>/dev/null; then
@@ -74,7 +74,7 @@ if ! command -v jq &>/dev/null; then
 fi
 
 # Source all helper functions
-source "$OMAFORGE_INSTALL/helpers/all.sh"
+source "$RIG_INSTALL/helpers/all.sh"
 
 # Function to run a single module
 run_single_module() {
@@ -88,12 +88,12 @@ run_single_module() {
     if [[ "$module" == */* ]]; then
         # Path format: packaging/all.sh - match full path under install/
         # This handles cases like packaging/all, config/hardware/asus, etc.
-        module_path=$(find "$OMAFORGE_INSTALL" -path "*/$module" -type f)
+        module_path=$(find "$RIG_INSTALL" -path "*/$module" -type f)
     else
         # Name format: all.sh - find all matches and fail if ambiguous
         # This prevents silent mis-selection when multiple modules share the same filename
         local candidates
-        candidates=$(find "$OMAFORGE_INSTALL" -name "$module" -type f)
+        candidates=$(find "$RIG_INSTALL" -name "$module" -type f)
         local count
         count=$(echo "$candidates" | wc -l | xargs)
         # count=0 means no matches, count=1 means exactly one, count>1 means ambiguous
@@ -133,11 +133,11 @@ else
     show_welcome
 
     # Execute installation phases
-    run_logged "$OMAFORGE_INSTALL/preflight/all.sh"
-    run_logged "$OMAFORGE_INSTALL/repositories/all.sh"
-    run_logged "$OMAFORGE_INSTALL/packaging/all.sh"
-    run_logged "$OMAFORGE_INSTALL/config/all.sh"
-    run_logged "$OMAFORGE_INSTALL/dotfiles/all.sh"
-    run_logged "$OMAFORGE_INSTALL/external/all.sh"
-    run_logged "$OMAFORGE_INSTALL/post-install/all.sh"
+    run_logged "$RIG_INSTALL/preflight/all.sh"
+    run_logged "$RIG_INSTALL/repositories/all.sh"
+    run_logged "$RIG_INSTALL/packaging/all.sh"
+    run_logged "$RIG_INSTALL/config/all.sh"
+    run_logged "$RIG_INSTALL/dotfiles/all.sh"
+    run_logged "$RIG_INSTALL/external/all.sh"
+    run_logged "$RIG_INSTALL/post-install/all.sh"
 fi

@@ -17,9 +17,9 @@ declare -i updated=0
 for desktop_file in "$DESKTOP_DIR"/*.desktop; do
     [[ -f "$desktop_file" ]] || continue
 
-    if grep -q "omaforge-launch-webapp.*--incognito" "$desktop_file" 2>/dev/null; then
+    if grep -q "rig-launch-webapp.*--incognito" "$desktop_file" 2>/dev/null; then
         # Check if already fixed
-        if ! grep -q "omaforge-launch-webapp.*--incognito" "$desktop_file" 2>/dev/null; then
+        if ! grep -q "rig-launch-webapp.*--incognito" "$desktop_file" 2>/dev/null; then
             echo "[INFO] Already fixed: $(basename "$desktop_file")"
             continue
         fi
@@ -30,7 +30,7 @@ for desktop_file in "$DESKTOP_DIR"/*.desktop; do
         cp "$desktop_file" "${desktop_file}.bak"
 
         # Remove --incognito flag
-        if sed -i 's/\(omaforge-launch-webapp[^"]*\) --incognito/\1/' "$desktop_file"; then
+        if sed -i 's/\(rig-launch-webapp[^"]*\) --incognito/\1/' "$desktop_file"; then
             updated=$((updated + 1))
         else
             echo "[WARNING] Failed to update: $(basename "$desktop_file")"

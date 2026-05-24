@@ -11,14 +11,14 @@ setup_git() {
     echo "Configuring Git and SSH"
 
     # Use env vars if available
-    if [[ -z "$git_name" ]] && [[ -n "${OMAFORGE_GIT_NAME:-}" ]]; then
-        git_name="$OMAFORGE_GIT_NAME"
-        echo "[INFO] Using Git name from OMAFORGE_GIT_NAME"
+    if [[ -z "$git_name" ]] && [[ -n "${RIG_GIT_NAME:-}" ]]; then
+        git_name="$RIG_GIT_NAME"
+        echo "[INFO] Using Git name from RIG_GIT_NAME"
     fi
 
-    if [[ -z "$git_email" ]] && [[ -n "${OMAFORGE_GIT_EMAIL:-}" ]]; then
-        git_email="$OMAFORGE_GIT_EMAIL"
-        echo "[INFO] Using Git email from OMAFORGE_GIT_EMAIL"
+    if [[ -z "$git_email" ]] && [[ -n "${RIG_GIT_EMAIL:-}" ]]; then
+        git_email="$RIG_GIT_EMAIL"
+        echo "[INFO] Using Git email from RIG_GIT_EMAIL"
     fi
 
     # Check if .gitconfig.local already exists

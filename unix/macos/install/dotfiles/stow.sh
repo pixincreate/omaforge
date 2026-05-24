@@ -15,7 +15,7 @@ while IFS= read -r line || [[ -n "$line" ]]; do
 done < <(get_config_array '.dotfiles.stow_packages')
 
 # Source common stow script
-COMMON_SCRIPT="$OMAFORGE_PATH/../common/dotfiles/stow.sh"
+COMMON_SCRIPT="$RIG_PATH/../common/dotfiles/stow.sh"
 
 if [[ ! -f "$COMMON_SCRIPT" ]]; then
     log_error "Common stow script not found: $COMMON_SCRIPT"

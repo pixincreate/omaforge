@@ -1,21 +1,21 @@
 #!/bin/bash
-# omaforge:summary=Unified command dispatcher for omaforge tools
-# omaforge:usage=omaforge <command> [args]
+# rig:summary=Unified command dispatcher for rig tools
+# rig:usage=rig <command> [args]
 
 set -euo pipefail
 
 BIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 show_help() {
-  echo "Usage: omaforge <command> [args]"
+  echo "Usage: rig <command> [args]"
   echo ""
   echo "Available commands:"
   echo ""
 
-  for script in "$BIN_DIR"/omaforge-*; do
+  for script in "$BIN_DIR"/rig-*; do
     [[ -x "$script" ]] || continue
-    cmd_name=$(basename "$script" | sed 's/^omaforge-//')
-    summary=$(grep -m1 '^# omaforge:summary=' "$script" 2>/dev/null | sed 's/^# omaforge:summary=//')
+    cmd_name=$(basename "$script" | sed 's/^rig-//')
+    summary=$(grep -m1 '^# rig:summary=' "$script" 2>/dev/null | sed 's/^# rig:summary=//')
     if [[ -n "$summary" ]]; then
       printf "  %-20s %s\n" "$cmd_name" "$summary"
     else
@@ -24,7 +24,7 @@ show_help() {
   done
 
   echo ""
-  echo "For detailed help on a command, run: omaforge <command> --help"
+  echo "For detailed help on a command, run: rig <command> --help"
 }
 
 if [[ $# -eq 0 ]]; then
@@ -41,11 +41,11 @@ esac
 
 SUBCOMMAND="$1"
 shift
-SUBCOMMAND_SCRIPT="$BIN_DIR/omaforge-$SUBCOMMAND"
+SUBCOMMAND_SCRIPT="$BIN_DIR/rig-$SUBCOMMAND"
 
 if [[ ! -x "$SUBCOMMAND_SCRIPT" ]]; then
   echo "Error: unknown command '$SUBCOMMAND'"
-  echo "Run 'omaforge' without arguments to see available commands."
+  echo "Run 'rig' without arguments to see available commands."
   exit 1
 fi
 

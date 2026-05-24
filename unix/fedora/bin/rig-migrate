@@ -1,18 +1,18 @@
 #!/bin/bash
-# omaforge:summary=Run pending omaforge migrations
-# omaforge:usage=omaforge migrate
+# rig:summary=Run pending rig migrations
+# rig:usage=rig migrate
 
 set -eEuo pipefail
 
 # Where we store an empty file for each migration that has already been performed
-STATE_DIR="$HOME/.local/state/omaforge/migrations"
+STATE_DIR="$HOME/.local/state/rig/migrations"
 mkdir -p "$STATE_DIR"
 
 # Skipped migrations are tracked separately
 mkdir -p "$STATE_DIR/skipped"
 
-# Get the omaforge path (parent of bin directory)
-OMAFORGE_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# Get the rig path (parent of bin directory)
+RIG_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # Track migration results
 declare -i total=0
@@ -21,7 +21,7 @@ declare -i skipped=0
 declare -i failed=0
 
 # Run any pending migrations
-for file in "$OMAFORGE_PATH/migrations"/*.sh; do
+for file in "$RIG_PATH/migrations"/*.sh; do
   # Skip if no migration files found
   [[ ! -f "$file" ]] && continue
 

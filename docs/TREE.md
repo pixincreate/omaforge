@@ -88,11 +88,11 @@
 │   │       └── platform.sh
 │   ├── fedora
 │   │   ├── bin
-│   │   │   ├── omaforge-launch-browser
-│   │   │   ├── omaforge-launch-webapp
-│   │   │   ├── omaforge-pkg-manage
-│   │   │   ├── omaforge-webapp-install
-│   │   │   └── omaforge-webapp-remove
+│   │   │   ├── rig-launch-browser
+│   │   │   ├── rig-launch-webapp
+│   │   │   ├── rig-pkg-manage
+│   │   │   ├── rig-webapp-install
+│   │   │   └── rig-webapp-remove
 │   │   ├── config.json
 │   │   ├── fedora-setup
 │   │   ├── health-check.sh
@@ -152,7 +152,7 @@
 │   │   └── README.md
 │   ├── macos
 │   │   ├── bin
-│   │   │   └── omaforge-pkg-manage
+│   │   │   └── rig-pkg-manage
 │   │   ├── config.json
 │   │   ├── install
 │   │   │   ├── config

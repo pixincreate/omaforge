@@ -1,6 +1,6 @@
 #!/bin/bash
-# omaforge:summary=Remove a web app desktop application
-# omaforge:usage=omaforge webapp-remove [app_name...]
+# rig:summary=Remove a web app desktop application
+# rig:usage=rig webapp-remove [app_name...]
 
 ICON_DIR="$HOME/.local/share/applications/icons"
 DESKTOP_DIR="$HOME/.local/share/applications"
@@ -10,7 +10,7 @@ if [ "$#" -eq 0 ]; then
   WEB_APPS=()
 
   while IFS= read -r -d '' file; do
-    if grep -q '^Exec=.*omaforge-launch-\(webapp\|browser\).*' "$file"; then
+    if grep -q '^Exec=.*rig-launch-\(webapp\|browser\).*' "$file"; then
       WEB_APPS+=("$(basename "${file%.desktop}")")
     fi
   done < <(find "$DESKTOP_DIR" -name '*.desktop' -print0 2>/dev/null)

@@ -1,14 +1,14 @@
 #!/bin/bash
-# omaforge:summary=Add packages to package lists declaratively
-# omaforge:usage=omaforge add <package-type> <package-name>
+# rig:summary=Add packages to package lists declaratively
+# rig:usage=rig add <package-type> <package-name>
 
 set -euo pipefail
 
-OMAFORGE_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PACKAGES_DIR="$OMAFORGE_PATH/packages"
+RIG_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PACKAGES_DIR="$RIG_PATH/packages"
 
 show_usage() {
-    echo "Usage: omaforge-add <package-type> <package-name>"
+    echo "Usage: rig-add <package-type> <package-name>"
     echo ""
     echo "Package types:"
     echo "  base              Base packages (base.packages)"
@@ -19,9 +19,9 @@ show_usage() {
     echo "  rust              Rust tools (rust.packages)"
     echo ""
     echo "Examples:"
-    echo "  omaforge-add base neovim          # Add neovim to base packages"
-    echo "  omaforge-add flatpak com.spotify.Client  # Add Spotify"
-    echo "  omaforge-add rust exa             # Add exa to rust packages"
+    echo "  rig-add base neovim          # Add neovim to base packages"
+    echo "  rig-add flatpak com.spotify.Client  # Add Spotify"
+    echo "  rig-add rust exa             # Add exa to rust packages"
     echo ""
     echo "After adding, run:"
     echo "  ./fedora-setup --only packaging/<type>"

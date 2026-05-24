@@ -3,7 +3,7 @@ set -euo pipefail
 
 SKILLSET_REPO="git@github.com:pixincreate/skillset"
 SKILLSET_DIR="$HOME/dev/scripts/skillset"
-OMAFORGE_SKILL_SOURCE="$OMAFORGE_PATH/default/omaforge-skill"
+RIG_SKILL_SOURCE="$RIG_PATH/default/rig-skill"
 
 ensure_skillset_repo() {
   if [[ -d "$SKILLSET_DIR/.git" ]]; then
@@ -20,8 +20,8 @@ ensure_skillset_repo() {
   fi
 }
 
-install_omaforge_skill() {
-  local target_link="$SKILLSET_DIR/skills/omaforge"
+install_rig_skill() {
+  local target_link="$SKILLSET_DIR/skills/rig"
 
   mkdir -p "$(dirname "$target_link")"
 
@@ -29,8 +29,8 @@ install_omaforge_skill() {
     local current_target
     current_target=$(readlink "$target_link")
 
-    if [[ "$current_target" == "$OMAFORGE_SKILL_SOURCE" ]]; then
-      log_info "Omaforge skill symlink already correct"
+    if [[ "$current_target" == "$RIG_SKILL_SOURCE" ]]; then
+      log_info "Rig skill symlink already correct"
       return 0
     else
       log_info "Removing stale symlink: $target_link"
@@ -41,9 +41,9 @@ install_omaforge_skill() {
     rm -rf "$target_link"
   fi
 
-  log_info "Symlinking omaforge skill to skillset repo"
-  ln -s "$OMAFORGE_SKILL_SOURCE" "$target_link"
-  log_success "Omaforge skill symlinked"
+  log_info "Symlinking rig skill to skillset repo"
+  ln -s "$RIG_SKILL_SOURCE" "$target_link"
+  log_success "Rig skill symlinked"
 }
 
 ensure_capsync_config() {
@@ -88,7 +88,7 @@ sync_skills() {
 log_section "Skillset Setup"
 
 ensure_skillset_repo
-install_omaforge_skill
+install_rig_skill
 ensure_capsync_config
 sync_skills
 

@@ -1,11 +1,11 @@
 #!/bin/bash
-# omaforge:summary=Interactive Homebrew/Cask package manager menu
-# omaforge:usage=omaforge pkg-manage
+# rig:summary=Interactive Homebrew/Cask package manager menu
+# rig:usage=rig pkg-manage
 
 set -euo pipefail
 
-OMAFORGE_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PACKAGES_DIR="$OMAFORGE_PATH/packages"
+RIG_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PACKAGES_DIR="$RIG_PATH/packages"
 
 # Colors
 RED='\033[0;31m'

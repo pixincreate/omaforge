@@ -3,7 +3,7 @@
 
 echo "Installing Homebrew Cask packages"
 
-package_file="$OMAFORGE_PATH/packages/cask.packages"
+package_file="$RIG_PATH/packages/cask.packages"
 
 if [[ ! -f "$package_file" ]]; then
     log_error "Package file not found: $package_file"

@@ -1,6 +1,6 @@
 #!/bin/bash
-# omaforge:summary=Interactive DNF/Flatpak package manager menu
-# omaforge:usage=omaforge pkg-manage
+# rig:summary=Interactive DNF/Flatpak package manager menu
+# rig:usage=rig pkg-manage
 
 set -euo pipefail
 
@@ -36,12 +36,12 @@ main() {
                 echo -ne "\n${YELLOW}Enter package names (space-separated): ${NC}"
                 read -r -a packages
                 if [[ ${#packages[@]} -gt 0 ]]; then
-                    omaforge-pkg-add "${packages[@]}"
+                    rig-pkg-add "${packages[@]}"
                     read -p "Press Enter to continue..."
                 fi
                 ;;
             2)
-                omaforge-pkg-remove
+                rig-pkg-remove
                 ;;
             3)
                 echo -ne "\n${YELLOW}Enter search term: ${NC}"

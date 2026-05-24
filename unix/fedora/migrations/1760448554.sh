@@ -5,12 +5,12 @@ set -eEuo pipefail
 
 echo "Fixing webapp desktop files"
 
-OMAFORGE_BIN="$HOME/.omaforge/unix/fedora/bin"
+RIG_BIN="$HOME/.rig/unix/fedora/bin"
 DESKTOP_DIR="$HOME/.local/share/applications"
 
 # Validate paths
-if [[ ! -d "$OMAFORGE_BIN" ]]; then
-    echo "[ERROR] Omaforge bin directory not found: $OMAFORGE_BIN"
+if [[ ! -d "$RIG_BIN" ]]; then
+    echo "[ERROR] Rig bin directory not found: $RIG_BIN"
     exit 1
 fi
 
@@ -22,14 +22,14 @@ fi
 # Track changes
 declare -i fixed=0
 
-# Fix all desktop files that use omaforge-launch-webapp without full path
+# Fix all desktop files that use rig-launch-webapp without full path
 for desktop_file in "$DESKTOP_DIR"/*.desktop; do
     [[ -f "$desktop_file" ]] || continue
 
-    # Check if file uses relative path to omaforge-launch-webapp
-    if grep -q "^Exec=omaforge-launch-webapp " "$desktop_file" 2>/dev/null; then
+    # Check if file uses relative path to rig-launch-webapp
+    if grep -q "^Exec=rig-launch-webapp " "$desktop_file" 2>/dev/null; then
         # Check if already fixed
-        if grep -q "^Exec=$OMAFORGE_BIN/omaforge-launch-webapp " "$desktop_file" 2>/dev/null; then
+        if grep -q "^Exec=$RIG_BIN/rig-launch-webapp " "$desktop_file" 2>/dev/null; then
             echo "[INFO] Already fixed: $(basename "$desktop_file")"
             continue
         fi
@@ -40,7 +40,7 @@ for desktop_file in "$DESKTOP_DIR"/*.desktop; do
         cp "$desktop_file" "${desktop_file}.bak"
 
         # Use more precise sed
-        if sed -i "s|^Exec=omaforge-launch-webapp |Exec=$OMAFORGE_BIN/omaforge-launch-webapp |" "$desktop_file"; then
+        if sed -i "s|^Exec=rig-launch-webapp |Exec=$RIG_BIN/rig-launch-webapp |" "$desktop_file"; then
             fixed=$((fixed + 1))
         else
             echo "[WARNING] Failed to fix: $(basename "$desktop_file")"

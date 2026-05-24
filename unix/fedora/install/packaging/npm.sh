@@ -24,7 +24,7 @@ else
 fi
 
 # Read NPM packages from package file
-pkg_file="$OMAFORGE_PATH/packages/npm.packages"
+pkg_file="$RIG_PATH/packages/npm.packages"
 
 if [[ ! -f "$pkg_file" ]]; then
     log_info "No NPM packages configured"

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source "${OMAFORGE_INSTALL:-"$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)/unix/fedora/install"}/helpers/all.sh"
+source "${RIG_INSTALL:-"$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)/unix/fedora/install"}/helpers/all.sh"
 
 log_info "Setting up Ghostty configuration"
 

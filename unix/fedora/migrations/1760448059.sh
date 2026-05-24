@@ -12,7 +12,7 @@ if rpm -q topgrade &>/dev/null; then
 fi
 
 # Use the package manager command
-if ! omaforge-pkg-add topgrade; then
+if ! rig-pkg-add topgrade; then
     echo "[ERROR] Failed to install Topgrade"
     exit 1
 fi

@@ -2,7 +2,7 @@
 
 log_info "Installing KDE Plasma configuration"
 
-KDE_CONFIG_DIR="$OMAFORGE_INSTALL/config/kde"
+KDE_CONFIG_DIR="$RIG_INSTALL/config/kde"
 
 if [[ ! -d "$KDE_CONFIG_DIR" ]]; then
   log_warning "KDE config directory not found: $KDE_CONFIG_DIR"

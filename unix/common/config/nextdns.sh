@@ -18,9 +18,9 @@ setup_nextdns() {
     fi
 
     # Use env var if available
-    if [[ -z "$config_id" ]] && [[ -n "${OMAFORGE_NEXTDNS_ID:-}" ]]; then
-        config_id="$OMAFORGE_NEXTDNS_ID"
-        echo "[INFO] Using NextDNS config ID from OMAFORGE_NEXTDNS_ID"
+    if [[ -z "$config_id" ]] && [[ -n "${RIG_NEXTDNS_ID:-}" ]]; then
+        config_id="$RIG_NEXTDNS_ID"
+        echo "[INFO] Using NextDNS config ID from RIG_NEXTDNS_ID"
     fi
 
     if [[ -z "$config_id" ]]; then

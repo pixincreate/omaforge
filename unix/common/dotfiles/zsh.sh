@@ -65,8 +65,8 @@ export CC="$(brew --prefix)/opt/llvm/bin/clang"
 
 export OLLAMA_LIBRARY_PATH=$(brew --prefix)/lib
 
-# omaforge bin
-export PATH="$HOME/dev/.omaforge/unix/macos/bin:$PATH"
+# rig bin
+export PATH="$HOME/dev/.rig/unix/macos/bin:$PATH"
 
 # macOS aliases
 alias flush-dns='sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder'
@@ -79,14 +79,14 @@ EOF
 
         fedora)
             cat > "$additionals_file" <<'EOF'
-# omaforge bin
-export PATH="$HOME/dev/.omaforge/unix/fedora/bin:$PATH"
+# rig bin
+export PATH="$HOME/dev/.rig/unix/fedora/bin:$PATH"
 
 # npm global packages
 export PATH="$HOME/.npm-global/bin:$PATH"
 
 # Fedora specific configurations
-export SYS_HEALTH="${HOME}/dev/.omaforge/unix/fedora/health-check.sh"
+export SYS_HEALTH="${HOME}/dev/.rig/unix/fedora/health-check.sh"
 
 alias cleanup="sudo dnf autoremove && flatpak uninstall --unused"
 alias dnf-clean='sudo dnf autoremove && sudo dnf clean all'

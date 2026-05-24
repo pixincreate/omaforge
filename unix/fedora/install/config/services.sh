@@ -146,7 +146,7 @@ if systemctl list-unit-files postgresql.service &>/dev/null; then
             log_info "Configuring PostgreSQL authentication"
 
             # Backup before modification
-            sudo cp "$pg_config_path" "${pg_config_path}.omaforge-backup"
+            sudo cp "$pg_config_path" "${pg_config_path}.rig-backup"
 
             # More precise sed with validation (only modify non-commented lines)
             if sudo sed -i.bak -E \

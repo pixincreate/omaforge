@@ -1,14 +1,14 @@
 #!/bin/bash
-# omaforge:summary=Stow dotfile packages (stow/unstow/restow)
-# omaforge:usage=omaforge stow [options] [packages]
+# rig:summary=Stow dotfile packages (stow/unstow/restow)
+# rig:usage=rig stow [options] [packages]
 
 set -euo pipefail
 
-OMAFORGE_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-source "$OMAFORGE_PATH/install/helpers/all.sh"
+RIG_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source "$RIG_PATH/install/helpers/all.sh"
 
 show_usage() {
-    echo "Usage: omaforge-stow [OPTIONS] [PACKAGE...]"
+    echo "Usage: rig-stow [OPTIONS] [PACKAGE...]"
     echo ""
     echo "Options:"
     echo "  -a, --all         Stow all packages from config"
@@ -20,10 +20,10 @@ show_usage() {
     echo "  cargo, config, git, local, Pictures, ssh, zsh"
     echo ""
     echo "Examples:"
-    echo "  omaforge-stow --all              # Stow all packages"
-    echo "  omaforge-stow config zsh         # Stow only config and zsh"
-    echo "  omaforge-stow -R config          # Restow config package"
-    echo "  omaforge-stow -d git             # Unstow git package"
+    echo "  rig-stow --all              # Stow all packages"
+    echo "  rig-stow config zsh         # Stow only config and zsh"
+    echo "  rig-stow -R config          # Restow config package"
+    echo "  rig-stow -d git             # Unstow git package"
 }
 
 # Parse arguments
@@ -82,7 +82,7 @@ if [[ ${#PACKAGES[@]} -eq 0 ]]; then
 fi
 
 # Source common stow functions
-COMMON_SCRIPT="$OMAFORGE_PATH/../common/dotfiles/stow.sh"
+COMMON_SCRIPT="$RIG_PATH/../common/dotfiles/stow.sh"
 if [[ -f "$COMMON_SCRIPT" ]]; then
     source "$COMMON_SCRIPT"
 fi

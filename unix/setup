@@ -22,9 +22,9 @@ GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-OMAFORGE_REPO="${OMAFORGE_REPO:-pixincreate/omaforge}"
-OMAFORGE_REF="${OMAFORGE_REF:-main}"
-OMAFORGE_PATH="${OMAFORGE_PATH:-$HOME/dev/.omaforge}"
+RIG_REPO="${RIG_REPO:-pixincreate/rig}"
+RIG_REF="${RIG_REF:-main}"
+RIG_PATH="${RIG_PATH:-$HOME/dev/.rig}"
 
 DOTFILES_REPO="${DOTFILES_REPO:-pixincreate/dotfiles}"
 DOTFILES_REF="${DOTFILES_REF:-main}"
@@ -94,17 +94,17 @@ clone_dotfiles() {
     fi
 }
 
-clone_omaforge() {
-    if [[ ! -d "$OMAFORGE_PATH" ]]; then
-        log_info "Cloning omaforge repository..."
-        git clone --recurse-submodules "https://github.com/${OMAFORGE_REPO}.git" "$OMAFORGE_PATH"
-        log_success "Omaforge cloned to $OMAFORGE_PATH"
+clone_rig() {
+    if [[ ! -d "$RIG_PATH" ]]; then
+        log_info "Cloning rig repository..."
+        git clone --recurse-submodules "https://github.com/${RIG_REPO}.git" "$RIG_PATH"
+        log_success "Rig cloned to $RIG_PATH"
     else
-        log_info "Omaforge already exists, updating..."
-        cd "$OMAFORGE_PATH"
-        git pull --rebase origin $OMAFORGE_REF
+        log_info "Rig already exists, updating..."
+        cd "$RIG_PATH"
+        git pull --rebase origin $RIG_REF
         git submodule update --init --recursive
-        log_success "Omaforge updated"
+        log_success "Rig updated"
     fi
 }
 
@@ -119,9 +119,9 @@ main() {
 
     # Clone both repositories
     clone_dotfiles
-    clone_omaforge
+    clone_rig
 
-    cd "$OMAFORGE_PATH/unix/$platform"
+    cd "$RIG_PATH/unix/$platform"
 
     if [[ "$platform" == "fedora" ]]; then
         log_info "Running Fedora setup..."

@@ -2,7 +2,7 @@
 # Directory creation for macOS
 
 # Source common directories script
-COMMON_SCRIPT="$OMAFORGE_PATH/../common/dotfiles/directories.sh"
+COMMON_SCRIPT="$RIG_PATH/../common/dotfiles/directories.sh"
 
 if [[ ! -f "$COMMON_SCRIPT" ]]; then
     log_error "Common directories script not found: $COMMON_SCRIPT"

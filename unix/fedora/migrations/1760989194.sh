@@ -7,7 +7,7 @@ set -eEuo pipefail
 
 echo "Running migration: Add shutdown timeout, swappiness, and restow configs"
 
-CONFIG_FILE="$HOME/.omaforge/unix/fedora/config.json"
+CONFIG_FILE="$HOME/.rig/unix/fedora/config.json"
 
 SHUT_OFF_TIME=$(jq -r '.performance.shut_off_time // empty' "$CONFIG_FILE" 2>/dev/null)
 

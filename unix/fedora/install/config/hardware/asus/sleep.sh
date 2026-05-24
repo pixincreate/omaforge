@@ -1,12 +1,12 @@
 #!/bin/bash
 
-source "$OMAFORGE_INSTALL/helpers/all.sh"
+source "$RIG_INSTALL/helpers/all.sh"
 
 if ! sudo dmidecode -s system-manufacturer 2>/dev/null | grep -qi asus; then
   exit 0
 fi
 
-asus_dir="$OMAFORGE_INSTALL/config/hardware/asus"
+asus_dir="$RIG_INSTALL/config/hardware/asus"
 
 if [[ ! -d "$asus_dir/system-sleep" ]]; then
   exit 0

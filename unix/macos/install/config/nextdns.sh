@@ -16,7 +16,7 @@ fi
 nextdns_id=$(get_config '.nextdns.config_id')
 
 # Source common nextdns setup
-COMMON_SCRIPT="$OMAFORGE_PATH/../common/config/nextdns.sh"
+COMMON_SCRIPT="$RIG_PATH/../common/config/nextdns.sh"
 
 if [[ ! -f "$COMMON_SCRIPT" ]]; then
     log_error "Common nextdns setup script not found: $COMMON_SCRIPT"

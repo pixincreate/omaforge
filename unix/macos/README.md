@@ -1,11 +1,11 @@
-# omaforge - macOS
+# rig - macOS
 
 Automated macOS system setup.
 
 ## Quick Start
 
 ```bash
-cd ~/dev/.omaforge/unix/macos
+cd ~/dev/.rig/unix/macos
 ./macos-setup
 ```
 
@@ -48,18 +48,18 @@ matches.
 
 ## Unified CLI
 
-Use the `omaforge` dispatcher to run any command (available after Fedora setup;
+Use the `rig` dispatcher to run any command (available after Fedora setup;
 macOS uses the scripts directly via `./bin/`):
 
 ```bash
-omaforge stow --all              # Stow all dotfiles
-omaforge add brew neovim         # Add a package declaratively
-omaforge pkg-manage              # Interactive package manager
-omaforge reset                   # Reset components
+rig stow --all              # Stow all dotfiles
+rig add brew neovim         # Add a package declaratively
+rig pkg-manage              # Interactive package manager
+rig reset                   # Reset components
 ```
 
-The dispatcher lives at `unix/fedora/bin/omaforge` and auto-discovers all
-`omaforge-*` scripts. macOS scripts are standalone but use the same metadata
+The dispatcher lives at `unix/fedora/bin/rig` and auto-discovers all
+`rig-*` scripts. macOS scripts are standalone but use the same metadata
 format and are compatible with the dispatcher when running on Fedora.
 
 ## Package Management
@@ -67,8 +67,8 @@ format and are compatible with the dispatcher when running on Fedora.
 ### Interactive
 
 ```bash
-./bin/omaforge-pkg-manage
-# or: omaforge pkg-manage (on Fedora)
+./bin/rig-pkg-manage
+# or: rig pkg-manage (on Fedora)
 ```
 
 Add, remove, search packages with availability checking.
@@ -79,10 +79,10 @@ Add packages to lists and install:
 
 ```bash
 # Add a package declaratively
-./bin/omaforge-add brew fastfetch      # Add to brew.packages
-# or: omaforge add brew fastfetch (on Fedora)
-./bin/omaforge-add cask firefox        # Add to cask.packages
-./bin/omaforge-add rust exa            # Add to rust.packages
+./bin/rig-add brew fastfetch      # Add to brew.packages
+# or: rig add brew fastfetch (on Fedora)
+./bin/rig-add cask firefox        # Add to cask.packages
+./bin/rig-add rust exa            # Add to rust.packages
 
 # Install only new packages
 ./macos-setup --only packaging/brew
@@ -108,20 +108,20 @@ Manage your dotfiles selectively:
 
 ```bash
 # Stow all packages
-./bin/omaforge-stow --all
-# or: omaforge stow --all (on Fedora)
+./bin/rig-stow --all
+# or: rig stow --all (on Fedora)
 
 # Stow specific packages
-./bin/omaforge-stow config zsh     # Only config and zsh
-./bin/omaforge-stow git            # Only git
+./bin/rig-stow config zsh     # Only config and zsh
+./bin/rig-stow git            # Only git
 
 # Restow (unstow then stow again) - useful for updates
-./bin/omaforge-stow -R config      # Restow config
-./bin/omaforge-stow -R --all       # Restow all
+./bin/rig-stow -R config      # Restow config
+./bin/rig-stow -R --all       # Restow all
 
 # Unstow (remove symlinks)
-./bin/omaforge-stow -d git         # Unstow git
-# or: omaforge stow -d git (on Fedora)
+./bin/rig-stow -d git         # Unstow git
+# or: rig stow -d git (on Fedora)
 ```
 
 Available packages: `cargo`, `config`, `git`, `local`, `Pictures`, `ssh`, `zsh`
@@ -138,8 +138,8 @@ Available packages: `cargo`, `config`, `git`, `local`, `Pictures`, `ssh`, `zsh`
 If you need to reset or re-run specific parts:
 
 ```bash
-./bin/omaforge-reset
-# or: omaforge reset (on Fedora)
+./bin/rig-reset
+# or: rig reset (on Fedora)
 ```
 
 Interactive menu to reset:

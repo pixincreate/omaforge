@@ -5,7 +5,7 @@
 zsh_dir=$(expand_path "$(get_config '.directories.zsh')")
 
 # Source common ZSH script
-COMMON_SCRIPT="$OMAFORGE_PATH/../common/dotfiles/zsh.sh"
+COMMON_SCRIPT="$RIG_PATH/../common/dotfiles/zsh.sh"
 
 if [[ ! -f "$COMMON_SCRIPT" ]]; then
     log_error "Common ZSH script not found: $COMMON_SCRIPT"

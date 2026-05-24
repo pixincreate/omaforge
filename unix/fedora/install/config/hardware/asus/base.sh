@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source "$OMAFORGE_INSTALL/helpers/all.sh"
+source "$RIG_INSTALL/helpers/all.sh"
 
 if ! sudo dmidecode -s system-manufacturer 2>/dev/null | grep -qi asus; then
   log_info "Not an ASUS system"

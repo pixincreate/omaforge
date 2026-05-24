@@ -13,28 +13,28 @@
 
 ## Unified CLI Dispatcher
 
-Run `omaforge` with no arguments to list all available commands with their descriptions:
+Run `rig` with no arguments to list all available commands with their descriptions:
 
 ```bash
-omaforge                         # List all commands
-omaforge stow --all              # Same as ./bin/omaforge-stow --all
-omaforge add base neovim         # Same as ./bin/omaforge-add base neovim
+rig                         # List all commands
+rig stow --all              # Same as ./bin/rig-stow --all
+rig add base neovim         # Same as ./bin/rig-add base neovim
 ```
 
-The dispatcher at `unix/fedora/bin/omaforge` reads
-`# omaforge:summary=` and `# omaforge:usage=`
+The dispatcher at `unix/fedora/bin/rig` reads
+`# rig:summary=` and `# rig:usage=`
 metadata from each script. The metadata format is:
 
 ```bash
-# omaforge:summary=Short description of the command
-# omaforge:usage=omaforge <cmd> [options] [args]
+# rig:summary=Short description of the command
+# rig:usage=rig <cmd> [options] [args]
 ```
 
 Always add these annotations to new scripts so they appear in the help output.
 
 ## Command Naming
 
-All standalone scripts use the `omaforge-` prefix. Prefixes indicate purpose:
+All standalone scripts use the `rig-` prefix. Prefixes indicate purpose:
 
 - `cmd-` - check if commands exist, misc utility commands
 - `pkg-` - package management helpers
@@ -53,25 +53,25 @@ All standalone scripts use the `omaforge-` prefix. Prefixes indicate purpose:
 
 Use these instead of raw shell commands:
 
-- `omaforge-cmd-missing` / `omaforge-cmd-present` - check for commands
-- `omaforge-pkg-missing` / `omaforge-pkg-present` - check for packages
-- `omaforge-pkg-add` - install packages (handles both Fedora and macOS)
+- `rig-cmd-missing` / `rig-cmd-present` - check for commands
+- `rig-pkg-missing` / `rig-pkg-present` - check for packages
+- `rig-pkg-add` - install packages (handles both Fedora and macOS)
 
 ## Platform Support
 
-Omaforge supports both Fedora and macOS:
+Rig supports both Fedora and macOS:
 
 - Fedora package manager: `dnf` (not pacman)
 - AUR references: not applicable (Fedora uses COPR or manual builds)
-- Platform detection: use `$OMAFORGE_PLATFORM` (set to `fedora` or `macos`)
+- Platform detection: use `$RIG_PLATFORM` (set to `fedora` or `macos`)
 - Platform-specific scripts: located in `unix/fedora/` and `unix/macos/`
 
 ## File Paths
 
 Use these environment variables for consistency:
 
-- `$OMAFORGE_PATH` - the omaforge repository root
-- `$OMAFORGE_INSTALL` - install scripts directory
+- `$RIG_PATH` - the rig repository root
+- `$RIG_INSTALL` - install scripts directory
 - Platform-specific directories: `unix/fedora/` and `unix/macos/`
 
 ## Logging
@@ -95,7 +95,7 @@ All logging functions support colored output with ANSI codes for better readabil
 
 ## Cross-Platform Consistency
 
-Omaforge supports Fedora _and_ macOS with mirrored directory structures under
+Rig supports Fedora _and_ macOS with mirrored directory structures under
 `unix/fedora/` and `unix/macos/`. **When you make changes that are not
 platform-specific, you must apply the equivalent change to both platforms.**
 
@@ -123,14 +123,14 @@ metadata headers, and argument interfaces consistent.
 
 - No shebang line
 - Start with an `echo` describing what the migration does
-- Use `$OMAFORGE_PATH` to reference the omaforge directory
+- Use `$RIG_PATH` to reference the rig directory
 
 ## Safe Patterns
 
 **DO:**
 
 - ✅ Use `run_logged` for work scripts
-- ✅ Use `omaforge-cmd-*` helpers for command checks
+- ✅ Use `rig-cmd-*` helpers for command checks
 - ✅ Keep platform-specific code in platform directories
 - ✅ Share common code in `unix/common/`
 - ✅ Test with `--only` flag for specific phases
@@ -140,5 +140,5 @@ metadata headers, and argument interfaces consistent.
 - ❌ Never `source` work scripts (use `run_logged`)
 - ❌ Never use `#!/usr/bin/env bash`
 - ❌ Never use `local` outside functions
-- ❌ Never hardcode paths (use `$OMAFORGE_*` variables)
+- ❌ Never hardcode paths (use `$RIG_*` variables)
 - ❌ Never skip error handling in install scripts

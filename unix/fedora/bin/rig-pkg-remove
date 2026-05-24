@@ -1,6 +1,6 @@
 #!/bin/bash
-# omaforge:summary=Remove RPM packages interactively via fzf
-# omaforge:usage=omaforge pkg-remove
+# rig:summary=Remove RPM packages interactively via fzf
+# rig:usage=rig pkg-remove
 
 set -euo pipefail
 

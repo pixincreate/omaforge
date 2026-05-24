@@ -1,6 +1,6 @@
 #!/bin/bash
-# omaforge:summary=Launch a web app URL in the default browser
-# omaforge:usage=omaforge launch-webapp <url> [args]
+# rig:summary=Launch a web app URL in the default browser
+# rig:usage=rig launch-webapp <url> [args]
 
 browser=$(xdg-settings get default-web-browser 2>/dev/null)
 

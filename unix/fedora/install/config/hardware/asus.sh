@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source "$OMAFORGE_INSTALL/helpers/all.sh"
+source "$RIG_INSTALL/helpers/all.sh"
 
 auto_detect=$(get_config '.hardware.asus.auto_detect')
 
@@ -16,7 +16,7 @@ fi
 
 log_info "ASUS system detected"
 
-asus_dir="$OMAFORGE_INSTALL/config/hardware/asus"
+asus_dir="$RIG_INSTALL/config/hardware/asus"
 
 run_logged "$asus_dir/base.sh" || exit 1
 run_logged "$asus_dir/audio.sh" || exit 1

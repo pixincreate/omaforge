@@ -1,5 +1,5 @@
 #!/bin/bash
-# Common helper functions for omaforge
+# Common helper functions for rig
 # Shared between Fedora and macOS
 
 cmd_exists() {
@@ -39,29 +39,29 @@ confirm() {
 # JSON configuration helpers using jq
 get_config() {
     local key="$1"
-    jq -r "$key // empty" "$OMAFORGE_CONFIG" 2>/dev/null
+    jq -r "$key // empty" "$RIG_CONFIG" 2>/dev/null
 }
 
 get_config_array() {
     local key="$1"
-    jq -r "${key}[]? // empty" "$OMAFORGE_CONFIG" 2>/dev/null
+    jq -r "${key}[]? // empty" "$RIG_CONFIG" 2>/dev/null
 }
 
 get_config_keys() {
     local key="$1"
-    jq -r "$key | keys[]? // empty" "$OMAFORGE_CONFIG" 2>/dev/null
+    jq -r "$key | keys[]? // empty" "$RIG_CONFIG" 2>/dev/null
 }
 
 get_array_length() {
     local key="$1"
-    jq "$key | length" "$OMAFORGE_CONFIG" 2>/dev/null || echo "0"
+    jq "$key | length" "$RIG_CONFIG" 2>/dev/null || echo "0"
 }
 
 get_array_item() {
     local key="$1"
     local index="$2"
     local field="$3"
-    jq -r "${key}[${index}].${field} // empty" "$OMAFORGE_CONFIG" 2>/dev/null
+    jq -r "${key}[${index}].${field} // empty" "$RIG_CONFIG" 2>/dev/null
 }
 
 expand_path() {

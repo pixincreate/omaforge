@@ -2,7 +2,7 @@
 # Font installation for macOS - Downloads and installs fonts from GitHub releases
 
 # Source common fonts script
-COMMON_SCRIPT="$OMAFORGE_PATH/../common/dotfiles/fonts.sh"
+COMMON_SCRIPT="$RIG_PATH/../common/dotfiles/fonts.sh"
 
 if [[ ! -f "$COMMON_SCRIPT" ]]; then
     log_error "Common fonts script not found: $COMMON_SCRIPT"

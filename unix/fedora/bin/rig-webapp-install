@@ -1,9 +1,9 @@
 #!/bin/bash
-# omaforge:summary=Install a web app as a desktop application
-# omaforge:usage=omaforge webapp-install <name> <url> <icon> [custom_exec] [mime_types]
+# rig:summary=Install a web app as a desktop application
+# rig:usage=rig webapp-install <name> <url> <icon> [custom_exec] [mime_types]
 
 if [ "$#" -lt 3 ]; then
-  echo "Usage: omaforge-webapp-install <name> <url> <icon> [custom_exec] [mime_types]"
+  echo "Usage: rig-webapp-install <name> <url> <icon> [custom_exec] [mime_types]"
   exit 1
 fi
 
@@ -39,12 +39,12 @@ else
   fi
 fi
 
-OMAFORGE_BIN="$HOME/.omaforge/unix/fedora/bin"
+RIG_BIN="$HOME/.rig/unix/fedora/bin"
 
 if [[ -n $CUSTOM_EXEC ]]; then
   EXEC_COMMAND="$CUSTOM_EXEC"
 else
-  EXEC_COMMAND="$OMAFORGE_BIN/omaforge-launch-webapp $APP_URL"
+  EXEC_COMMAND="$RIG_BIN/rig-launch-webapp $APP_URL"
 fi
 
 DESKTOP_DIR="$HOME/.local/share/applications"

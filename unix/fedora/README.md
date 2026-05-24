@@ -1,11 +1,11 @@
-# omaforge - Fedora
+# rig - Fedora
 
 Automated Fedora system setup.
 
 ## Quick Start
 
 ```bash
-cd ~/dev/.omaforge/unix/fedora
+cd ~/dev/.rig/unix/fedora
 ./fedora-setup
 ```
 
@@ -49,18 +49,18 @@ disambiguate. Using just the filename will show an error listing all matches.
 
 ## Unified CLI
 
-Use the `omaforge` dispatcher to run any command:
+Use the `rig` dispatcher to run any command:
 
 ```bash
-omaforge                         # List all commands with descriptions
-omaforge add base fastfetch      # Add a package declaratively
-omaforge pkg-manage              # Interactive package manager
-omaforge stow --all              # Stow all dotfiles
-omaforge webapp-install "App" "https://..." "icon.png"
+rig                         # List all commands with descriptions
+rig add base fastfetch      # Add a package declaratively
+rig pkg-manage              # Interactive package manager
+rig stow --all              # Stow all dotfiles
+rig webapp-install "App" "https://..." "icon.png"
 ```
 
-The dispatcher automatically discovers all `omaforge-*` scripts and reads their
-metadata headers. Running `omaforge` with no arguments shows every available
+The dispatcher automatically discovers all `rig-*` scripts and reads their
+metadata headers. Running `rig` with no arguments shows every available
 command with its description and usage.
 
 ## Package Management
@@ -68,8 +68,8 @@ command with its description and usage.
 ### Interactive
 
 ```bash
-omaforge pkg-manage
-# or: ./bin/omaforge-pkg-manage
+rig pkg-manage
+# or: ./bin/rig-pkg-manage
 ```
 
 Add, remove, search packages with availability checking.
@@ -80,12 +80,12 @@ Add packages to lists and install:
 
 ```bash
 # Add a package declaratively
-omaforge add base fastfetch          # Add to base.packages
-omaforge add dev neovim              # Add to development.packages
-omaforge add tools telegram-desktop  # Add to tools.packages
-omaforge add flatpak com.spotify.Client  # Add to flatpak.packages
-omaforge add rust exa                # Add to rust.packages
-# or: ./bin/omaforge-add base fastfetch
+rig add base fastfetch          # Add to base.packages
+rig add dev neovim              # Add to development.packages
+rig add tools telegram-desktop  # Add to tools.packages
+rig add flatpak com.spotify.Client  # Add to flatpak.packages
+rig add rust exa                # Add to rust.packages
+# or: ./bin/rig-add base fastfetch
 
 # Install only new packages
 ./fedora-setup --only packaging/base
@@ -119,21 +119,21 @@ Installed by default:
 ### Install Custom
 
 ```bash
-omaforge webapp-install "App Name" "https://example.com" "https://example.com/icon.png"
-# or: ./bin/omaforge-webapp-install "App Name" "https://..." "icon.png"
+rig webapp-install "App Name" "https://example.com" "https://example.com/icon.png"
+# or: ./bin/rig-webapp-install "App Name" "https://..." "icon.png"
 
 # Incognito mode
-omaforge webapp-install "App" "https://example.com" "icon.png" \
-  "omaforge-launch-browser --private https://example.com/"
+rig webapp-install "App" "https://example.com" "icon.png" \
+  "rig-launch-browser --private https://example.com/"
 ```
 
 ### Remove
 
 ```bash
-omaforge webapp-remove           # Interactive
-omaforge webapp-remove ChatGPT   # Specific
-omaforge webapp-remove all       # All
-# or: ./bin/omaforge-webapp-remove ChatGPT
+rig webapp-remove           # Interactive
+rig webapp-remove ChatGPT   # Specific
+rig webapp-remove all       # All
+# or: ./bin/rig-webapp-remove ChatGPT
 ```
 
 ## Dotfiles Management
@@ -142,24 +142,24 @@ Manage your dotfiles selectively:
 
 ```bash
 # Stow all packages
-./bin/omaforge-stow --all
+./bin/rig-stow --all
 
 # Stow specific packages
-./bin/omaforge-stow config zsh     # Only config and zsh
-./bin/omaforge-stow git            # Only git
+./bin/rig-stow config zsh     # Only config and zsh
+./bin/rig-stow git            # Only git
 
 # Restow (unstow then stow again) - useful for updates
-./bin/omaforge-stow -R config      # Restow config
-./bin/omaforge-stow -R --all       # Restow all
+./bin/rig-stow -R config      # Restow config
+./bin/rig-stow -R --all       # Restow all
 
 # Unstow (remove symlinks)
-./bin/omaforge-stow -d git         # Unstow git
+./bin/rig-stow -d git         # Unstow git
 
 # Or use the unified dispatcher:
-omaforge stow --all
-omaforge stow config zsh
-omaforge stow -R --all
-omaforge stow -d git
+rig stow --all
+rig stow config zsh
+rig stow -R --all
+rig stow -d git
 ```
 
 Available packages: `cargo`, `config`, `git`, `local`, `Pictures`, `ssh`, `zsh`
@@ -198,7 +198,7 @@ Symlinked config files (backed up if regular files existed):
 If you need to reset or re-run specific parts:
 
 ```bash
-./bin/omaforge-reset
+./bin/rig-reset
 ```
 
 Interactive menu to reset:

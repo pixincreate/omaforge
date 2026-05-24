@@ -1,4 +1,4 @@
-name: Omaforge CI
+name: Rig CI
 
 on:
   push:
@@ -62,7 +62,7 @@ jobs:
             README.md \
             unix/fedora/README.md \
             unix/macos/README.md \
-            default/omaforge-skill/SKILL.md
+            default/rig-skill/SKILL.md
 
       - name: Prettier check
         run: |
@@ -153,11 +153,11 @@ jobs:
       - name: Test helpers load correctly
         run: |
           cd unix/fedora
-          export OMAFORGE_PATH="$(pwd)"
-          export OMAFORGE_INSTALL="$OMAFORGE_PATH/install"
-          export OMAFORGE_CONFIG="/tmp/test-config.json"
+          export RIG_PATH="$(pwd)"
+          export RIG_INSTALL="$RIG_PATH/install"
+          export RIG_CONFIG="/tmp/test-config.json"
           export NON_INTERACTIVE=true
-          export OMAFORGE_INSTALL_LOG_FILE="/tmp/omaforge-test.log"
+          export RIG_INSTALL_LOG_FILE="/tmp/rig-test.log"
 
           # Source helpers - should not error
           source install/helpers/all.sh
@@ -177,11 +177,11 @@ jobs:
       - name: Test run_logged execution
         run: |
           cd unix/fedora
-          export OMAFORGE_PATH="$(pwd)"
-          export OMAFORGE_INSTALL="$OMAFORGE_PATH/install"
-          export OMAFORGE_CONFIG="/tmp/test-config.json"
+          export RIG_PATH="$(pwd)"
+          export RIG_INSTALL="$RIG_PATH/install"
+          export RIG_CONFIG="/tmp/test-config.json"
           export NON_INTERACTIVE=true
-          export OMAFORGE_INSTALL_LOG_FILE="/tmp/omaforge-test.log"
+          export RIG_INSTALL_LOG_FILE="/tmp/rig-test.log"
 
           source install/helpers/all.sh
 
@@ -192,16 +192,16 @@ jobs:
       - name: Test dotfiles directories
         run: |
           cd unix/fedora
-          export OMAFORGE_PATH="$(pwd)"
-          export OMAFORGE_INSTALL="$OMAFORGE_PATH/install"
-          export OMAFORGE_CONFIG="/tmp/test-config.json"
+          export RIG_PATH="$(pwd)"
+          export RIG_INSTALL="$RIG_PATH/install"
+          export RIG_CONFIG="/tmp/test-config.json"
           export NON_INTERACTIVE=true
-          export OMAFORGE_INSTALL_LOG_FILE="/tmp/omaforge-test.log"
+          export RIG_INSTALL_LOG_FILE="/tmp/rig-test.log"
 
           source install/helpers/all.sh
 
           # Run directories setup
-          run_logged "$OMAFORGE_INSTALL/dotfiles/directories.sh"
+          run_logged "$RIG_INSTALL/dotfiles/directories.sh"
 
           # Verify directories were created
           ls -la ~/.config
@@ -213,31 +213,31 @@ jobs:
       - name: Test dotfiles stow
         run: |
           cd unix/fedora
-          export OMAFORGE_PATH="$(pwd)"
-          export OMAFORGE_INSTALL="$OMAFORGE_PATH/install"
-          export OMAFORGE_CONFIG="/tmp/test-config.json"
+          export RIG_PATH="$(pwd)"
+          export RIG_INSTALL="$RIG_PATH/install"
+          export RIG_CONFIG="/tmp/test-config.json"
           export NON_INTERACTIVE=true
-          export OMAFORGE_INSTALL_LOG_FILE="/tmp/omaforge-test.log"
+          export RIG_INSTALL_LOG_FILE="/tmp/rig-test.log"
 
           source install/helpers/all.sh
 
           # Verify dotfiles scripts have valid syntax
-          bash -n "$OMAFORGE_INSTALL/dotfiles/all.sh"
-          bash -n "$OMAFORGE_INSTALL/dotfiles/stow.sh"
-          bash -n "$OMAFORGE_INSTALL/dotfiles/directories.sh"
-          bash -n "$OMAFORGE_INSTALL/dotfiles/fonts.sh"
-          bash -n "$OMAFORGE_INSTALL/dotfiles/zsh.sh"
+          bash -n "$RIG_INSTALL/dotfiles/all.sh"
+          bash -n "$RIG_INSTALL/dotfiles/stow.sh"
+          bash -n "$RIG_INSTALL/dotfiles/directories.sh"
+          bash -n "$RIG_INSTALL/dotfiles/fonts.sh"
+          bash -n "$RIG_INSTALL/dotfiles/zsh.sh"
 
           echo "Dotfiles scripts syntax valid"
 
       - name: Test config scripts load
         run: |
           cd unix/fedora
-          export OMAFORGE_PATH="$(pwd)"
-          export OMAFORGE_INSTALL="$OMAFORGE_PATH/install"
-          export OMAFORGE_CONFIG="/tmp/test-config.json"
+          export RIG_PATH="$(pwd)"
+          export RIG_INSTALL="$RIG_PATH/install"
+          export RIG_CONFIG="/tmp/test-config.json"
           export NON_INTERACTIVE=true
-          export OMAFORGE_INSTALL_LOG_FILE="/tmp/omaforge-test.log"
+          export RIG_INSTALL_LOG_FILE="/tmp/rig-test.log"
 
           source install/helpers/all.sh
 
@@ -255,16 +255,16 @@ jobs:
       - name: Test bin commands
         run: |
           cd unix/fedora
-          export OMAFORGE_PATH="$(pwd)"
-          export OMAFORGE_INSTALL="$OMAFORGE_PATH/install"
-          export OMAFORGE_CONFIG="/tmp/test-config.json"
+          export RIG_PATH="$(pwd)"
+          export RIG_INSTALL="$RIG_PATH/install"
+          export RIG_CONFIG="/tmp/test-config.json"
           export NON_INTERACTIVE=true
-          export OMAFORGE_INSTALL_LOG_FILE="/tmp/omaforge-test.log"
+          export RIG_INSTALL_LOG_FILE="/tmp/rig-test.log"
 
           source install/helpers/all.sh
 
           # Test that bin commands exist and have valid syntax
-          for cmd in "$OMAFORGE_PATH/bin/"*; do
+          for cmd in "$RIG_PATH/bin/"*; do
             if [[ -f "$cmd" ]]; then
               echo "Checking $(basename "$cmd")..."
               bash -n "$cmd" && echo "  Syntax OK"
@@ -276,11 +276,11 @@ jobs:
       - name: Test non-interactive mode
         run: |
           cd unix/fedora
-          export OMAFORGE_PATH="$(pwd)"
-          export OMAFORGE_INSTALL="$OMAFORGE_PATH/install"
-          export OMAFORGE_CONFIG="/tmp/test-config.json"
+          export RIG_PATH="$(pwd)"
+          export RIG_INSTALL="$RIG_PATH/install"
+          export RIG_CONFIG="/tmp/test-config.json"
           export NON_INTERACTIVE=true
-          export OMAFORGE_INSTALL_LOG_FILE="/tmp/omaforge-test.log"
+          export RIG_INSTALL_LOG_FILE="/tmp/rig-test.log"
 
           source install/helpers/all.sh
 
@@ -367,14 +367,14 @@ jobs:
       - name: Test helpers load correctly
         run: |
           cd unix/macos
-          export OMAFORGE_PATH="$(pwd)"
-          export OMAFORGE_INSTALL="$OMAFORGE_PATH/install"
-          export OMAFORGE_CONFIG="/tmp/test-config.json"
+          export RIG_PATH="$(pwd)"
+          export RIG_INSTALL="$RIG_PATH/install"
+          export RIG_CONFIG="/tmp/test-config.json"
           export NON_INTERACTIVE=true
-          export OMAFORGE_INSTALL_LOG_FILE="$HOME/.local/state/omaforge/install.log"
+          export RIG_INSTALL_LOG_FILE="$HOME/.local/state/rig/install.log"
 
           # Create log directory
-          mkdir -p "$HOME/.local/state/omaforge"
+          mkdir -p "$HOME/.local/state/rig"
 
           # Source helpers - should not error
           source install/helpers/all.sh
@@ -394,11 +394,11 @@ jobs:
       - name: Test run_logged execution
         run: |
           cd unix/macos
-          export OMAFORGE_PATH="$(pwd)"
-          export OMAFORGE_INSTALL="$OMAFORGE_PATH/install"
-          export OMAFORGE_CONFIG="/tmp/test-config.json"
+          export RIG_PATH="$(pwd)"
+          export RIG_INSTALL="$RIG_PATH/install"
+          export RIG_CONFIG="/tmp/test-config.json"
           export NON_INTERACTIVE=true
-          export OMAFORGE_INSTALL_LOG_FILE="$HOME/.local/state/omaforge/install.log"
+          export RIG_INSTALL_LOG_FILE="$HOME/.local/state/rig/install.log"
 
           source install/helpers/all.sh
 
@@ -414,23 +414,23 @@ jobs:
           run_logged /tmp/test-run-logged.sh
 
           # Verify output went to log file
-          cat "$HOME/.local/state/omaforge/install.log"
+          cat "$HOME/.local/state/rig/install.log"
 
           echo "run_logged works correctly"
 
       - name: Test dotfiles directories
         run: |
           cd unix/macos
-          export OMAFORGE_PATH="$(pwd)"
-          export OMAFORGE_INSTALL="$OMAFORGE_PATH/install"
-          export OMAFORGE_CONFIG="/tmp/test-config.json"
+          export RIG_PATH="$(pwd)"
+          export RIG_INSTALL="$RIG_PATH/install"
+          export RIG_CONFIG="/tmp/test-config.json"
           export NON_INTERACTIVE=true
-          export OMAFORGE_INSTALL_LOG_FILE="$HOME/.local/state/omaforge/install.log"
+          export RIG_INSTALL_LOG_FILE="$HOME/.local/state/rig/install.log"
 
           source install/helpers/all.sh
 
           # Run directories setup
-          run_logged "$OMAFORGE_INSTALL/dotfiles/directories.sh"
+          run_logged "$RIG_INSTALL/dotfiles/directories.sh"
 
           # Verify directories were created
           ls -la ~/.config
@@ -442,33 +442,33 @@ jobs:
       - name: Test dotfiles stow
         run: |
           cd unix/macos
-          export OMAFORGE_PATH="$(pwd)"
-          export OMAFORGE_INSTALL="$OMAFORGE_PATH/install"
-          export OMAFORGE_CONFIG="/tmp/test-config.json"
+          export RIG_PATH="$(pwd)"
+          export RIG_INSTALL="$RIG_PATH/install"
+          export RIG_CONFIG="/tmp/test-config.json"
           export NON_INTERACTIVE=true
-          export OMAFORGE_INSTALL_LOG_FILE="$HOME/.local/state/omaforge/install.log"
+          export RIG_INSTALL_LOG_FILE="$HOME/.local/state/rig/install.log"
 
-          mkdir -p "$HOME/.local/state/omaforge"
+          mkdir -p "$HOME/.local/state/rig"
 
           source install/helpers/all.sh
 
           # Verify dotfiles scripts have valid syntax
-          bash -n "$OMAFORGE_INSTALL/dotfiles/all.sh"
-          bash -n "$OMAFORGE_INSTALL/dotfiles/stow.sh"
-          bash -n "$OMAFORGE_INSTALL/dotfiles/directories.sh"
-          bash -n "$OMAFORGE_INSTALL/dotfiles/fonts.sh"
-          bash -n "$OMAFORGE_INSTALL/dotfiles/zsh.sh"
+          bash -n "$RIG_INSTALL/dotfiles/all.sh"
+          bash -n "$RIG_INSTALL/dotfiles/stow.sh"
+          bash -n "$RIG_INSTALL/dotfiles/directories.sh"
+          bash -n "$RIG_INSTALL/dotfiles/fonts.sh"
+          bash -n "$RIG_INSTALL/dotfiles/zsh.sh"
 
           echo "Dotfiles scripts syntax valid"
 
       - name: Test non-interactive mode
         run: |
           cd unix/macos
-          export OMAFORGE_PATH="$(pwd)"
-          export OMAFORGE_INSTALL="$OMAFORGE_PATH/install"
-          export OMAFORGE_CONFIG="/tmp/test-config.json"
+          export RIG_PATH="$(pwd)"
+          export RIG_INSTALL="$RIG_PATH/install"
+          export RIG_CONFIG="/tmp/test-config.json"
           export NON_INTERACTIVE=true
-          export OMAFORGE_INSTALL_LOG_FILE="$HOME/.local/state/omaforge/install.log"
+          export RIG_INSTALL_LOG_FILE="$HOME/.local/state/rig/install.log"
 
           source install/helpers/all.sh
 
@@ -503,10 +503,10 @@ jobs:
 
       - name: Test common helpers
         run: |
-          export OMAFORGE_PATH="$(pwd)"
-          export OMAFORGE_INSTALL="$OMAFORGE_PATH/unix/fedora/install"
-          export OMAFORGE_CONFIG="$OMAFORGE_PATH/unix/fedora/config.json"
-          export OMAFORGE_INSTALL_LOG_FILE="/tmp/omaforge-test.log"
+          export RIG_PATH="$(pwd)"
+          export RIG_INSTALL="$RIG_PATH/unix/fedora/install"
+          export RIG_CONFIG="$RIG_PATH/unix/fedora/config.json"
+          export RIG_INSTALL_LOG_FILE="/tmp/rig-test.log"
           export NON_INTERACTIVE=true
 
           source unix/common/helpers/logging.sh
@@ -525,10 +525,10 @@ jobs:
 
       - name: Test common dotfiles scripts
         run: |
-          export OMAFORGE_PATH="$(pwd)"
-          export OMAFORGE_INSTALL="$OMAFORGE_PATH/unix/fedora/install"
-          export OMAFORGE_CONFIG="$OMAFORGE_PATH/unix/fedora/config.json"
-          export OMAFORGE_INSTALL_LOG_FILE="/tmp/omaforge-test.log"
+          export RIG_PATH="$(pwd)"
+          export RIG_INSTALL="$RIG_PATH/unix/fedora/install"
+          export RIG_CONFIG="$RIG_PATH/unix/fedora/config.json"
+          export RIG_INSTALL_LOG_FILE="/tmp/rig-test.log"
           export NON_INTERACTIVE=true
 
           source unix/common/helpers/logging.sh
@@ -546,10 +546,10 @@ jobs:
 
       - name: Test common config scripts
         run: |
-          export OMAFORGE_PATH="$(pwd)"
-          export OMAFORGE_INSTALL="$OMAFORGE_PATH/unix/fedora/install"
-          export OMAFORGE_CONFIG="$OMAFORGE_PATH/unix/fedora/config.json"
-          export OMAFORGE_INSTALL_LOG_FILE="/tmp/omaforge-test.log"
+          export RIG_PATH="$(pwd)"
+          export RIG_INSTALL="$RIG_PATH/unix/fedora/install"
+          export RIG_CONFIG="$RIG_PATH/unix/fedora/config.json"
+          export RIG_INSTALL_LOG_FILE="/tmp/rig-test.log"
           export NON_INTERACTIVE=true
 
           source unix/common/helpers/logging.sh

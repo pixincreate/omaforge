@@ -1,4 +1,4 @@
-# Omaforge
+# Rig
 
 ```text
 See docs/banner.txt for the full logo.
@@ -11,14 +11,14 @@ Automated system setup for Fedora Linux and macOS.
 ### One-line Installer
 
 ```bash
-eval "$(curl -fsSL https://raw.githubusercontent.com/pixincreate/omaforge/main/unix/setup)"
+eval "$(curl -fsSL https://raw.githubusercontent.com/pixincreate/rig/main/unix/setup)"
 ```
 
 The installer automatically:
 
 - Detect your platform (Fedora or macOS)
 - Clone the dotfiles repository to `~/dev/.dotfiles`
-- Clone this repository to `~/dev/.omaforge`
+- Clone this repository to `~/dev/.rig`
 - Prompt you for Git name/email, NextDNS config, etc.
 - Run the complete setup
 
@@ -43,11 +43,11 @@ vim unix/fedora/config.json  # or unix/macos/config.json
 **Optional**: Override via environment variables:
 
 ```bash
-export OMAFORGE_GIT_NAME='Your Name'
-export OMAFORGE_GIT_EMAIL='your@email.com'
-export OMAFORGE_NEXTDNS_ID='abc123'
-export OMAFORGE_SECUREBOOT='true'  # Fedora only
-eval "$(curl -fsSL https://raw.githubusercontent.com/pixincreate/omaforge/main/unix/setup)"
+export RIG_GIT_NAME='Your Name'
+export RIG_GIT_EMAIL='your@email.com'
+export RIG_NEXTDNS_ID='abc123'
+export RIG_SECUREBOOT='true'  # Fedora only
+eval "$(curl -fsSL https://raw.githubusercontent.com/pixincreate/rig/main/unix/setup)"
 ```
 
 ### Manual Installation
@@ -55,31 +55,31 @@ eval "$(curl -fsSL https://raw.githubusercontent.com/pixincreate/omaforge/main/u
 ```bash
 # macOS
 git clone https://github.com/pixincreate/dotfiles.git ~/.dotfiles
-git clone https://github.com/pixincreate/omaforge.git ~/.omaforge
-cd ~/.omaforge/unix/macos
+git clone https://github.com/pixincreate/rig.git ~/.rig
+cd ~/.rig/unix/macos
 ./macos-setup
 
 # Fedora
 git clone https://github.com/pixincreate/dotfiles.git ~/.dotfiles
-git clone https://github.com/pixincreate/omaforge.git ~/.omaforge
-cd ~/.omaforge/unix/fedora
+git clone https://github.com/pixincreate/rig.git ~/.rig
+cd ~/.rig/unix/fedora
 ./fedora-setup
 ```
 
 ## Unified CLI
 
-Omaforge includes a unified CLI dispatcher. Run it from anywhere after setup:
+Rig includes a unified CLI dispatcher. Run it from anywhere after setup:
 
 ```bash
-omaforge                    # List all available commands with descriptions
-omaforge add base neovim    # Add a package to a list
-omaforge pkg-manage         # Interactive package manager
-omaforge stow --all         # Stow all dotfiles
-omaforge webapp-install "ChatGPT" "https://chat.openai.com" "icon.png"
+rig                    # List all available commands with descriptions
+rig add base neovim    # Add a package to a list
+rig pkg-manage         # Interactive package manager
+rig stow --all         # Stow all dotfiles
+rig webapp-install "ChatGPT" "https://chat.openai.com" "icon.png"
 ```
 
-The dispatcher auto-discovers all `omaforge-*` scripts and shows their descriptions.
-Use `omaforge` without arguments whenever you need to see what's available.
+The dispatcher auto-discovers all `rig-*` scripts and shows their descriptions.
+Use `rig` without arguments whenever you need to see what's available.
 
 ## Running Individual Components
 
@@ -127,14 +127,14 @@ Both macOS and Fedora support running specific modules:
 
 ```bash
 # Stow all packages
-omaforge-stow --all
+rig-stow --all
 
 # Stow specific packages
-omaforge-stow config zsh          # Only config and zsh
+rig-stow config zsh          # Only config and zsh
 
 # Restow (useful after updates)
-omaforge-stow -R config           # Restow config
-omaforge-stow -R --all            # Restow all
+rig-stow -R config           # Restow config
+rig-stow -R --all            # Restow all
 ```
 
 ### Manual Stow
@@ -151,26 +151,26 @@ stow --no-folding --restow --target=$HOME home/zsh
 
 ```bash
 # macOS
-./bin/omaforge-add brew neovim       # Add CLI tool
-./bin/omaforge-add cask firefox      # Add GUI app
+./bin/rig-add brew neovim       # Add CLI tool
+./bin/rig-add cask firefox      # Add GUI app
 ./macos-setup --only packaging/brew  # Install new packages
 
 # Fedora
-./bin/omaforge-add base neovim       # Add to base packages
-./bin/omaforge-add flatpak com.spotify.Client  # Add Flatpak
+./bin/rig-add base neovim       # Add to base packages
+./bin/rig-add flatpak com.spotify.Client  # Add Flatpak
 ./fedora-setup --only packaging/base # Install new packages
 ```
 
 ### Interactive
 
 ```bash
-./bin/omaforge-pkg-manage
+./bin/rig-pkg-manage
 ```
 
 ## Reset/Re-run Components
 
 ```bash
-./bin/omaforge-reset
+./bin/rig-reset
 ```
 
 Interactive menu to reset specific components.
@@ -179,10 +179,10 @@ Interactive menu to reset specific components.
 
 ```bash
 # Install
-./bin/omaforge-webapp-install "App Name" "https://example.com" "icon.png"
+./bin/rig-webapp-install "App Name" "https://example.com" "icon.png"
 
 # Remove
-./bin/omaforge-webapp-remove ChatGPT  # Specific app
+./bin/rig-webapp-remove ChatGPT  # Specific app
 ```
 
 ## Structure
@@ -251,12 +251,12 @@ Each platform has a `config.json` for declarative configuration:
 
 ## Logs
 
-Setup logs are stored at `~/.local/state/omaforge/install.log`.
+Setup logs are stored at `~/.local/state/rig/install.log`.
 
 Check logs if something fails:
 
 ```bash
-tail -50 ~/.local/state/omaforge/install.log
+tail -50 ~/.local/state/rig/install.log
 ```
 
 ## Documentation

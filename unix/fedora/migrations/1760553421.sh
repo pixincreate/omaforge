@@ -11,7 +11,7 @@ if rpm -q trash-cli &>/dev/null; then
     exit 0
 fi
 
-if ! omaforge-pkg-add trash-cli; then
+if ! rig-pkg-add trash-cli; then
     echo "[ERROR] Failed to install trash-cli"
     exit 1
 fi

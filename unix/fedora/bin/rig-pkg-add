@@ -1,12 +1,12 @@
 #!/bin/bash
-# omaforge:summary=Install RPM packages via DNF
-# omaforge:usage=omaforge pkg-add <package> [package2 ...]
+# rig:summary=Install RPM packages via DNF
+# rig:usage=rig pkg-add <package> [package2 ...]
 
 set -euo pipefail
 
 if [[ $# -eq 0 ]]; then
-    echo "Usage: omaforge-pkg-add <package> [package2 ...]"
-    echo "Example: omaforge-pkg-add neofetch htop"
+    echo "Usage: rig-pkg-add <package> [package2 ...]"
+    echo "Example: rig-pkg-add neofetch htop"
     exit 1
 fi
 
