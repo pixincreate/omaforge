@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# shellcheck source=../helpers/all.sh
 source "$RIG_INSTALL/helpers/all.sh"
 
 auto_detect=$(get_config '.hardware.asus.auto_detect')

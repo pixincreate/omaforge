@@ -19,10 +19,18 @@ Run `rig` with no arguments to list all available commands with their descriptio
 rig                         # List all commands
 rig stow --all              # Same as ./bin/rig-stow --all
 rig add base neovim         # Same as ./bin/rig-add base neovim
+rig install skillset        # Multi-word prefix routing
 ```
 
-The dispatcher at `unix/fedora/bin/rig` reads
-`# rig:summary=` and `# rig:usage=`
+Each platform has its own dispatcher (`unix/fedora/bin/rig` and
+`unix/macos/bin/rig`) with the same interface. The dispatcher also checks
+`unix/common/bin/` for commands shared across both platforms.
+
+**Multi-word prefix routing**: the dispatcher tries each prefix from
+all-words-down-to-1 to find a matching `rig-<words>` binary. For example,
+`rig install skillset` → `rig-install-skillset`.
+
+The dispatcher reads `# rig:summary=` and `# rig:usage=`
 metadata from each script. The metadata format is:
 
 ```bash

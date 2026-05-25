@@ -84,7 +84,8 @@ fi
 # Source common stow functions
 COMMON_SCRIPT="$RIG_PATH/../common/dotfiles/stow.sh"
 if [[ -f "$COMMON_SCRIPT" ]]; then
-    source "$COMMON_SCRIPT"
+    # shellcheck source=../common/dotfiles/stow.sh
+source "$COMMON_SCRIPT"
 fi
 
 # Process each package

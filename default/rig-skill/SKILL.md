@@ -43,10 +43,14 @@ Rig supports both Fedora Linux and macOS with a shared codebase:
 ```text
 rig/
 ├── unix/
-│   ├── common/              # Shared helpers (logging, common functions)
-│   │   └── helpers/
+│   ├── common/              # Shared helpers, dotfiles, bin, installer
+│   │   ├── bin/             # Shared rig-* commands (rig-install-skillset)
+│   │   ├── config/          # Shared configuration scripts
+│   │   ├── dotfiles/        # Shared dotfile management
+│   │   ├── helpers/         # Shared functions (logging, common)
+│   │   └── install/         # Shared install modules (external/)
 │   ├── fedora/              # Fedora-specific installer
-│   │   ├── bin/             # rig-* commands + rig dispatcher
+│   │   ├── bin/             # Platform rig-* commands + rig dispatcher
 │   │   ├── packages/        # Package lists (*.packages)
 │   │   ├── config/          # Config templates
 │   │   ├── dotfiles/        # User dotfiles
@@ -67,14 +71,19 @@ rig/
 
 ### Unified CLI Dispatcher
 
-The Fedora distribution includes a unified CLI dispatcher at
-`unix/fedora/bin/rig` that discovers all `rig-*` scripts and provides
-a single entry point:
+Each platform has its own `rig` dispatcher at `unix/{fedora,macos}/bin/rig`
+that discovers all `rig-*` scripts (platform + common) and provides
+a single entry point. Commands in `unix/common/bin/` are shared across
+both platforms.
+
+**Multi-word prefix routing** (inspired by omarchy): the dispatcher matches
+commands as prefixes — `rig install skillset` routes to `rig-install-skillset`.
 
 ```bash
 rig                    # List all available commands with descriptions
 rig stow --all         # Same as ./bin/rig-stow --all
 rig add base neovim    # Same as ./bin/rig-add base neovim
+rig install skillset   # Routes to unix/common/bin/rig-install-skillset
 ```
 
 The dispatcher reads `# rig:summary=` and `# rig:usage=` metadata
@@ -86,8 +95,9 @@ annotations** so the command appears in the help output.
 # rig:usage=rig <cmd> [options] [args]
 ```
 
-macOS scripts are standalone and do not use the dispatcher, but **must still
-include the metadata headers** for consistency and cross-platform compatibility.
+The dispatcher also exports `$RIG_PATH` (repo root) and `$RIG_BIN`
+(platform bin dir) to child scripts. This is how scripts resolve their
+paths relative to the rig repository.
 
 ## Cross-Platform Mirroring
 
@@ -216,7 +226,13 @@ rig-dev-add-migration --no-edit
 
 ### Adding a New Command
 
-1. Create in `unix/{fedora,macos}/bin/`:
+1. Decide where it lives:
+   - **Platform-specific** (`dnf` vs `brew`, hardware): put in
+     `unix/{fedora,macos}/bin/` — mirror to both platforms
+   - **Shared logic** (operates on common resources, env vars): put in
+     `unix/common/bin/` — one file, both platforms pick it up
+
+2. Create the script with metadata:
 
    ```bash
    #!/bin/bash
@@ -227,16 +243,16 @@ rig-dev-add-migration --no-edit
    # ... implementation
    ```
 
-2. Make executable:
+3. Make executable:
 
    ```bash
+   chmod +x unix/common/bin/rig-<name>
+   # or for platform-specific:
    chmod +x unix/fedora/bin/rig-<name>
    chmod +x unix/macos/bin/rig-<name>
    ```
 
-3. Add to PATH in installer setup
-4. If the command is not platform-specific, add it to both Fedora and macOS
-   (follow the Cross-Platform Mirroring section)
+4. The dispatcher picks it up automatically — no PATH or registration needed.
 
 ### Adding Hardware Detection
 

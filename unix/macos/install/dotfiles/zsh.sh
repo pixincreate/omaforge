@@ -12,6 +12,7 @@ if [[ ! -f "$COMMON_SCRIPT" ]]; then
     return 1
 fi
 
+# shellcheck source=../../common/dotfiles/zsh.sh
 source "$COMMON_SCRIPT"
 
 # Run ZSH setup

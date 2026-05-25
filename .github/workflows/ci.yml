@@ -35,21 +35,22 @@ jobs:
           # Check all .sh files
           find . -name "*.sh" -type f | while read -r script; do
             echo "Checking $script..."
-            shellcheck -e SC1090,SC1091 "$script" || exit 1
+            shellcheck -e SC1091 "$script" || exit 1
           done
 
           # Check main setup scripts (no .sh extension)
           for f in unix/fedora/fedora-setup unix/macos/macos-setup; do
             echo "Checking $f..."
-            shellcheck -e SC1090,SC1091 "$f" || exit 1
+            shellcheck -e SC1091 "$f" || exit 1
           done
 
-          # Check bin scripts
-          for dir in unix/fedora/bin unix/macos/bin; do
+          # Check bin scripts (platform + common)
+          for dir in unix/fedora/bin unix/macos/bin unix/common/bin; do
+            [ -d "$dir" ] || continue
             for f in "$dir"/*; do
               [ -f "$f" ] || continue
               echo "Checking $f..."
-              shellcheck -e SC1090,SC1091 "$f" || exit 1
+              shellcheck -e SC1091 "$f" || exit 1
             done
           done
 
@@ -543,6 +544,22 @@ jobs:
           type stow_dotfiles
 
           echo "Common dotfiles scripts loaded successfully"
+
+      - name: Test dispatcher smoke tests
+        run: |
+          # Fedora dispatcher
+          export RIG_PATH="$(pwd)"
+          echo "=== Fedora dispatcher ==="
+          unix/fedora/bin/rig | head -30
+          echo ""
+
+          # Test multi-word routing
+          unix/fedora/bin/rig install skillset 2>&1 | head -10 || true
+          echo ""
+
+          # macOS dispatcher
+          echo "=== macOS dispatcher ==="
+          unix/macos/bin/rig | head -30
 
       - name: Test common config scripts
         run: |

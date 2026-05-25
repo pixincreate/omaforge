@@ -1,6 +1,7 @@
 #!/bin/bash
 # Hardware detection and configuration
 
+# shellcheck source=../../helpers/all.sh
 source "$RIG_INSTALL/helpers/all.sh"
 
 log_info "Detecting and configuring hardware"

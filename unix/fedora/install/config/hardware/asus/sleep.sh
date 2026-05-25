@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# shellcheck source=../../../helpers/all.sh
 source "$RIG_INSTALL/helpers/all.sh"
 
 if ! sudo dmidecode -s system-manufacturer 2>/dev/null | grep -qi asus; then
