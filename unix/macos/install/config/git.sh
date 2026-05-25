@@ -17,7 +17,7 @@ if [[ ! -f "$COMMON_SCRIPT" ]]; then
 fi
 
 # Source the common script
-# shellcheck source=../../common/config/git.sh
+# shellcheck source=../../../common/config/git.sh
 source "$COMMON_SCRIPT"
 
 # Run setup with macOS-specific config values

@@ -18,7 +18,7 @@ if [[ ! -f "$COMMON_SCRIPT" ]]; then
 fi
 
 # Source the common script
-# shellcheck source=../../common/config/nextdns.sh
+# shellcheck source=../../../common/config/nextdns.sh
 source "$COMMON_SCRIPT"
 
 # Run setup (will prompt for config ID if not provided)

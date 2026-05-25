@@ -11,7 +11,7 @@ if [[ ! -f "$COMMON_SCRIPT" ]]; then
 fi
 
 # Source the common script
-# shellcheck source=../../common/dotfiles/zsh.sh
+# shellcheck source=../../../common/dotfiles/zsh.sh
 source "$COMMON_SCRIPT"
 
 # Run ZSH setup

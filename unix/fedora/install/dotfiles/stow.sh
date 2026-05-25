@@ -15,7 +15,7 @@ if [[ ! -f "$COMMON_SCRIPT" ]]; then
 fi
 
 # Source the common script
-# shellcheck source=../../common/dotfiles/stow.sh
+# shellcheck source=../../../common/dotfiles/stow.sh
 source "$COMMON_SCRIPT"
 
 # Run stow with Fedora config values

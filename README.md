@@ -72,18 +72,25 @@ cd ~/.rig/unix/fedora
 
 ## Unified CLI
 
-Rig includes a unified CLI dispatcher. Run it from anywhere after setup:
+Rig includes a unified CLI dispatcher on both Fedora and macOS. Run it from
+anywhere after setup:
 
 ```bash
 rig                    # List all available commands with descriptions
 rig add base neovim    # Add a package to a list
 rig pkg-manage         # Interactive package manager
 rig stow --all         # Stow all dotfiles
+rig install skillset   # Install rig skill to skillset repo
 rig webapp-install "ChatGPT" "https://chat.openai.com" "icon.png"
 ```
 
-The dispatcher auto-discovers all `rig-*` scripts and shows their descriptions.
-Use `rig` without arguments whenever you need to see what's available.
+The dispatcher uses multi-word prefix routing (inspired by omarchy):
+`rig install skillset` dispatches to `rig-install-skillset`. Run `rig` without
+arguments to see all available commands.
+
+Each platform has its own dispatcher (`unix/fedora/bin/rig` and
+`unix/macos/bin/rig`) which discovers local `rig-*` scripts plus shared
+commands from `unix/common/bin/`.
 
 ## Running Individual Components
 
@@ -131,14 +138,15 @@ Both macOS and Fedora support running specific modules:
 
 ```bash
 # Stow all packages
-rig-stow --all
+rig stow --all
+# or: ./bin/rig-stow --all
 
 # Stow specific packages
-rig-stow config zsh          # Only config and zsh
+rig stow config zsh          # Only config and zsh
 
 # Restow (useful after updates)
-rig-stow -R config           # Restow config
-rig-stow -R --all            # Restow all
+rig stow -R config           # Restow config
+rig stow -R --all            # Restow all
 ```
 
 ### Manual Stow
@@ -155,26 +163,26 @@ stow --no-folding --restow --target=$HOME home/zsh
 
 ```bash
 # macOS
-./bin/rig-add brew neovim       # Add CLI tool
-./bin/rig-add cask firefox      # Add GUI app
+rig add brew neovim             # Add CLI tool
+rig add cask firefox            # Add GUI app
 ./macos-setup --only packaging/brew  # Install new packages
 
 # Fedora
-./bin/rig-add base neovim       # Add to base packages
-./bin/rig-add flatpak com.spotify.Client  # Add Flatpak
-./fedora-setup --only packaging/base # Install new packages
+rig add base neovim             # Add to base packages
+rig add flatpak com.spotify.Client    # Add Flatpak
+./fedora-setup --only packaging/base  # Install new packages
 ```
 
 ### Interactive
 
 ```bash
-./bin/rig-pkg-manage
+rig pkg-manage
 ```
 
 ## Reset/Re-run Components
 
 ```bash
-./bin/rig-reset
+rig reset
 ```
 
 Interactive menu to reset specific components.
@@ -183,10 +191,10 @@ Interactive menu to reset specific components.
 
 ```bash
 # Install
-./bin/rig-webapp-install "App Name" "https://example.com" "icon.png"
+rig webapp-install "App Name" "https://example.com" "icon.png"
 
 # Remove
-./bin/rig-webapp-remove ChatGPT  # Specific app
+rig webapp-remove ChatGPT  # Specific app
 ```
 
 ## Structure
@@ -197,17 +205,20 @@ Interactive menu to reset specific components.
 ├── unix/
 │   ├── setup              # Common entry point (OS detection)
 │   ├── common/            # Cross-platform scripts
+│   │   ├── bin/           # Shared CLI commands (rig-install-skillset)
 │   │   ├── helpers/       # Logging, common functions
 │   │   ├── dotfiles/      # Stow, fonts, zsh
 │   │   ├── config/        # Git, NextDNS, Rust
 │   │   └── external/      # External git repos (skillset)
 │   ├── fedora/            # Fedora-specific setup
+│   │   ├── bin/           # Fedora CLI commands (rig-add, rig-stow, ...)
 │   │   ├── install/
 │   │   │   ├── config/    # System config (KDE, hardware, performance)
 │   │   │   ├── dotfiles/  # Dotfiles management
 │   │   │   └── external/  # External repos
 │   │   └── packages/      # Package lists
 │   └── macos/             # macOS-specific setup
+│       ├── bin/           # macOS CLI commands (rig-add, rig-stow, ...)
 ├── windows/               # Windows configuration (see windows/README.md)
 ├── default/               # Default configs (skills, wallpapers)
 └── docs/                  # Documentation

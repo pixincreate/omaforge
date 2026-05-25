@@ -22,7 +22,7 @@ if [[ ! -f "$COMMON_SCRIPT" ]]; then
     return 1
 fi
 
-# shellcheck source=../../common/dotfiles/stow.sh
+# shellcheck source=../../../common/dotfiles/stow.sh
 source "$COMMON_SCRIPT"
 
 # Run stow with macOS config values

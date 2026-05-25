@@ -11,7 +11,7 @@ if [[ ! -f "$COMMON_SCRIPT" ]]; then
 fi
 
 # Source the common script
-# shellcheck source=../../common/dotfiles/directories.sh
+# shellcheck source=../../../common/dotfiles/directories.sh
 source "$COMMON_SCRIPT"
 
 # Run directory creation

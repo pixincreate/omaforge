@@ -23,7 +23,7 @@ if [[ ! -f "$COMMON_SCRIPT" ]]; then
     return 1
 fi
 
-# shellcheck source=../../common/config/nextdns.sh
+# shellcheck source=../../../common/config/nextdns.sh
 source "$COMMON_SCRIPT"
 
 # Run setup

@@ -9,7 +9,7 @@ if [[ ! -f "$COMMON_SCRIPT" ]]; then
     return 1
 fi
 
-# shellcheck source=../../common/dotfiles/fonts.sh
+# shellcheck source=../../../common/dotfiles/fonts.sh
 source "$COMMON_SCRIPT"
 
 # Download and install fonts

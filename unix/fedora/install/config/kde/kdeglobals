@@ -134,6 +134,7 @@ ForegroundVisited=155,89,182
 
 [General]
 AccentColor=101,104,178
+ColorScheme=BreezeDark
 ColorSchemeHash=2c3f86428c11011a7c64ee1e7f47c274d498ff10
 TerminalApplication=wezterm start --cwd .
 TerminalService=org.wezfurlong.wezterm.desktop

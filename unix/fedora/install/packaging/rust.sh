@@ -11,7 +11,7 @@ if [[ ! -f "$COMMON_SCRIPT" ]]; then
     return 1
 fi
 
-# shellcheck source=../../common/config/rust.sh
+# shellcheck source=../../../common/config/rust.sh
 source "$COMMON_SCRIPT"
 
 # Setup Rust toolchain
