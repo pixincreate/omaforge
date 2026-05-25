@@ -39,7 +39,7 @@ else
   fi
 fi
 
-RIG_BIN="$HOME/.rig/unix/fedora/bin"
+RIG_BIN="${RIG_BIN:-"$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"}"
 
 if [[ -n $CUSTOM_EXEC ]]; then
   EXEC_COMMAND="$CUSTOM_EXEC"

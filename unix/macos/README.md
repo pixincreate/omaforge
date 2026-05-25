@@ -48,8 +48,7 @@ matches.
 
 ## Unified CLI
 
-Use the `rig` dispatcher to run any command (available after Fedora setup;
-macOS uses the scripts directly via `./bin/`):
+Use the `rig` dispatcher to run any command:
 
 ```bash
 rig stow --all              # Stow all dotfiles
@@ -58,9 +57,9 @@ rig pkg-manage              # Interactive package manager
 rig reset                   # Reset components
 ```
 
-The dispatcher lives at `unix/fedora/bin/rig` and auto-discovers all
-`rig-*` scripts. macOS scripts are standalone but use the same metadata
-format and are compatible with the dispatcher when running on Fedora.
+Each platform has its own dispatcher (`unix/fedora/bin/rig` and
+`unix/macos/bin/rig`) which discovers local `rig-*` scripts plus shared
+commands from `unix/common/bin/`.
 
 ## Package Management
 
