@@ -1,15 +1,27 @@
 [2d7045a8-76b9-4db7-afe2-aead2e7d9002]
-Description=Window settings for Zen
+Description=Picture-In-Picture
 above=true
 aboverule=2
+
+# Make PiP appear on all virtual desktops
+desktop=-1
+desktoprule=2
 desktops=\\0
 desktopsrule=3
+
+# Remove borders for a clean floating PiP
+noborder=true
+noborderrule=2
+
+# Hide PiP from taskbar and pager
+skippager=true
+skippagerrule=2
+skiptaskbar=true
+skiptaskbarrule=2
+
 title=Picture-in-Picture
-titlematch=1
+titlematch=3
 types=1
-wmclass=zen
-wmclasscomplete=true
-wmclassmatch=1
 
 [79336585-72b1-45a5-a4e7-f197d698eae5]
 Description=Application settings for Zed
@@ -26,28 +38,14 @@ wmclass=obsidian
 wmclassmatch=1
 
 [General]
-count=7
-rules=2d7045a8-76b9-4db7-afe2-aead2e7d9002,c8c67588-2535-4bf2-9478-46364f57425b,879db27a-cb76-40d2-ba48-07900a93a95d,79336585-72b1-45a5-a4e7-f197d698eae5,ce4360af-f58d-490e-95c6-7d0c9887954c,a5c3f362-b617-4b35-8f76-b1b9652282ae,c7c0544b-98fe-459b-a2d0-0313e2d6f4a5
+count=5
+rules=2d7045a8-76b9-4db7-afe2-aead2e7d9002,879db27a-cb76-40d2-ba48-07900a93a95d,79336585-72b1-45a5-a4e7-f197d698eae5,ce4360af-f58d-490e-95c6-7d0c9887954c,a5c3f362-b617-4b35-8f76-b1b9652282ae
 
 [a5c3f362-b617-4b35-8f76-b1b9652282ae]
 Description=Application settings for Zen
 desktops=f3b359f6-f996-4264-a8f7-f581705d9292
 desktopsrule=6
 wmclass=zen
-wmclassmatch=1
-
-[c7c0544b-98fe-459b-a2d0-0313e2d6f4a5]
-Description=Application settings for Helium
-desktops=f3b359f6-f996-4264-a8f7-f581705d9292
-desktopsrule=6
-wmclass=helium
-wmclassmatch=1
-
-[c8c67588-2535-4bf2-9478-46364f57425b]
-Description=Application settings for Terminal
-desktops=56c28579-6724-4ac8-a4a7-504cca233378
-desktopsrule=6
-wmclass=org.wezfurlong.wezterm
 wmclassmatch=1
 
 [ce4360af-f58d-490e-95c6-7d0c9887954c]
