@@ -144,6 +144,9 @@ rig stow --all
 # Stow specific packages
 rig stow config zsh          # Only config and zsh
 
+# Adopt existing files (resolve conflicts)
+rig stow --adopt config      # Move existing files into dotfiles repo and stow
+
 # Restow (useful after updates)
 rig stow -R config           # Restow config
 rig stow -R --all            # Restow all

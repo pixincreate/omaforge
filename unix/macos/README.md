@@ -114,6 +114,9 @@ Manage your dotfiles selectively:
 ./bin/rig-stow config zsh     # Only config and zsh
 ./bin/rig-stow git            # Only git
 
+# Adopt existing files (resolve conflicts)
+./bin/rig-stow --adopt config # Move existing files into dotfiles repo and stow
+
 # Restow (unstow then stow again) - useful for updates
 ./bin/rig-stow -R config      # Restow config
 ./bin/rig-stow -R --all       # Restow all
