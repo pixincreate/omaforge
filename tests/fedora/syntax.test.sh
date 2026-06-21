@@ -1,3 +1,4 @@
+#!/bin/bash
 section "Fedora setup script"
 assert_bash_syntax "fedora-setup" "$RIG_REPO/unix/fedora/fedora-setup"
 assert_success "config.json is valid JSON" bash -c "jq empty '$RIG_REPO/unix/fedora/config.json'"

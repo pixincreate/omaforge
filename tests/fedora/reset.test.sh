@@ -1,3 +1,4 @@
+#!/bin/bash
 section "Fedora rig reset - no args shows help"
 RESET_OUTPUT=$(bash "$RIG_REPO/unix/fedora/bin/rig-reset" 2>&1 || true)
 assert_output_contains "Shows usage" "Usage:" echo "$RESET_OUTPUT"

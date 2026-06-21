@@ -1,3 +1,4 @@
+#!/bin/bash
 section "macOS dispatcher help output"
 DISPLAY_OUTPUT=$(bash "$RIG_REPO/unix/macos/bin/rig" 2>&1)
 

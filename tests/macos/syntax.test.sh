@@ -1,3 +1,4 @@
+#!/bin/bash
 section "macOS setup script"
 assert_bash_syntax "macos-setup" "$RIG_REPO/unix/macos/macos-setup"
 assert_success "config.json is valid JSON" bash -c "jq empty '$RIG_REPO/unix/macos/config.json'"

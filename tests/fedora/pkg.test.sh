@@ -1,3 +1,4 @@
+#!/bin/bash
 section "Fedora bin scripts metadata"
 assert_success "rig-reset has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/fedora/bin/rig-reset"
 assert_success "rig-reset has usage" grep -q 'rig:usage=' "$RIG_REPO/unix/fedora/bin/rig-reset"

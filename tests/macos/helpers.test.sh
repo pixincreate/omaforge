@@ -1,3 +1,4 @@
+#!/bin/bash
 section "macOS helpers load"
 setup_rig_env "macos"
 source "$RIG_REPO/unix/macos/install/helpers/all.sh"

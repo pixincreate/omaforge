@@ -1,3 +1,4 @@
+#!/bin/bash
 section "macOS bin scripts metadata"
 assert_success "rig-reset has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/macos/bin/rig-reset"
 assert_success "rig-reset has usage" grep -q 'rig:usage=' "$RIG_REPO/unix/macos/bin/rig-reset"

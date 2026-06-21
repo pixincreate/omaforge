@@ -1,3 +1,4 @@
+#!/bin/bash
 section "macOS rig reset - no args shows help"
 RESET_OUTPUT=$(bash "$RIG_REPO/unix/macos/bin/rig-reset" 2>&1 || true)
 assert_output_contains "Shows usage" "Usage:" echo "$RESET_OUTPUT"

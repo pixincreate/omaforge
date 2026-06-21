@@ -1,3 +1,4 @@
+#!/bin/bash
 section "Common helpers load"
 setup_rig_env "fedora"
 source "$RIG_REPO/unix/common/helpers/logging.sh"

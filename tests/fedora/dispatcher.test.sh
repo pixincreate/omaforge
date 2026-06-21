@@ -1,3 +1,4 @@
+#!/bin/bash
 section "Fedora dispatcher help output"
 DISPLAY_OUTPUT=$(bash "$RIG_REPO/unix/fedora/bin/rig" 2>&1)
 

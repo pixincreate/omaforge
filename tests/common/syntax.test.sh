@@ -1,3 +1,4 @@
+#!/bin/bash
 section "Common helpers syntax"
 assert_bash_syntax "logging.sh" "$RIG_REPO/unix/common/helpers/logging.sh"
 assert_bash_syntax "common.sh" "$RIG_REPO/unix/common/helpers/common.sh"

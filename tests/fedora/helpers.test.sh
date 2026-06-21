@@ -1,3 +1,4 @@
+#!/bin/bash
 section "Fedora helpers load"
 setup_rig_env "fedora"
 source "$RIG_REPO/unix/fedora/install/helpers/all.sh"
