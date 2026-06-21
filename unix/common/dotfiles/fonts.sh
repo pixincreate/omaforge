@@ -97,6 +97,19 @@ install_fonts() {
   echo "[INFO] Installed: $installed, Skipped: $skipped"
 }
 
+# Hardcoded fallback versions for when GitHub API is rate-limited
+# Format: "tag|version" per repo
+get_fallback_version() {
+  local repo="$1"
+  case "$repo" in
+    "be5invis/Iosevka")   echo "v34.6.3|34.6.3" ;;
+    "JetBrains/JetBrainsMono") echo "v2.304|2.304" ;;
+    "intel/intel-one-mono")    echo "v1.3.0|1.3.0" ;;
+    "vercel/geist-font")       echo "v1.3.0|1.3.0" ;;
+    *) return 1 ;;
+  esac
+}
+
 get_latest_release_tag() {
   local repo="$1"
   local api_url="https://api.github.com/repos/$repo/releases/latest"
@@ -143,10 +156,22 @@ download_font_package() {
   download_url=$(get_latest_release_url "$repo" "$asset_pattern")
 
   if [[ -z "$download_url" && -n "$url_template" ]]; then
-    local tag
+    local tag version
     tag=$(get_latest_release_tag "$repo")
+
+    if [[ -z "$tag" ]]; then
+      local fallback
+      fallback=$(get_fallback_version "$repo" 2>/dev/null) || true
+      if [[ -n "$fallback" ]]; then
+        tag="${fallback%%|*}"
+        version="${fallback##*|}"
+        echo >&2 "[INFO] Using fallback $font_name version: $version"
+      fi
+    else
+      version="${tag#v}"
+    fi
+
     if [[ -n "$tag" ]]; then
-      local version="${tag#v}"
       download_url="${url_template//\{tag\}/$tag}"
       download_url="${download_url//\{version\}/$version}"
       echo >&2 "[INFO] Constructed $font_name URL from tag: $tag"
