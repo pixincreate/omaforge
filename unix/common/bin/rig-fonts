@@ -1,16 +1,19 @@
 #!/bin/bash
 # rig:summary=Download and install fonts from GitHub releases
-# rig:usage=rig fonts [install]
+# rig:usage=rig fonts install [--force]
 
 set -euo pipefail
 
 RIG_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 show_usage() {
-    echo "Usage: rig fonts <subcommand>"
+    echo "Usage: rig fonts <subcommand> [options]"
     echo ""
     echo "Subcommands:"
     echo "  install          Download and install fonts from GitHub releases"
+    echo ""
+    echo "Options:"
+    echo "  --force          Force re-download even if fonts are installed"
     echo ""
     echo "Fonts installed:"
     echo "  - Iosevka"
@@ -22,10 +25,19 @@ show_usage() {
     echo ""
     echo "Examples:"
     echo "  rig fonts install"
+    echo "  rig fonts install --force"
 }
 
 install_fonts_cmd() {
     local fonts_script="$RIG_PATH/common/dotfiles/fonts.sh"
+    local force_flag=""
+
+    # Parse --force from remaining args
+    for arg in "$@"; do
+        if [[ "$arg" == "--force" ]]; then
+            force_flag="--force"
+        fi
+    done
 
     if [[ ! -f "$fonts_script" ]]; then
         echo "Error: fonts script not found at $fonts_script"
@@ -38,13 +50,13 @@ install_fonts_cmd() {
     echo "Downloading and installing fonts from GitHub releases..."
 
     local fonts_source
-    fonts_source=$(download_github_fonts)
+    fonts_source=$(download_github_fonts $force_flag)
     local download_status=$?
 
     # If fonts already installed (empty return), exit successfully
     if [[ -z "$fonts_source" && $download_status -eq 0 ]]; then
         echo "Fonts already installed at $HOME/.local/share/fonts"
-        echo "Use 'rig reset fonts' to force re-install."
+        echo "Use --force to re-download."
         return 0
     fi
 
@@ -74,7 +86,8 @@ case "${1:-}" in
         show_usage
         ;;
     install)
-        install_fonts_cmd
+        shift
+        install_fonts_cmd "$@"
         ;;
     *)
         echo "Unknown subcommand: $1"

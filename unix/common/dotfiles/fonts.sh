@@ -218,6 +218,9 @@ fonts_already_installed() {
 }
 
 download_github_fonts() {
+  local force=false
+  [[ "${1:-}" == "--force" ]] && force=true
+
   local temp_dir
   temp_dir=$(mktemp -d)
   local fonts_source="$temp_dir/fonts"
@@ -225,13 +228,16 @@ download_github_fonts() {
   local total_downloaded=0
 
   local fonts_target="$HOME/.local/share/fonts"
-  echo >&2 "[INFO] Checking if fonts already installed at $fonts_target..."
-  if fonts_already_installed "$fonts_target"; then
-    echo >&2 "[INFO] Fonts already installed at $fonts_target"
-    echo >&2 "[INFO] Skipping download. Use --force to re-download."
-    rm -rf "$temp_dir"
-    echo ""
-    return 0
+
+  if ! $force; then
+    echo >&2 "[INFO] Checking if fonts already installed at $fonts_target..."
+    if fonts_already_installed "$fonts_target"; then
+      echo >&2 "[INFO] Fonts already installed at $fonts_target"
+      echo >&2 "[INFO] Skipping download. Use --force to re-download."
+      rm -rf "$temp_dir"
+      echo ""
+      return 0
+    fi
   fi
 
   echo >&2 "[INFO] Fonts not found or incomplete, downloading from GitHub releases..."
