@@ -164,9 +164,6 @@ rig stow --adopt config
 rig stow -R --all
 rig stow -d git
 ```
-rig stow -R --all
-rig stow -d git
-```
 
 Available packages: `cargo`, `config`, `git`, `local`, `Pictures`, `ssh`, `zsh`
 
