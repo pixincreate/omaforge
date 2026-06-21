@@ -6,6 +6,7 @@ on:
     paths:
       - "unix/**"
       - "default/**"
+      - "tests/**"
       - "AGENTS.md"
       - ".github/workflows/**"
   pull_request:
@@ -13,6 +14,7 @@ on:
     paths:
       - "unix/**"
       - "default/**"
+      - "tests/**"
       - "AGENTS.md"
       - ".github/workflows/**"
 
@@ -68,6 +70,11 @@ jobs:
       - name: Prettier check
         run: |
           prettier --check "**/*.md"
+
+      - name: Run test suite
+        run: |
+          bash tests/run.sh --fedora --common
+          echo "Test suite passed"
 
   test-fedora-setup:
     name: Fedora End-to-End Test

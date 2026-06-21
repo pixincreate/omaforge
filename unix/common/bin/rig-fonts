@@ -1,0 +1,84 @@
+#!/bin/bash
+# rig:summary=Download and install fonts from GitHub releases
+# rig:usage=rig fonts [install]
+
+set -euo pipefail
+
+RIG_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+
+show_usage() {
+    echo "Usage: rig fonts <subcommand>"
+    echo ""
+    echo "Subcommands:"
+    echo "  install          Download and install fonts from GitHub releases"
+    echo ""
+    echo "Fonts installed:"
+    echo "  - Iosevka"
+    echo "  - JetBrains Mono"
+    echo "  - Intel One Mono"
+    echo "  - Geist"
+    echo "  - CascadiaCode Nerd Font"
+    echo "  - Meslo Nerd Font"
+    echo ""
+    echo "Examples:"
+    echo "  rig fonts install"
+}
+
+install_fonts_cmd() {
+    local fonts_script="$RIG_PATH/common/dotfiles/fonts.sh"
+
+    if [[ ! -f "$fonts_script" ]]; then
+        echo "Error: fonts script not found at $fonts_script"
+        exit 1
+    fi
+
+    # shellcheck source=../../common/dotfiles/fonts.sh
+    source "$fonts_script"
+
+    echo "Downloading and installing fonts from GitHub releases..."
+
+    local fonts_source
+    fonts_source=$(download_github_fonts)
+    local download_status=$?
+
+    # If fonts already installed (empty return), exit successfully
+    if [[ -z "$fonts_source" && $download_status -eq 0 ]]; then
+        echo "Fonts already installed at $HOME/.local/share/fonts"
+        echo "Use 'rig reset fonts' to force re-install."
+        return 0
+    fi
+
+    if [[ $download_status -ne 0 ]]; then
+        echo "Error: Failed to download fonts"
+        return 1
+    fi
+
+    local temp_dir
+    temp_dir=$(dirname "$fonts_source")
+
+    install_fonts "$fonts_source"
+    local install_status=$?
+
+    rm -rf "$temp_dir"
+
+    if [[ $install_status -eq 0 ]]; then
+        echo ""
+        echo "Fonts installed successfully!"
+    fi
+
+    return $install_status
+}
+
+case "${1:-}" in
+    ""|-h|--help)
+        show_usage
+        ;;
+    install)
+        install_fonts_cmd
+        ;;
+    *)
+        echo "Unknown subcommand: $1"
+        echo "Run 'rig fonts' for usage."
+        exit 1
+        ;;
+esac

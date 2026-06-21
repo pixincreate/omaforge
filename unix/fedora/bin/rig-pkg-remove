@@ -1,31 +1,25 @@
 #!/bin/bash
-# rig:summary=Remove RPM packages interactively via fzf
-# rig:usage=rig pkg-remove
+# rig:summary=Remove RPM packages via DNF
+# rig:usage=rig pkg-remove <package> [package2 ...]
 
 set -euo pipefail
 
-# Check if fzf is installed
-if ! command -v fzf &>/dev/null; then
-    echo "Error: fzf is required but not installed"
-    echo "Install it with: sudo dnf install fzf"
+if [[ $# -eq 0 ]]; then
+    echo "Usage: rig pkg-remove <package> [package2 ...]"
+    echo ""
+    echo "Remove one or more RPM packages via DNF."
+    echo ""
+    echo "Examples:"
+    echo "  rig pkg-remove neofetch"
+    echo "  rig pkg-remove htop neovim firefox"
     exit 1
 fi
 
-fzf_args=(
-    --multi
-    --preview 'dnf info {1} 2>/dev/null || echo "Package info not available"'
-    --preview-label='tab: multi-select, enter: confirm'
-    --preview-label-pos='bottom'
-    --preview-window 'down:65%:wrap'
-    --bind 'alt-k:preview-up,alt-j:preview-down'
-    --color 'pointer:red,marker:red'
-)
-
-# List installed packages and let user select
-pkg_names=$(dnf list --installed | tail -n +2 | awk '{print $1}' | sed 's/\..*$//' | sort -u | fzf "${fzf_args[@]}")
-
-if [[ -n "$pkg_names" ]]; then
-    # Convert newline-separated selections to space-separated
-    echo "$pkg_names" | tr '\n' ' ' | xargs sudo dnf remove -y
-    echo "Packages removed successfully"
-fi
+for pkg in "$@"; do
+    if rpm -q "$pkg" &>/dev/null; then
+        echo "Removing: $pkg"
+        sudo dnf remove -y "$pkg"
+    else
+        echo "Not installed: $pkg"
+    fi
+done

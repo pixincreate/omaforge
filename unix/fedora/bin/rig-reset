@@ -1,6 +1,6 @@
 #!/bin/bash
-# rig:summary=Interactive menu to reset dotfiles, config, and packages
-# rig:usage=rig reset
+# rig:summary=Reset dotfiles, config, and packages
+# rig:usage=rig reset <subcommand> [options]
 
 set -euo pipefail
 
@@ -8,43 +8,29 @@ RIG_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 RIG_INSTALL="$RIG_PATH/install"
 export RIG_CONFIG="$RIG_PATH/config.json"
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m'
-
 source "$RIG_INSTALL/helpers/all.sh"
 
-show_menu() {
-    clear
-    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    echo -e "${BLUE}   rig Reset Tool${NC}"
-    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+show_usage() {
+    echo "Usage: rig reset <subcommand> [options]"
     echo ""
-    echo "Dotfiles:"
-    echo "  1. ZSH configuration"
-    echo "  2. Stow dotfiles"
-    echo "  3. Fonts"
-    echo "  4. Directories"
+    echo "Subcommands:"
+    echo "  zsh              Reset ZSH configuration"
+    echo "  stow             Re-stow dotfiles"
+    echo "  fonts            Reinstall fonts"
+    echo "  directories      Recreate directories"
+    echo "  git              Reset Git & SSH configuration"
+    echo "  nextdns          Reset NextDNS"
+    echo "  services         Reset system services"
+    echo "  hardware         Reset hardware configuration (ASUS/NVIDIA)"
+    echo "  webapps          Reinstall web applications"
+    echo "  rust             Reinstall Rust tools"
     echo ""
-    echo "Configuration:"
-    echo "  5. Git & SSH"
-    echo "  6. NextDNS"
-    echo "  7. Services"
-    echo "  8. Hardware (ASUS/NVIDIA)"
-    echo ""
-    echo "Packages:"
-    echo "  9. Web applications"
-    echo " 10. Rust tools"
-    echo ""
-    echo " 0. Exit"
-    echo ""
-    echo -ne "${YELLOW}Choose option: ${NC}"
+    echo "Options:"
+    echo "  -h, --help       Show this help"
 }
 
 reset_zsh() {
-    echo -e "${BLUE}Resetting ZSH configuration...${NC}"
+    log_info "Resetting ZSH configuration..."
 
     read -p "This will reset your ZSH config. Continue? [y/N] " -n 1 -r
     echo
@@ -54,13 +40,13 @@ reset_zsh() {
     fi
 
     rm -rf ~/.zsh/.zgenom ~/.zsh/.additionals.zsh
-    source "$RIG_INSTALL/dotfiles/zsh.sh"
-    echo -e "${GREEN}✓ ZSH reset complete${NC}"
-    echo -e "${YELLOW}Run 'exec zsh' to reload${NC}"
+    run_logged "$RIG_INSTALL/dotfiles/zsh.sh"
+    log_success "ZSH reset complete"
+    log_info "Run 'exec zsh' to reload"
 }
 
 reset_stow() {
-    echo -e "${BLUE}Resetting dotfiles...${NC}"
+    log_info "Resetting dotfiles..."
 
     read -p "This will re-stow all dotfiles. Continue? [y/N] " -n 1 -r
     echo
@@ -69,24 +55,24 @@ reset_stow() {
         return
     fi
 
-    source "$RIG_INSTALL/dotfiles/stow.sh"
-    echo -e "${GREEN}✓ Dotfiles reset complete${NC}"
+    run_logged "$RIG_INSTALL/dotfiles/stow.sh"
+    log_success "Dotfiles reset complete"
 }
 
 reset_fonts() {
-    echo -e "${BLUE}Reinstalling fonts...${NC}"
-    source "$RIG_INSTALL/dotfiles/fonts.sh"
-    echo -e "${GREEN}✓ Fonts reinstalled${NC}"
+    log_info "Reinstalling fonts..."
+    run_logged "$RIG_INSTALL/dotfiles/fonts.sh"
+    log_success "Fonts reinstalled"
 }
 
 reset_directories() {
-    echo -e "${BLUE}Recreating directories...${NC}"
-    source "$RIG_INSTALL/dotfiles/directories.sh"
-    echo -e "${GREEN}✓ Directories created${NC}"
+    log_info "Recreating directories..."
+    run_logged "$RIG_INSTALL/dotfiles/directories.sh"
+    log_success "Directories created"
 }
 
 reset_git() {
-    echo -e "${BLUE}Resetting Git & SSH configuration...${NC}"
+    log_info "Resetting Git & SSH configuration..."
 
     read -p "This will reconfigure Git and SSH. Continue? [y/N] " -n 1 -r
     echo
@@ -95,18 +81,18 @@ reset_git() {
         return
     fi
 
-    source "$RIG_INSTALL/config/git.sh"
-    echo -e "${GREEN}✓ Git & SSH reset complete${NC}"
+    run_logged "$RIG_INSTALL/config/git.sh"
+    log_success "Git & SSH reset complete"
 }
 
 reset_nextdns() {
-    echo -e "${BLUE}Resetting NextDNS...${NC}"
-    source "$RIG_INSTALL/config/nextdns.sh"
-    echo -e "${GREEN}✓ NextDNS reset complete${NC}"
+    log_info "Resetting NextDNS..."
+    run_logged "$RIG_INSTALL/config/nextdns.sh"
+    log_success "NextDNS reset complete"
 }
 
 reset_services() {
-    echo -e "${BLUE}Resetting services...${NC}"
+    log_info "Resetting services..."
 
     read -p "This will reconfigure system services. Continue? [y/N] " -n 1 -r
     echo
@@ -115,12 +101,12 @@ reset_services() {
         return
     fi
 
-    source "$RIG_INSTALL/config/services.sh"
-    echo -e "${GREEN}✓ Services reset complete${NC}"
+    run_logged "$RIG_INSTALL/config/services.sh"
+    log_success "Services reset complete"
 }
 
 reset_hardware() {
-    echo -e "${BLUE}Resetting hardware configuration...${NC}"
+    log_info "Resetting hardware configuration..."
 
     read -p "This will reconfigure hardware support. Continue? [y/N] " -n 1 -r
     echo
@@ -129,12 +115,12 @@ reset_hardware() {
         return
     fi
 
-    source "$RIG_INSTALL/config/hardware/all.sh"
-    echo -e "${GREEN}✓ Hardware reset complete${NC}"
+    run_logged "$RIG_INSTALL/config/hardware/all.sh"
+    log_success "Hardware reset complete"
 }
 
 reset_webapps() {
-    echo -e "${BLUE}Reinstalling web applications...${NC}"
+    log_info "Reinstalling web applications..."
 
     read -p "This will reinstall web apps. Continue? [y/N] " -n 1 -r
     echo
@@ -144,12 +130,12 @@ reset_webapps() {
     fi
 
     export PATH="$RIG_PATH/bin:$PATH"
-    source "$RIG_INSTALL/packaging/webapps.sh"
-    echo -e "${GREEN}✓ Web apps reinstalled${NC}"
+    run_logged "$RIG_INSTALL/packaging/webapps.sh"
+    log_success "Web apps reinstalled"
 }
 
 reset_rust() {
-    echo -e "${BLUE}Reinstalling Rust tools...${NC}"
+    log_info "Reinstalling Rust tools..."
 
     read -p "This will reinstall Rust tools. Continue? [y/N] " -n 1 -r
     echo
@@ -158,24 +144,47 @@ reset_rust() {
         return
     fi
 
-    source "$RIG_INSTALL/packaging/rust.sh"
-    echo -e "${GREEN}✓ Rust tools reinstalled${NC}"
+    run_logged "$RIG_INSTALL/packaging/rust.sh"
+    log_success "Rust tools reinstalled"
 }
 
-show_menu
-read -r choice
-
-case $choice in
-    1) reset_zsh ;;
-    2) reset_stow ;;
-    3) reset_fonts ;;
-    4) reset_directories ;;
-    5) reset_git ;;
-    6) reset_nextdns ;;
-    7) reset_services ;;
-    8) reset_hardware ;;
-    9) reset_webapps ;;
-    10) reset_rust ;;
-    0) echo -e "\n${GREEN}Goodbye!${NC}"; exit 0 ;;
-    *) echo -e "${RED}Invalid option${NC}"; exit 1 ;;
+case "${1:-}" in
+    ""|-h|--help)
+        show_usage
+        ;;
+    zsh)
+        reset_zsh
+        ;;
+    stow)
+        reset_stow
+        ;;
+    fonts)
+        reset_fonts
+        ;;
+    directories)
+        reset_directories
+        ;;
+    git)
+        reset_git
+        ;;
+    nextdns)
+        reset_nextdns
+        ;;
+    services)
+        reset_services
+        ;;
+    hardware)
+        reset_hardware
+        ;;
+    webapps)
+        reset_webapps
+        ;;
+    rust)
+        reset_rust
+        ;;
+    *)
+        echo "Unknown subcommand: $1"
+        echo "Run 'rig reset' for usage."
+        exit 1
+        ;;
 esac
