@@ -2,6 +2,9 @@
   "system": {
     "hostname": "pixw"
   },
+  "nextdns": {
+    "config_id": ""
+  },
   "dnf": {
     "max_parallel_downloads": 10,
     "install_weak_deps": false,
@@ -37,11 +40,6 @@
         "name": "tailscale",
         "type": "url",
         "repo_url": "https://pkgs.tailscale.com/stable/fedora/tailscale.repo"
-      },
-      {
-        "name": "nextdns",
-        "type": "url",
-        "repo_url": "https://repo.nextdns.io/nextdns.repo"
       }
     ]
   },

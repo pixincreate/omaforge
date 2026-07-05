@@ -4,7 +4,6 @@ ffmpeg
 parallel
 croc
 openssh
-nextdns
 tailscale
 code
 zed-preview
