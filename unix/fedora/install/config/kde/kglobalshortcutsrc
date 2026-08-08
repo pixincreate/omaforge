@@ -7,6 +7,10 @@ Switch to Last-Used Keyboard Layout=Meta+Alt+L,Meta+Alt+L,Switch to Last-Used Ke
 Switch to Next Keyboard Layout=Meta+Alt+K,Meta+Alt+K,Switch to Next Keyboard Layout
 _k_friendly_name=Keyboard Layout Switcher
 
+[com.mitchellh.ghostty]
+LOGO+grave=Meta+`,Meta+`,toggle_quick_terminal
+_k_friendly_name=Ghostty
+
 [kaccess]
 Toggle Screen Reader On and Off=Meta+Alt+S,Meta+Alt+S,Toggle Screen Reader On and Off
 _k_friendly_name=Accessibility
@@ -257,10 +261,6 @@ seekforwardmedia=Media Fast Forward,Media Fast Forward,Media playback seek forwa
 seekforwardmedialong=none,none,Media playback seek forward 30s
 stopmedia=Media Stop,Media Stop,Stop media playback
 
-[org.wezfurlong.wezterm]
-LOGO+grave=Meta+`,Meta+`,toggle_quick_terminal
-_k_friendly_name=WezTerm
-
 [org_kde_powerdevil]
 Decrease Keyboard Brightness=Keyboard Brightness Down,Keyboard Brightness Down,Decrease Keyboard Brightness
 Decrease Screen Brightness=Monitor Brightness Down,Monitor Brightness Down,Decrease Screen Brightness
@@ -313,9 +313,5 @@ toggle do not disturb=none,none,Toggle do not disturb
 _launch=Meta+Z
 new-private-window=Meta+Shift+Z
 
-[services][org.kde.spectacle.desktop]
-CurrentMonitorScreenShot=none
-OpenWithoutScreenshot=none
-
-[services][org.wezfurlong.wezterm.desktop]
+[services][com.mitchellh.ghostty]
 _launch=Meta+Return
