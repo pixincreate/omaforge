@@ -7,7 +7,7 @@ Switch to Last-Used Keyboard Layout=Meta+Alt+L,Meta+Alt+L,Switch to Last-Used Ke
 Switch to Next Keyboard Layout=Meta+Alt+K,Meta+Alt+K,Switch to Next Keyboard Layout
 _k_friendly_name=Keyboard Layout Switcher
 
-[com.mitchellh.ghostty]
+[com.mitchellh.ghostty.desktop]
 LOGO+grave=Meta+`,Meta+`,toggle_quick_terminal
 _k_friendly_name=Ghostty
 
@@ -313,5 +313,9 @@ toggle do not disturb=none,none,Toggle do not disturb
 _launch=Meta+Z
 new-private-window=Meta+Shift+Z
 
-[services][com.mitchellh.ghostty]
-_launch=Meta+Return
+[services][com.mitchellh.ghostty.desktop]
+_launch=Ctrl+Alt+T\tMeta+Return
+
+[services][org.kde.spectacle.desktop]
+WindowUnderCursorScreenShot=Meta+Shift+S\tMeta+Ctrl+Print
+_launch=\tPrint
