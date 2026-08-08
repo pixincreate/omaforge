@@ -108,12 +108,39 @@ if [[ "$auto_luks" == "true" ]]; then
     fi
 fi
 
-if [[ -v swappiness && "$swappiness" =~ ^[0-9]+$ ]]; then
+if [[ "$enable_zram" == "true" ]]; then
+    # swappiness > 100 means "prefer swapping to zram over page-cache reclaim".
+    # That only helps when zram is at least as large as RAM; with a small zram
+    # device an aggressive value causes compression thrash. Cap it for safety.
+    swap_swappiness=${swappiness:-150}
+    if [[ -f /proc/meminfo ]]; then
+        mem_total_kb=$(awk '/^MemTotal:/ { print $2 }' /proc/meminfo)
+        ram_mb=$(( mem_total_kb / 1024 ))
+        zram_size_mb=${zram_size:-24576}
+        if (( zram_size_mb >= ram_mb )); then
+            log_info "zram (${zram_size_mb}MB) >= RAM (${ram_mb}MB): using swappiness=${swap_swappiness}"
+        else
+            log_warning "zram (${zram_size_mb}MB) < RAM (${ram_mb}MB): capping swappiness at 100 to avoid swap thrash"
+            swap_swappiness=100
+        fi
+    fi
+
     sudo tee /etc/sysctl.d/99-performance.conf > /dev/null <<EOF
 net.ipv4.tcp_mtu_probing=1
-vm.swappiness=${swappiness}
+vm.swappiness=${swap_swappiness}
+vm.vfs_cache_pressure=50
+vm.page-cluster=0
+vm.watermark_boost_factor=0
+vm.watermark_scale_factor=125
+vm.dirty_background_bytes=67108864
+vm.dirty_bytes=268435456
+vm.dirty_writeback_centisecs=1500
 EOF
 fi
+
+sudo tee /etc/sysctl.d/99-inotify.conf > /dev/null <<EOF
+fs.inotify.max_user_watches=524288
+EOF
 
 if [[ -v shut_off_time && "$shut_off_time" =~ ^[0-9]+$ ]]; then
     sudo mkdir -p /etc/systemd/system.conf.d

@@ -76,7 +76,13 @@
     "grub_timeout": 1,
     "auto_luks": true,
     "shut_off_time": 20,
-    "swappiness": 10
+    "swappiness": 150,
+    "enable_hibernation": true,
+    "hibernation_swap_size_mb": 16384,
+    "hibernation_delay": "30min"
+  },
+  "secureboot": {
+    "enabled": false
   },
   "git": {
     "user_name": "PiX",

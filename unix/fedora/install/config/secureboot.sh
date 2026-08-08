@@ -13,9 +13,12 @@ log_info "Secure Boot setup is optional and required only if:"
 log_info "  - You have Secure Boot enabled in BIOS/UEFI"
 log_info "  - You installed NVIDIA drivers or other third-party kernel modules"
 
-secureboot_config=$(get_config '.secureboot')
+secureboot_config=$(get_config '.secureboot.enabled')
 if [[ "$secureboot_config" == "true" ]]; then
-    log_info "secureboot=true in config.json: Proceeding"
+    log_info "secureboot.enabled=true in config.json: Proceeding"
+elif [[ "$secureboot_config" == "false" ]]; then
+    log_info "secureboot.enabled=false in config.json: Skipping Secure Boot setup"
+    return 0
 elif [[ "${RIG_SECUREBOOT:-false}" == "true" ]]; then
     log_info "RIG_SECUREBOOT=true: Proceeding"
 elif ! confirm "Setup Secure Boot support?"; then
