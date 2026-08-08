@@ -150,7 +150,7 @@ if [[ "$lockdown" == *"["* ]]; then
   echo "  1. Reboot into BIOS: Security -> Secure Boot -> OS Type = Other OS (or Disabled)"
   echo "  2. Reboot normally"
   echo "  3. Re-enroll TPM2 (PCR 7 includes Secure Boot state):"
-  echo "     sudo systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=7 /dev/nvme0n1p3"
+  echo "     sudo systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+1+7 /dev/nvme0n1p3"
   echo "  4. Verify: cat /sys/power/disk  (must NOT show [disabled])"
   echo "  5. Test: sudo systemctl suspend-then-hibernate"
 else

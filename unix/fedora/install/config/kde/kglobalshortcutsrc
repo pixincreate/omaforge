@@ -7,7 +7,7 @@ Switch to Last-Used Keyboard Layout=Meta+Alt+L,Meta+Alt+L,Switch to Last-Used Ke
 Switch to Next Keyboard Layout=Meta+Alt+K,Meta+Alt+K,Switch to Next Keyboard Layout
 _k_friendly_name=Keyboard Layout Switcher
 
-[com.mitchellh.ghostty.desktop]
+[com.mitchellh.ghostty]
 LOGO+grave=Meta+`,Meta+`,toggle_quick_terminal
 _k_friendly_name=Ghostty
 

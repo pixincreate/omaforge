@@ -128,7 +128,7 @@ fi
 log_warning "NEXT STEPS (manual):"
 log_warning "  1. Disable Secure Boot in BIOS (Security -> Secure Boot -> OS Type = Other OS)"
 log_warning "  2. Re-enroll TPM2 for LUKS (PCR 7 includes Secure Boot state):"
-log_warning "     sudo systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=7 /dev/nvme0n1p3"
+log_warning "     sudo systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+1+7 /dev/nvme0n1p3"
 log_warning "  3. Verify: cat /sys/power/disk (must NOT show [disabled])"
 log_warning "  4. Test: sudo systemctl suspend-then-hibernate"
 
