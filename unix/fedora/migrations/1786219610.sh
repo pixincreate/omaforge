@@ -56,8 +56,10 @@ else
   swapfile=/var/swap/swapfile
   if ! [[ -f "$swapfile" ]]; then
     echo "[INFO] Creating 16G swapfile (matches RAM size)"
-    sudo mkdir -p /var/swap
+    # /var/swap must be a btrfs subvolume. mkdir -p would create a plain dir,
+    # making `btrfs subvolume create` fail with "File exists".
     if ! btrfs subvolume show /var/swap &>/dev/null; then
+      [[ -d /var/swap ]] && sudo rmdir /var/swap
       sudo btrfs subvolume create /var/swap
     fi
     sudo chattr +C /var/swap 2>/dev/null || true

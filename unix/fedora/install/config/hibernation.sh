@@ -37,8 +37,10 @@ swap_size_mb=${swap_size_mb:-16384}
 
 if ! [[ -f "$swapfile" ]]; then
     log_info "Creating swapfile (${swap_size_mb}MB) on encrypted root"
-    sudo mkdir -p /var/swap
+    # /var/swap must be a btrfs subvolume. mkdir -p would create a plain dir,
+    # making `btrfs subvolume create` fail with "File exists".
     if ! btrfs subvolume show /var/swap &>/dev/null; then
+        [[ -d /var/swap ]] && sudo rmdir /var/swap
         sudo btrfs subvolume create /var/swap
     fi
     sudo chattr +C /var/swap 2>/dev/null || true
