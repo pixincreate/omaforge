@@ -5,7 +5,7 @@ set -eEuo pipefail
 
 echo "Fixing webapp desktop files"
 
-RIG_BIN="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/unix/fedora/bin"
+RIG_BIN="$(cd "$(dirname "${BASH_SOURCE[0]}")/../bin" && pwd)"
 DESKTOP_DIR="$HOME/.local/share/applications"
 
 # Validate paths
