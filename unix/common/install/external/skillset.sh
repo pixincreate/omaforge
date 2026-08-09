@@ -2,7 +2,7 @@
 set -euo pipefail
 
 SKILLSET_REPO="git@github.com:pixincreate/skillset"
-SKILLSET_DIR="$HOME/dev/scripts/skillset"
+SKILLSET_DIR="$HOME/dev/tools/skillset"
 RIG_SKILL_SOURCE="$RIG_PATH/default/rig-skill"
 
 ensure_skillset_repo() {
