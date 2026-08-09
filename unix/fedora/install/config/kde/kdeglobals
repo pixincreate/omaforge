@@ -135,8 +135,8 @@ ForegroundVisited=155,89,182
 [General]
 AccentColor=106,111,181
 ColorSchemeHash=9d38eb71ded8ff549da26d57d7cbab9164da243a
-TerminalApplication=wezterm start --cwd .
-TerminalService=org.wezfurlong.wezterm.desktop
+TerminalApplication=/usr/bin/ghostty --gtk-single-instance=true
+TerminalService=com.mitchellh.ghostty.desktop
 XftAntialias=true
 XftHintStyle=hintslight
 XftSubPixel=rgb

@@ -17,6 +17,9 @@
   "nextdns": {
     "config_id": ""
   },
+  "fonts": {
+    "nerd_fonts_version": "v3.5.0"
+  },
   "directories": {
     "ssh": "~/.ssh",
     "zsh": "~/.zsh"

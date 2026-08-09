@@ -43,7 +43,6 @@
 │   │       │   │   └── tpm
 │   │       │   └── tmux.conf
 │   │       ├── topgrade.toml
-│   │       ├── wezterm
 │   │       ├── wt
 │   │       │   └── LocalState
 │   │       │       └── settings.json

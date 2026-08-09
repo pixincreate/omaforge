@@ -26,8 +26,7 @@
         "atim/starship",
         "lilay/topgrade",
         "lukenukem/asus-linux",
-        "scottames/ghostty",
-        "wezfurlong/wezterm-nightly"
+        "scottames/ghostty"
       ]
     },
     "external": [
@@ -69,6 +68,9 @@
   },
   "flatpak": {
     "bitwarden_secure_memory_backend": "mlock"
+  },
+  "fonts": {
+    "nerd_fonts_version": "v3.5.0"
   },
   "performance": {
     "enable_zram": true,

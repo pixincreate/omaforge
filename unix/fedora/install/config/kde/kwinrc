@@ -149,6 +149,7 @@ tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"wi
 [Windows]
 ActivationDesktopPolicy=2
 DelayFocusInterval=100
+PerOutputVirtualDesktops=true
 
 [Xwayland]
 Scale=1

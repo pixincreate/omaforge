@@ -5,22 +5,23 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../helpers/platform.sh"
 
-# Font definitions: repo|asset_pattern|url_template|name
-# url_template uses {tag} and {version} placeholders
-FONTS=(
-  "be5invis/Iosevka|PkgTTC-SGr-Iosevka|https://github.com/be5invis/Iosevka/releases/download/{tag}/PkgTTC-SGr-Iosevka-{version}.zip|Iosevka"
-  "be5invis/Iosevka|PkgTTC-IosevkaAile|https://github.com/be5invis/Iosevka/releases/download/{tag}/PkgTTC-IosevkaAile-{version}.zip|IosevkaAile"
-  "be5invis/Iosevka|PkgTTC-Iosevka-[0-9]|https://github.com/be5invis/Iosevka/releases/download/{tag}/PkgTTC-Iosevka-{version}.zip|Iosevka Standard"
-  "be5invis/Iosevka|PkgTTC-SGr-IosevkaTerm|https://github.com/be5invis/Iosevka/releases/download/{tag}/PkgTTC-SGr-IosevkaTerm-{version}.zip|IosevkaTerm"
-  "JetBrains/JetBrainsMono|JetBrainsMono|https://github.com/JetBrains/JetBrainsMono/releases/download/{tag}/JetBrainsMono-{version}.zip|JetBrains Mono"
-  "intel/intel-one-mono|ttf|https://github.com/intel/intel-one-mono/releases/download/{tag}/ttf.zip|Intel One Mono"
-  "vercel/geist-font|geist-font|https://github.com/vercel/geist-font/releases/download/{tag}/geist-font-v{version}.zip|Geist"
-)
-
-# Nerd Fonts with direct URLs (not GitHub releases)
+# Nerd Fonts from ryanoasis/nerd-fonts GitHub releases.
+# Format: name|download_url|filter
+#   filter = "nomono" to skip the *NerdFontMono* variant files, empty for all.
+# Version comes from config.json (.fonts.nerd_fonts_version); falls back to a
+# pinned default for the rig fonts CLI, which runs without RIG_CONFIG set.
+NERD_FONTS_VERSION="v3.5.0"
+if [[ -n "${RIG_CONFIG:-}" && -f "$RIG_CONFIG" ]] && command -v jq &>/dev/null; then
+  NERD_FONTS_VERSION="$(jq -r '.fonts.nerd_fonts_version // "v3.5.0"' "$RIG_CONFIG" 2>/dev/null)"
+fi
+NERD_FONTS_BASE="https://github.com/ryanoasis/nerd-fonts/releases/download/${NERD_FONTS_VERSION}"
 NERD_FONTS=(
-  "CaskaydiaCove|https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/CascadiaCode.zip"
-  "Meslo|https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/Meslo.zip"
+  "AdwaitaMono|${NERD_FONTS_BASE}/AdwaitaMono.zip|"
+  "CaskaydiaCove|${NERD_FONTS_BASE}/CascadiaCode.zip|nomono"
+  "FiraCode|${NERD_FONTS_BASE}/FiraCode.zip|nomono"
+  "JetBrainsMono|${NERD_FONTS_BASE}/JetBrainsMono.zip|"
+  "Iosevka|${NERD_FONTS_BASE}/Iosevka.zip|"
+  "Meslo|${NERD_FONTS_BASE}/Meslo.zip|"
 )
 
 install_fonts() {
@@ -97,125 +98,9 @@ install_fonts() {
   echo "[INFO] Installed: $installed, Skipped: $skipped"
 }
 
-# Hardcoded fallback versions for when GitHub API is rate-limited
-# Format: "tag|version" per repo
-get_fallback_version() {
-  local repo="$1"
-  case "$repo" in
-    "be5invis/Iosevka")   echo "v34.6.3|34.6.3" ;;
-    "JetBrains/JetBrainsMono") echo "v2.304|2.304" ;;
-    "intel/intel-one-mono")    echo "v1.3.0|1.3.0" ;;
-    "vercel/geist-font")       echo "v1.3.0|1.3.0" ;;
-    *) return 1 ;;
-  esac
-}
-
-get_latest_release_tag() {
-  local repo="$1"
-  local api_url="https://api.github.com/repos/$repo/releases/latest"
-  local tag
-
-  tag=$(curl -sL "$api_url" | grep -o '"tag_name": "[^"]*' | head -1 | sed 's/"tag_name": "//')
-
-  if [[ -n "$tag" ]]; then
-    echo "$tag"
-    return 0
-  else
-    return 1
-  fi
-}
-
-get_latest_release_url() {
-  local repo="$1"
-  local asset_pattern="$2"
-
-  local api_url="https://api.github.com/repos/$repo/releases/latest"
-  local download_url
-
-  download_url=$(curl -sL "$api_url" | grep -o '"browser_download_url": "[^"]*' | grep "$asset_pattern" | head -1 | sed 's/"browser_download_url": "//')
-
-  if [[ -n "$download_url" ]]; then
-    echo "$download_url"
-    return 0
-  else
-    return 1
-  fi
-}
-
-download_font_package() {
-  local repo="$1"
-  local asset_pattern="$2"
-  local url_template="$3"
-  local temp_dir="$4"
-  local fonts_source="$5"
-  local font_name="$6"
-
-  echo >&2 "[INFO] Fetching latest $font_name release..."
-
-  local download_url
-  download_url=$(get_latest_release_url "$repo" "$asset_pattern")
-
-  if [[ -z "$download_url" && -n "$url_template" ]]; then
-    local tag version
-    tag=$(get_latest_release_tag "$repo")
-
-    if [[ -z "$tag" ]]; then
-      local fallback
-      fallback=$(get_fallback_version "$repo" 2>/dev/null) || true
-      if [[ -n "$fallback" ]]; then
-        tag="${fallback%%|*}"
-        version="${fallback##*|}"
-        echo >&2 "[INFO] Using fallback $font_name version: $version"
-      fi
-    else
-      version="${tag#v}"
-    fi
-
-    if [[ -n "$tag" ]]; then
-      download_url="${url_template//\{tag\}/$tag}"
-      download_url="${download_url//\{version\}/$version}"
-      echo >&2 "[INFO] Constructed $font_name URL from tag: $tag"
-    fi
-  fi
-
-  if [[ -z "$download_url" ]]; then
-    echo >&2 "[ERROR] Could not determine $font_name download URL"
-    echo "0"
-    return 1
-  fi
-
-  echo >&2 "[INFO] Downloading $font_name from: $download_url"
-  local zip_file="$temp_dir/${font_name// /_}.zip"
-  local extract_dir="$temp_dir/${font_name// /_}"
-
-  if curl -sL -o "$zip_file" "$download_url"; then
-    echo >&2 "[SUCCESS] Downloaded $font_name"
-    unzip -q "$zip_file" -d "$extract_dir" 2>/dev/null || true
-
-    local font_count=0
-    while IFS= read -r font; do
-      cp "$font" "$fonts_source/" 2>/dev/null
-      font_count=$((font_count + 1))
-    done < <(find "$extract_dir" -type f \( -name "*.ttf" -o -name "*.TTF" -o -name "*.ttc" -o -name "*.TTC" -o -name "*.otf" -o -name "*.OTF" \) 2>/dev/null)
-
-    echo >&2 "[INFO] Extracted $font_count $font_name fonts"
-    echo "$font_count"
-    return 0
-  else
-    echo >&2 "[WARNING] Failed to download $font_name"
-    echo "0"
-    return 1
-  fi
-}
-
 fonts_already_installed() {
   local fonts_target="${1:-$HOME/.local/share/fonts}"
   local -a font_names=()
-
-  for font_def in "${FONTS[@]}"; do
-    local name="${font_def##*|}"
-    font_names+=("$name")
-  done
 
   for font_def in "${NERD_FONTS[@]}"; do
     local name="${font_def%%|*}"
@@ -225,10 +110,12 @@ fonts_already_installed() {
   local found_families=0
   local total_families=${#font_names[@]}
 
+  # Match only *NerdFont* files so plain (non-nerd) versions of a family do
+  # not count as installed.
   for family in "${font_names[@]}"; do
     local search_pattern="${family// /}"
     search_pattern="${search_pattern//-/}"
-    if find "$fonts_target" -type f -iname "*${search_pattern}*" -print -quit 2>/dev/null | grep -q .; then
+    if find "$fonts_target" -type f -iname "*${search_pattern}*NerdFont*" -print -quit 2>/dev/null | grep -q .; then
       found_families=$((found_families + 1))
     fi
   done
@@ -265,18 +152,10 @@ download_github_fonts() {
     fi
   fi
 
-  echo >&2 "[INFO] Fonts not found or incomplete, downloading from GitHub releases..."
-
-  for font_def in "${FONTS[@]}"; do
-    IFS='|' read -r repo asset_pattern url_template font_name <<< "$font_def"
-
-    local count
-    count=$(download_font_package "$repo" "$asset_pattern" "$url_template" "$temp_dir" "$fonts_source" "$font_name")
-    total_downloaded=$((total_downloaded + count))
-  done
+  echo >&2 "[INFO] Fonts not found or incomplete, downloading from nerd-fonts releases..."
 
   for font_def in "${NERD_FONTS[@]}"; do
-    IFS='|' read -r font_name url <<< "$font_def"
+    IFS='|' read -r font_name url filter <<< "$font_def"
 
     echo >&2 "[INFO] Downloading $font_name Nerd Font..."
     local zip_file="$temp_dir/${font_name}.zip"
@@ -285,9 +164,13 @@ download_github_fonts() {
       unzip -q "$zip_file" -d "$temp_dir/$font_name" 2>/dev/null || true
       local count=0
       while IFS= read -r font; do
+        # Skip the *Mono* variant files when the entry requests nomono.
+        if [[ "$filter" == "nomono" ]] && [[ "$(basename "$font")" == *Mono* ]]; then
+          continue
+        fi
         cp "$font" "$fonts_source/" 2>/dev/null
         count=$((count + 1))
-      done < <(find "$temp_dir/$font_name" -type f \( -name "*.ttf" -o -name "*.otf" \) 2>/dev/null)
+      done < <(find "$temp_dir/$font_name" -type f \( -name "*.ttf" -o -name "*.otf" -o -name "*.ttc" -o -name "*.TTF" -o -name "*.OTF" -o -name "*.TTC" \) 2>/dev/null)
       echo >&2 "[INFO] Extracted $count $font_name fonts"
       total_downloaded=$((total_downloaded + count))
     else
