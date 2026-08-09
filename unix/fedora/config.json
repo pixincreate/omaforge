@@ -67,6 +67,9 @@
     "enable_hardware_accel": true,
     "swap_to_full_ffmpeg": true
   },
+  "flatpak": {
+    "bitwarden_secure_memory_backend": "mlock"
+  },
   "performance": {
     "enable_zram": true,
     "zram_size_mb": 24576,

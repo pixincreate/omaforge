@@ -46,4 +46,12 @@ for app in "${apps[@]}"; do
     fi
 done
 
+# Bitwarden's default memfd_secret() backend blocks kernel hibernation
+# (secretmem_active() gate); mlock keeps hibernation working.
+bitwarden_backend=$(get_config '.flatpak.bitwarden_secure_memory_backend // empty')
+if [[ -n "$bitwarden_backend" ]] && flatpak list | grep -q com.bitwarden.desktop; then
+    log_info "Setting Bitwarden secure memory backend to $bitwarden_backend"
+    flatpak override --user com.bitwarden.desktop --env="SECURE_KEY_CONTAINER_BACKEND=$bitwarden_backend"
+fi
+
 log_success "Flatpak applications installed"
