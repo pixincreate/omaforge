@@ -63,6 +63,21 @@ fi
 
 RIG_BIN="$RIG_BIN" rig-pkg-add age rofimoji wtype fuzzel tesseract tesseract-langpack-kan tesseract-langpack-hin llama-cpp mpv
 
+echo ""
+echo "Configuring rofimoji (fuzzel selector, wtype typer)..."
+rofimoji_rc="$HOME/.config/rofimoji.rc"
+if [[ ! -f "$rofimoji_rc" ]]; then
+  mkdir -p "$HOME/.config"
+  cat > "$rofimoji_rc" <<'EOF'
+selector = fuzzel
+typer = wtype
+clipboarder = wl-copy
+EOF
+  echo "[SUCCESS] Wrote $rofimoji_rc"
+else
+  echo "[INFO] $rofimoji_rc already exists; leaving it untouched"
+fi
+
 # Set up age key for encrypted local secrets
 echo ""
 echo "Setting up age key for encrypted secrets..."
