@@ -2,9 +2,11 @@
 name: rig
 description: >
   REQUIRED for contributing to rig installer development.
-  Use when editing scripts in unix/fedora/, unix/macos/, unix/common/, or bin/.
-  Triggers: installer scripts, package lists, config templates, helper functions,
-  migration scripts, hardware detection, setup wizards. Excludes user config editing.
+  Use when editing scripts in unix/fedora/, unix/macos/, unix/common/,
+  or libexec/.
+  Triggers: installer scripts, package lists, config templates, helper
+  functions, migration scripts, hardware detection, setup wizards.
+  Excludes user config editing.
 ---
 
 # Rig Skill
@@ -21,14 +23,15 @@ see rig-config skill.**
 
 - Editing shell scripts in `unix/fedora/`, `unix/macos/`, or `unix/common/`
 - Modifying package lists in `packages/` directories
-- Adding or editing `rig-*` bin commands
+- Adding or editing `rig-*` commands in `libexec/`
 - Creating or modifying migration scripts in `migrations/`
 - Changing installer phases (preflight, repositories, packaging, config,
   dotfiles, post-install)
 - Updating helper functions (logging, common utilities)
 - Working with configuration templates
 
-**If you're about to edit a script in this repo, STOP and use this skill first.**
+**If you're about to edit a script in this repo, STOP and use this
+skill first.**
 
 **Do NOT use this skill for**:
 
@@ -43,14 +46,15 @@ Rig supports both Fedora Linux and macOS with a shared codebase:
 ```text
 rig/
 ├── unix/
-│   ├── common/              # Shared helpers, dotfiles, bin, installer
-│   │   ├── bin/             # Shared rig-* commands (rig-install-skillset)
+│   ├── common/             # Shared helpers, dotfiles, libexec
+│   │   ├── libexec/         # Shared rig-* commands
 │   │   ├── config/          # Shared configuration scripts
 │   │   ├── dotfiles/        # Shared dotfile management
 │   │   ├── helpers/         # Shared functions (logging, common)
 │   │   └── install/         # Shared install modules (external/)
 │   ├── fedora/              # Fedora-specific installer
-│   │   ├── bin/             # Platform rig-* commands + rig dispatcher
+│   │   ├── bin/             # rig dispatcher
+│   │   ├── libexec/         # Platform rig-* commands
 │   │   ├── packages/        # Package lists (*.packages)
 │   │   ├── config/          # Config templates
 │   │   ├── dotfiles/        # User dotfiles
@@ -72,18 +76,19 @@ rig/
 ### Unified CLI Dispatcher
 
 Each platform has its own `rig` dispatcher at `unix/{fedora,macos}/bin/rig`
-that discovers all `rig-*` scripts (platform + common) and provides
-a single entry point. Commands in `unix/common/bin/` are shared across
-both platforms.
+that discovers all `rig-*` scripts in `libexec/` (platform + common) and
+provides a single entry point. Commands in `unix/common/libexec/` are
+shared across both platforms.
 
 **Multi-word prefix routing** (inspired by omarchy): the dispatcher matches
-commands as prefixes — `rig install skillset` routes to `rig-install-skillset`.
+commands as prefixes — `rig install skillset` routes to
+`rig-install-skillset`.
 
 ```bash
 rig                    # List all available commands with descriptions
-rig stow --all         # Same as ./bin/rig-stow --all
-rig add base neovim    # Same as ./bin/rig-add base neovim
-rig install skillset   # Routes to unix/common/bin/rig-install-skillset
+rig stow --all         # Same as rig stow --all
+rig add base neovim    # Same as rig add base neovim
+rig install skillset   # Routes to unix/common/libexec/rig-install-skillset
 ```
 
 The dispatcher reads `# rig:summary=` and `# rig:usage=` metadata
@@ -96,7 +101,7 @@ annotations** so the command appears in the help output.
 ```
 
 The dispatcher also exports `$RIG_PATH` (repo root) and `$RIG_BIN`
-(platform bin dir) to child scripts. This is how scripts resolve their
+(platform libexec dir) to child scripts. This is how scripts resolve their
 paths relative to the rig repository.
 
 ## Cross-Platform Mirroring
@@ -108,7 +113,7 @@ the same change to the counterpart platform.**
 
 Examples of changes that need mirroring:
 
-- A new `rig-*` bin script added to Fedora → add the equivalent to macOS
+- A new `rig-*` libexec script added to Fedora → add the equivalent to macOS
 - A new shared package added to Fedora package list → add to macOS equivalent
 - A new install module that isn't hardware-specific → create on both platforms
 
@@ -120,8 +125,8 @@ Changes that are **platform-specific** (no mirroring needed):
 - Platform-specific helpers and dependencies
 
 When mirroring, adapt the implementation for the target platform's package
-manager and tools (DNF → `brew`, systemctl → `launchctl`, etc.), but keep the
-same script name, metadata headers, and argument interface.
+manager and tools (DNF → `brew`, systemctl → `launchctl`, etc.), but keep
+the same script name, metadata headers, and argument interface.
 
 ## Command Naming
 
@@ -228,9 +233,9 @@ rig-dev-add-migration --no-edit
 
 1. Decide where it lives:
    - **Platform-specific** (`dnf` vs `brew`, hardware): put in
-     `unix/{fedora,macos}/bin/` — mirror to both platforms
+     `unix/{fedora,macos}/libexec/` — mirror to both platforms
    - **Shared logic** (operates on common resources, env vars): put in
-     `unix/common/bin/` — one file, both platforms pick it up
+     `unix/common/libexec/` — one file, both platforms pick it up
 
 2. Create the script with metadata:
 
@@ -246,10 +251,10 @@ rig-dev-add-migration --no-edit
 3. Make executable:
 
    ```bash
-   chmod +x unix/common/bin/rig-<name>
+   chmod +x unix/common/libexec/rig-<name>
    # or for platform-specific:
-   chmod +x unix/fedora/bin/rig-<name>
-   chmod +x unix/macos/bin/rig-<name>
+   chmod +x unix/fedora/libexec/rig-<name>
+   chmod +x unix/macos/libexec/rig-<name>
    ```
 
 4. The dispatcher picks it up automatically — no PATH or registration needed.
@@ -282,7 +287,7 @@ rig-dev-add-migration --no-edit
 
 ```bash
 # Check syntax of a script
-shellcheck -S error unix/fedora/bin/rig-*
+shellcheck -S error unix/fedora/libexec/rig-*
 
 # Run specific installer phase
 ./unix/fedora/fedora-setup --only packaging/all
@@ -291,7 +296,7 @@ shellcheck -S error unix/fedora/bin/rig-*
 cat /var/log/rig-install.log
 
 # Debug a command
-bash -x unix/fedora/bin/rig-pkg-add test-pkg
+bash -x unix/fedora/libexec/rig-pkg-add test-pkg
 ```
 
 ## Decision Framework
@@ -301,7 +306,7 @@ When contributing changes:
 1. **Is it shared between platforms?** Put in `unix/common/`
 2. **Is it Fedora-specific?** Put in `unix/fedora/`
 3. **Is it macOS-specific?** Put in `unix/macos/`
-4. **Is it a command?** Add to `bin/` with proper naming
+4. **Is it a command?** Add to `libexec/` with proper naming
 5. **Is it a migration?** Create with timestamp name in `migrations/`
 6. **Is it a package?** Add to appropriate `*.packages` file
 

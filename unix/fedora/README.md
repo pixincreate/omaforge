@@ -1,17 +1,36 @@
-# rig - Fedora
+# rig — Fedora
 
-Automated Fedora system setup.
+Opinionated Fedora KDE setup. This repo installs packages,
+wires up dotfiles, tunes performance, configures hardware, and provides a
+small `rig` CLI for day-to-day maintenance.
 
-## Quick Start
+## What it does
+
+`./fedora-setup` runs a single end-to-end install:
+
+- Updates DNF and enables repositories (RPM Fusion, Terra, selected COPRs).
+- Installs packages from declarative lists in `packages/`.
+- Installs Flatpak apps, Rust tools, Node packages, and web apps.
+- Stows dotfiles from `~/dev/.dotfiles/home`.
+- Configures Git, SSH, ZSH, KDE, fonts, and hardware support (ASUS / NVIDIA).
+- Applies performance tuning (zram, sysctl, fstrim, oomd).
+- Sets up services (PostgreSQL, Redis, Docker, Tailscale, NextDNS).
+- Runs pending migrations from `migrations/`.
+
+After the first run you use `rig <command>` for incremental changes.
+
+## Quick start
 
 ```bash
 cd ~/dev/.rig/unix/fedora
 ./fedora-setup
 ```
 
+Then reload your shell or log out and back in.
+
 ## Configuration
 
-Edit `config.json`:
+Edit `config.json` before running `fedora-setup`:
 
 ```json
 {
@@ -26,210 +45,169 @@ Edit `config.json`:
 }
 ```
 
-## Running Individual Components
+## Daily CLI (`rig`)
 
-You can run specific parts of the setup without running everything:
+`rig` discovers every `rig-*` script in `libexec/` and `unix/common/libexec/`:
 
 ```bash
-# Run specific module (use full path to avoid ambiguity)
-./fedora-setup --only dotfiles/stow        # Restow all dotfiles
-./fedora-setup --only dotfiles/zsh         # Reconfigure ZSH only
-./fedora-setup --only packaging/base       # Install only base packages
-./fedora-setup --only config/git           # Reconfigure Git only
-./fedora-setup --only config/hardware/asus # ASUS hardware setup only
-
-# See all available modules
-find install -name "*.sh" | grep -v all.sh
+rig                         # list all commands
+rig add tools mpv           # add a package to a list and install it
+rig stow --all              # restow all dotfiles
+rig stow config zsh         # restow selected packages
+rig migrate                 # run pending migrations
+rig ocr                     # capture a region and copy extracted text
+rig llama list              # list local GGUF models
+rig llama chat model.gguf   # chat with a local model
+rig llama server model.gguf # OpenAI-compatible server on :8080
 ```
 
-**Note**: Module names must be unambiguous. If multiple modules share the same
-filename (e.g., `all.sh` in multiple directories), use the full path to
-disambiguate. Using just the filename will show an error listing all matches.
-
-## Unified CLI
-
-Use the `rig` dispatcher to run any command:
+## Running individual setup modules
 
 ```bash
-rig                         # List all commands with descriptions
-rig add base fastfetch      # Add a package declaratively
-rig pkg-manage              # Interactive package manager
-rig stow --all              # Stow all dotfiles
-rig webapp-install "App" "https://..." "icon.png"
+./fedora-setup --only dotfiles/stow
+./fedora-setup --only dotfiles/zsh
+./fedora-setup --only packaging/base
+./fedora-setup --only config/git
+./fedora-setup --only config/hardware/asus
 ```
 
-The dispatcher automatically discovers all `rig-*` scripts and reads their
-metadata headers. Running `rig` with no arguments shows every available
-command with its description and usage.
+Use the full path if the filename is ambiguous. List modules with
+`find install -name "*.sh" | grep -v all.sh`.
 
-## Package Management
+## Package management
 
-### Interactive
+### Declarative (recommended)
+
+Add a package to a list, then install it:
 
 ```bash
-rig pkg-manage
-# or: ./bin/rig-pkg-manage
+rig add base fastfetch
+rig add tools rofimoji
+rig add flatpak com.spotify.Client
+rig add rust eza
 ```
 
-Add, remove, search packages with availability checking.
-
-### Declarative (Recommended)
-
-Add packages to lists and install:
+Then run the matching installer:
 
 ```bash
-# Add a package declaratively
-rig add base fastfetch          # Add to base.packages
-rig add dev neovim              # Add to development.packages
-rig add tools telegram-desktop  # Add to tools.packages
-rig add flatpak com.spotify.Client  # Add to flatpak.packages
-rig add rust exa                # Add to rust.packages
-# or: ./bin/rig-add base fastfetch
-
-# Install only new packages
 ./fedora-setup --only packaging/base
 ./fedora-setup --only packaging/flatpak
 ```
 
-### Manual
+### Manual edit
 
 ```bash
 echo "fastfetch" >> packages/base.packages
 ./fedora-setup --only packaging/base
 ```
 
-### Package Lists
+### Package lists
 
-- `base.packages` - Core utilities
-- `development.packages` - Dev tools
-- `tools.packages` - User applications
-- `system.packages` - System libraries
-- `flatpak.packages` - Flatpak apps
-- `rust.packages` - Rust tools
+- `base.packages` — core CLI utilities
+- `development.packages` — compilers, runtimes, dev tools
+- `tools.packages` — user apps and desktop utilities
+- `system.packages` — system libraries
+- `flatpak.packages` — Flatpak apps
+- `rust.packages` — Rust tools installed via cargo
 
-## Web Applications
+## Dotfiles
 
-Installed by default:
-
-- **Twitter (X)** - Standard
-- **ChatGPT** - Incognito mode
-- **Grok** - Incognito mode
-
-### Install Custom
+Dotfiles live in `~/dev/.dotfiles/home` and are managed with GNU Stow.
 
 ```bash
-rig webapp-install "App Name" "https://example.com" "https://example.com/icon.png"
-# or: ./bin/rig-webapp-install "App Name" "https://..." "icon.png"
-
-# Incognito mode
-rig webapp-install "App" "https://example.com" "icon.png" \
-  "rig-launch-browser --private https://example.com/"
-```
-
-### Remove
-
-```bash
-rig webapp-remove           # Interactive
-rig webapp-remove ChatGPT   # Specific
-rig webapp-remove all       # All
-# or: ./bin/rig-webapp-remove ChatGPT
-```
-
-## Dotfiles Management
-
-Manage your dotfiles selectively:
-
-```bash
-# Stow all packages
-./bin/rig-stow --all
-
-# Stow specific packages
-./bin/rig-stow config zsh     # Only config and zsh
-./bin/rig-stow git            # Only git
-
-# Adopt existing files (resolve conflicts)
-./bin/rig-stow --adopt config # Move existing files into dotfiles repo and stow
-
-# Restow (unstow then stow again) - useful for updates
-./bin/rig-stow -R config      # Restow config
-./bin/rig-stow -R --all       # Restow all
-
-# Unstow (remove symlinks)
-./bin/rig-stow -d git         # Unstow git
-
-# Or use the unified dispatcher:
 rig stow --all
-rig stow config zsh
-rig stow --adopt config
-rig stow -R --all
-rig stow -d git
+rig stow config zsh        # only these packages
+rig stow -R config         # restow one package
+rig stow --adopt config    # move existing files into the dotfiles repo
+rig stow -d zsh            # unstow a package
 ```
 
-Available packages: `cargo`, `config`, `git`, `local`, `Pictures`, `ssh`, `zsh`
+Available stow packages: `cargo`, `config`, `local`, `Pictures`, `ssh`, `zsh`.
 
-### KDE Config Symlinks
+### KDE config symlinks
 
-KDE Plasma configuration files are symlinked from the repo to `~/.config/`
-via `install/config/kde.sh` (run as part of `fedora-setup`):
+KDE Plasma files are symlinked from the repo to `~/.config/` by
+`install/config/kde.sh`:
+
+- `~/.config/kwinrc`
+- `~/.config/kwinrulesrc`
+- `~/.config/kdeglobals`
+- `~/.config/kglobalshortcutsrc`
+- `~/.config/plasmaparc`
+
+Apply them with `./fedora-setup --only config/kde`.
+
+## Features
+
+### Encrypted local secrets
+
+Machine-local secrets are stored in `~/.zsh/.env.age` and decrypted on
+shell startup with `age`:
 
 ```bash
-./fedora-setup --only config/kde
+# One-time setup: generates ~/.config/age/key.txt and encrypts existing secrets
+rig migrate
+
+# Edit secrets
+age --decrypt --identity ~/.config/age/key.txt ~/.zsh/.env.age > ~/.zsh/.env
+# ... edit ~/.zsh/.env ...
+age --encrypt --recipient "$(cat ~/.config/age/key.pub)" \
+  -o ~/.zsh/.env.age ~/.zsh/.env
+rm ~/.zsh/.env
 ```
 
-Symlinked config files (backed up if regular files existed):
+### Emoji picker
 
-- `~/.config/kwinrc` — KWin window manager settings
-- `~/.config/kwinrulesrc` — KWin window rules
-- `~/.config/kdeglobals` — Global KDE settings
-- `~/.config/kglobalshortcutsrc` — Global keyboard shortcuts
-- `~/.config/plasmaparc` — Plasma panel/applet config
+`Meta+.` opens `rofimoji` using `fuzzel` as the selector and `wtype` to
+insert the emoji. The default Plasma emoji shortcut is disabled during
+migration; you may need to log out and back in for the binding to stick.
 
-## What's Installed
+### OCR
 
-- DNF optimization and system updates
-- Repositories (RPM Fusion, COPR, Terra)
-- Packages (DNF, Flatpak, Rust)
-- Web apps (Twitter, ChatGPT, Grok)
-- Hardware support (ASUS, NVIDIA)
-- Performance tuning (zram, fstrim)
-- Git/SSH, NextDNS, dotfiles, ZSH
-- Services (PostgreSQL, Redis, Docker)
+`rig ocr` captures a region with Spectacle, runs it through Tesseract
+(English, Kannada, and Hindi language packs), and copies the result to the
+clipboard.
 
-## Reset/Re-run Components
+### Local LLMs
 
-If you need to reset or re-run specific parts:
+Local models use `llama-cpp` from the `sneed/llama-cpp-vulkan` COPR:
 
 ```bash
-./bin/rig-reset
+rig llama list
+rig llama pull https://example.com/model.gguf
+rig llama chat model.gguf
+rig llama server model.gguf
 ```
 
-Interactive menu to reset:
+Models are stored in `~/.local/share/llama.cpp/models`.
 
-- ZSH configuration
-- Dotfiles (stow)
-- Fonts
-- Git & SSH
-- NextDNS
-- Services
-- Hardware
-- Web apps
-- Rust tools
+## Hibernation
 
-## Post-Install
+The system uses zram swap by default. To enable hibernation, create a btrfs
+swapfile equal to your RAM size and add the `resume` kernel parameter. See
+migration `1786219610.sh` for the automated setup, or configure it manually
+and run:
 
-1. Logout/login for group changes (docker, etc.)
-2. Reboot if NVIDIA drivers were installed
-3. Add SSH key to GitHub:
+```bash
+sudo dracut -f
+sudo reboot
+```
 
-   ```bash
-   cat ~/.ssh/id_ed25519.pub
-   ```
+## Reset / re-run components
 
-4. Reload shell:
+```bash
+rig reset
+```
 
-   ```bash
-   exec zsh
-   ```
+Interactive menu for resetting ZSH, dotfiles, fonts, Git, NextDNS, services,
+hardware, web apps, and Rust tools.
+
+## Post-install checklist
+
+1. Log out and back in for group changes (docker, etc.).
+2. Reboot if NVIDIA drivers were installed.
+3. Add your SSH key to GitHub: `cat ~/.ssh/id_ed25519.pub`.
+4. Reload the shell: `exec zsh`.
 
 ## Troubleshooting
 
@@ -243,58 +221,20 @@ dnf makecache
 ### Git config issues
 
 ```bash
-git config --list
+git config --list --show-origin
 ls -la ~/.ssh/
 ```
 
 ### Services don't start
 
 ```bash
-systemctl status service-name
-journalctl -u service-name
+systemctl status <service-name>
+journalctl -u <service-name>
 ```
-
-## Hibernation Setup
-
-The system configures zram swap by default (24GB). To enable hibernation:
-
-1. Create swapfile equal to RAM size:
-
-   ```bash
-   sudo fallocate -l 24G /swapfile
-   sudo chmod 600 /swapfile
-   sudo mkswap /swapfile
-   sudo swapon /swapfile
-   ```
-
-2. Add to `/etc/fstab`:
-
-   ```text
-   /swapfile none swap defaults 0 0
-   ```
-
-3. Configure resume kernel parameter:
-
-   ```bash
-   SWAP_UUID=$(findmnt -no UUID -T /swapfile)
-   SWAP_OFFSET=$(sudo filefrag -v /swapfile | \
-     awk 'NR==4{print $4}' | tr -d '.')
-   sudo grubby --update-kernel=ALL \
-     --args="resume=UUID=$SWAP_UUID resume_offset=$SWAP_OFFSET"
-   ```
-
-4. Rebuild initramfs and reboot:
-
-   ```bash
-   sudo dracut -f
-   sudo reboot
-   ```
-
-**Note**: systemd ignores zram for hibernate and uses the swapfile instead.
-zram remains active for general swap use.
 
 ## Notes
 
-- All scripts are idempotent (safe to re-run)
-- Uses shared scripts from `unix/common/`
-- See [main README](../../README.md) for overview
+- All scripts are idempotent and safe to re-run.
+- Shared scripts live in `unix/common/`.
+- Migrations are tracked in `~/.local/state/rig/migrations/`.
+- See the [main README](../../README.md) for the cross-platform overview.

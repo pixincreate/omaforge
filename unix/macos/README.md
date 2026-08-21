@@ -58,16 +58,15 @@ rig reset                   # Reset components
 ```
 
 Each platform has its own dispatcher (`unix/fedora/bin/rig` and
-`unix/macos/bin/rig`) which discovers local `rig-*` scripts plus shared
-commands from `unix/common/bin/`.
+`unix/macos/bin/rig`) which discovers `rig-*` scripts in `libexec/` plus
+shared commands from `unix/common/libexec/`.
 
 ## Package Management
 
 ### Interactive
 
 ```bash
-./bin/rig-pkg-manage
-# or: rig pkg-manage (on Fedora)
+rig pkg-manage
 ```
 
 Add, remove, search packages with availability checking.
@@ -78,10 +77,9 @@ Add packages to lists and install:
 
 ```bash
 # Add a package declaratively
-./bin/rig-add brew fastfetch      # Add to brew.packages
-# or: rig add brew fastfetch (on Fedora)
-./bin/rig-add cask firefox        # Add to cask.packages
-./bin/rig-add rust exa            # Add to rust.packages
+rig add brew fastfetch      # Add to brew.packages
+rig add cask firefox        # Add to cask.packages
+rig add rust exa            # Add to rust.packages
 
 # Install only new packages
 ./macos-setup --only packaging/brew
@@ -107,26 +105,24 @@ Manage your dotfiles selectively:
 
 ```bash
 # Stow all packages
-./bin/rig-stow --all
-# or: rig stow --all (on Fedora)
+rig stow --all
 
 # Stow specific packages
-./bin/rig-stow config zsh     # Only config and zsh
-./bin/rig-stow git            # Only git
+rig stow config zsh     # Only config and zsh
+rig stow ssh            # Only ssh
 
 # Adopt existing files (resolve conflicts)
-./bin/rig-stow --adopt config # Move existing files into dotfiles repo and stow
+rig stow --adopt config # Move existing files into dotfiles repo and stow
 
 # Restow (unstow then stow again) - useful for updates
-./bin/rig-stow -R config      # Restow config
-./bin/rig-stow -R --all       # Restow all
+rig stow -R config      # Restow config
+rig stow -R --all       # Restow all
 
 # Unstow (remove symlinks)
-./bin/rig-stow -d git         # Unstow git
-# or: rig stow -d git (on Fedora)
+rig stow -d ssh         # Unstow ssh
 ```
 
-Available packages: `cargo`, `config`, `git`, `local`, `Pictures`, `ssh`, `zsh`
+Available packages: `cargo`, `config`, `local`, `Pictures`, `ssh`, `zsh`
 
 ## What's Installed
 
@@ -140,8 +136,7 @@ Available packages: `cargo`, `config`, `git`, `local`, `Pictures`, `ssh`, `zsh`
 If you need to reset or re-run specific parts:
 
 ```bash
-./bin/rig-reset
-# or: rig reset (on Fedora)
+rig reset
 ```
 
 Interactive menu to reset:

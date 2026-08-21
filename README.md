@@ -15,7 +15,8 @@ Automated system setup for Fedora Linux and macOS.
 ### One-line Installer
 
 ```bash
-eval "$(curl -fsSL https://raw.githubusercontent.com/pixincreate/rig/main/unix/setup)"
+eval "$(curl -fsSL \
+  https://raw.githubusercontent.com/pixincreate/rig/main/unix/setup)"
 ```
 
 The installer automatically:
@@ -51,7 +52,8 @@ export RIG_GIT_NAME='Your Name'
 export RIG_GIT_EMAIL='your@email.com'
 export RIG_NEXTDNS_ID='abc123'
 export RIG_SECUREBOOT='true'  # Fedora only
-eval "$(curl -fsSL https://raw.githubusercontent.com/pixincreate/rig/main/unix/setup)"
+eval "$(curl -fsSL \
+  https://raw.githubusercontent.com/pixincreate/rig/main/unix/setup)"
 ```
 
 ### Manual Installation
@@ -89,8 +91,8 @@ The dispatcher uses multi-word prefix routing (inspired by omarchy):
 arguments to see all available commands.
 
 Each platform has its own dispatcher (`unix/fedora/bin/rig` and
-`unix/macos/bin/rig`) which discovers local `rig-*` scripts plus shared
-commands from `unix/common/bin/`.
+`unix/macos/bin/rig`) which discovers `rig-*` scripts in `libexec/` plus
+shared commands from `unix/common/libexec/`.
 
 ## Running Individual Components
 
@@ -125,9 +127,9 @@ Both macOS and Fedora support running specific modules:
 ./fedora-setup --only config/git
 ./fedora-setup --only config/kde          # KDE Plasma defaults
 ./fedora-setup --only config/services     # Enable services
-./fedora-setup --only config/performance  # Performance tuning (zram, shutdown timeout)
+./fedora-setup --only config/performance  # Performance (zram, timeout)
 ./fedora-setup --only config/secureboot   # Secure Boot setup
-./fedora-setup --only config/hardware/asus    # ASUS laptop (sleep hooks, GPU power)
+./fedora-setup --only config/hardware/asus  # ASUS laptop (sleep, GPU power)
 ./fedora-setup --only config/hardware/nvidia  # NVIDIA drivers
 ./fedora-setup --only external/skillset   # External repo (skillset)
 ```
@@ -139,7 +141,6 @@ Both macOS and Fedora support running specific modules:
 ```bash
 # Stow all packages
 rig stow --all
-# or: ./bin/rig-stow --all
 
 # Stow specific packages
 rig stow config zsh          # Only config and zsh
@@ -208,20 +209,22 @@ rig webapp-remove ChatGPT  # Specific app
 ├── unix/
 │   ├── setup              # Common entry point (OS detection)
 │   ├── common/            # Cross-platform scripts
-│   │   ├── bin/           # Shared CLI commands (rig-install-skillset)
+│   │   ├── libexec/       # CLI commands (rig-install-skillset)
 │   │   ├── helpers/       # Logging, common functions
 │   │   ├── dotfiles/      # Stow, fonts, zsh
 │   │   ├── config/        # Git, NextDNS, Rust
 │   │   └── external/      # External git repos (skillset)
 │   ├── fedora/            # Fedora-specific setup
-│   │   ├── bin/           # Fedora CLI commands (rig-add, rig-stow, ...)
+│   │   ├── bin/           # rig dispatcher
+│   │   ├── libexec/       # CLI commands (rig-add, rig-llama, ...)
 │   │   ├── install/
-│   │   │   ├── config/    # System config (KDE, hardware, performance)
+│   │   │   ├── config/    # System config (KDE, hardware)
 │   │   │   ├── dotfiles/  # Dotfiles management
 │   │   │   └── external/  # External repos
 │   │   └── packages/      # Package lists
 │   └── macos/             # macOS-specific setup
-│       ├── bin/           # macOS CLI commands (rig-add, rig-stow, ...)
+│       ├── bin/           # rig dispatcher
+│       ├── libexec/       # CLI commands (rig-add, rig-llama, ...)
 ├── windows/               # Windows configuration (see windows/README.md)
 ├── default/               # Default configs (skills, wallpapers)
 └── docs/                  # Documentation
@@ -279,7 +282,8 @@ tail -50 ~/.local/state/rig/install.log
 
 ## Documentation
 
-- **[Fedora Setup Guide](unix/fedora/README.md)** - Fedora-specific documentation
+- **[Fedora Setup Guide](unix/fedora/README.md)** - Fedora-specific
+  documentation
 - **[macOS Setup Guide](unix/macos/README.md)** - macOS-specific documentation
 
 ## License

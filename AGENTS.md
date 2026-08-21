@@ -13,18 +13,19 @@
 
 ## Unified CLI Dispatcher
 
-Run `rig` with no arguments to list all available commands with their descriptions:
+Run `rig` with no arguments to list all available commands with their
+descriptions:
 
 ```bash
 rig                         # List all commands
-rig stow --all              # Same as ./bin/rig-stow --all
-rig add base neovim         # Same as ./bin/rig-add base neovim
+rig stow --all              # Same as rig stow --all
+rig add base neovim         # Same as rig add base neovim
 rig install skillset        # Multi-word prefix routing
 ```
 
 Each platform has its own dispatcher (`unix/fedora/bin/rig` and
 `unix/macos/bin/rig`) with the same interface. The dispatcher also checks
-`unix/common/bin/` for commands shared across both platforms.
+`unix/common/libexec/` for commands shared across both platforms.
 
 **Multi-word prefix routing**: the dispatcher tries each prefix from
 all-words-down-to-1 to find a matching `rig-<words>` binary. For example,
@@ -92,7 +93,8 @@ Use the logging helpers for consistent output:
 - `log_error` - errors (red color)
 - `log_section` - section headers (bold/magenta)
 
-All logging functions support colored output with ANSI codes for better readability.
+All logging functions support colored output with ANSI codes for better
+readability.
 
 ## Execution Model
 
@@ -109,8 +111,8 @@ platform-specific, you must apply the equivalent change to both platforms.**
 
 **Requires mirroring:**
 
-- New or modified `bin/` scripts (add/update in both
-  `unix/fedora/bin/` and `unix/macos/bin/`)
+- New or modified `libexec/` scripts (add/update in both
+  `unix/fedora/libexec/` and `unix/macos/libexec/`)
 - Changes to package lists for shared tools (add to Fedora's
   `packages/` _and_ macOS's `packages/`)
 - New install modules that aren't hardware-specific
