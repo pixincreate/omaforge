@@ -1,5 +1,6 @@
 # User applications and utilities
 
+age
 ffmpeg
 parallel
 croc
@@ -11,3 +12,8 @@ thunderbird
 speech-dispatcher-utils
 steam
 helium-browser-bin
+mpv
+rofimoji
+wtype
+fuzzel
+tesseract

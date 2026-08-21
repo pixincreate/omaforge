@@ -31,11 +31,13 @@ jq
 tree
 grpcurl
 uv
+llama.cpp
 
 # System tools
 htop
 btop
 fastfetch
+age
 
 # Build essentials
 gcc
@@ -52,7 +54,6 @@ llvm
 topgrade
 croc
 nextdns
-ollama
 ffmpeg
 protobuf
 grpc

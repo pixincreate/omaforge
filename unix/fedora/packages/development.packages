@@ -24,7 +24,8 @@ java-latest-openjdk
 protobuf-compiler
 grpc
 zig
-ollama
 uv
 golang
 texlive-scheme-medium
+llama-cpp
+opencode
