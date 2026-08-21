@@ -1,17 +1,17 @@
 #!/bin/bash
 section "Fedora bin scripts metadata"
-assert_success "rig-reset has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/fedora/bin/rig-reset"
-assert_success "rig-reset has usage" grep -q 'rig:usage=' "$RIG_REPO/unix/fedora/bin/rig-reset"
-assert_success "rig-pkg-add has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/fedora/bin/rig-pkg-add"
-assert_success "rig-pkg-remove has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/fedora/bin/rig-pkg-remove"
-assert_success "rig-pkg-search has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/fedora/bin/rig-pkg-search"
-assert_success "rig-pkg-list has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/fedora/bin/rig-pkg-list"
-assert_success "rig-stow has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/fedora/bin/rig-stow"
-assert_success "rig-add has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/fedora/bin/rig-add"
-assert_success "rig-migrate has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/fedora/bin/rig-migrate"
-assert_success "rig-launch-webapp has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/fedora/bin/rig-launch-webapp"
-assert_success "rig-webapp-install has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/fedora/bin/rig-webapp-install"
-assert_success "rig-webapp-remove has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/fedora/bin/rig-webapp-remove"
+assert_success "rig-reset has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/fedora/libexec/rig-reset"
+assert_success "rig-reset has usage" grep -q 'rig:usage=' "$RIG_REPO/unix/fedora/libexec/rig-reset"
+assert_success "rig-pkg-add has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/fedora/libexec/rig-pkg-add"
+assert_success "rig-pkg-remove has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/fedora/libexec/rig-pkg-remove"
+assert_success "rig-pkg-search has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/fedora/libexec/rig-pkg-search"
+assert_success "rig-pkg-list has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/fedora/libexec/rig-pkg-list"
+assert_success "rig-stow has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/fedora/libexec/rig-stow"
+assert_success "rig-add has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/fedora/libexec/rig-add"
+assert_success "rig-migrate has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/fedora/libexec/rig-migrate"
+assert_success "rig-launch-webapp has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/fedora/libexec/rig-launch-webapp"
+assert_success "rig-webapp-install has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/fedora/libexec/rig-webapp-install"
+assert_success "rig-webapp-remove has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/fedora/libexec/rig-webapp-remove"
 
 section "Fedora bin scripts syntax"
 for f in "$RIG_REPO/unix/fedora/bin/"*; do
@@ -26,20 +26,20 @@ if command -v shellcheck &>/dev/null; then
 fi
 
 section "Fedora rig pkg-add no args"
-PKG_ADD_OUTPUT=$(bash "$RIG_REPO/unix/fedora/bin/rig-pkg-add" 2>&1 || true)
+PKG_ADD_OUTPUT=$(bash "$RIG_REPO/unix/fedora/libexec/rig-pkg-add" 2>&1 || true)
 assert_output_contains "Shows usage" "Usage:" echo "$PKG_ADD_OUTPUT"
 
 section "Fedora rig pkg-remove no args"
-PKG_REMOVE_OUTPUT=$(bash "$RIG_REPO/unix/fedora/bin/rig-pkg-remove" 2>&1 || true)
+PKG_REMOVE_OUTPUT=$(bash "$RIG_REPO/unix/fedora/libexec/rig-pkg-remove" 2>&1 || true)
 assert_output_contains "Shows usage" "Usage:" echo "$PKG_REMOVE_OUTPUT"
 assert_output_not_contains "No fzf" "fzf" echo "$PKG_REMOVE_OUTPUT"
 
 section "Fedora rig pkg-search no args"
-PKG_SEARCH_OUTPUT=$(bash "$RIG_REPO/unix/fedora/bin/rig-pkg-search" 2>&1 || true)
+PKG_SEARCH_OUTPUT=$(bash "$RIG_REPO/unix/fedora/libexec/rig-pkg-search" 2>&1 || true)
 assert_output_contains "Shows usage" "Usage:" echo "$PKG_SEARCH_OUTPUT"
 
 section "Fedora rig pkg-list no args"
-PKG_LIST_OUTPUT=$(bash "$RIG_REPO/unix/fedora/bin/rig-pkg-list" 2>&1 || true)
+PKG_LIST_OUTPUT=$(bash "$RIG_REPO/unix/fedora/libexec/rig-pkg-list" 2>&1 || true)
 assert_output_contains "Shows usage" "Usage:" echo "$PKG_LIST_OUTPUT"
 
 section "Fedora package lists content"

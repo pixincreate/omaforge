@@ -97,17 +97,19 @@ assert_output_not_contains() {
 }
 
 # Assert that a file has valid bash syntax
+# Uses the running bash ($BASH) so bash 5-only syntax (e.g. [[ -v ]]) passes under CI / brew bash.
 assert_bash_syntax() {
     local desc="$1"
     local file="$2"
+    local bash_bin="${BASH:-bash}"
     TOTAL=$((TOTAL + 1))
-    if bash -n "$file" 2>/dev/null; then
+    if "$bash_bin" -n "$file" 2>/dev/null; then
         echo -e "  ${TC_GREEN}✓${TC_RESET} $desc"
         PASS=$((PASS + 1))
     else
         echo -e "  ${TC_RED}✗${TC_RESET} $desc"
         echo -e "    ${TC_YELLOW}Syntax error in: $file${TC_RESET}"
-        bash -n "$file" 2>&1 | sed 's/^/    /'
+        "$bash_bin" -n "$file" 2>&1 | sed 's/^/    /'
         FAIL=$((FAIL + 1))
     fi
 }
