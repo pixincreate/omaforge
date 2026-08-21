@@ -319,3 +319,9 @@ _launch=Ctrl+Alt+T\tMeta+Return
 [services][org.kde.spectacle.desktop]
 WindowUnderCursorScreenShot=Meta+Shift+S\tMeta+Ctrl+Print
 _launch=\tPrint
+
+[org.kde.plasma.emojier.desktop]
+_launch=none,none,Emoji Selector
+
+[services][rofimoji.desktop]
+_launch=Meta+.
