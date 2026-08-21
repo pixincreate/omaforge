@@ -11,23 +11,24 @@ setup_zsh() {
 
     echo "Configuring ZSH"
 
-    local additionals_file="$zsh_dir/.additionals.zsh"
+    local local_file="$zsh_dir/local.zsh"
     local platform
     platform=$(detect_platform)
 
     echo "[INFO] Detected platform: $platform"
 
-    if [[ -f "$additionals_file" ]]; then
-        local backup_file="${additionals_file}.bak"
-        cp "$additionals_file" "$backup_file"
-        echo "[INFO] Backed up existing config to: $backup_file"
+    # local.zsh is user-owned: rig only creates it once and never touches it
+    # again, so the user is free to customise it.
+    if [[ -f "$local_file" ]]; then
+        echo "[INFO] $local_file already exists — leaving it untouched (user-owned)"
+        return 0
     fi
 
-    echo "[INFO] Creating platform-specific ZSH config: $additionals_file"
+    echo "[INFO] Creating platform-specific ZSH config: $local_file"
 
     case "$platform" in
         macos)
-            cat > "$additionals_file" <<'EOF'
+            cat > "$local_file" <<'EOF'
 # macOS specific configurations
 typeset -U PATH path
 path=(
@@ -46,24 +47,14 @@ path=(
     $(brew --prefix)/opt/postgresql@18/bin
 )
 
-# Disable NPM ads
-export DISABLE_OPENCOLLECTIVE=1
-export ADBLOCK=1
-
 # Disable Homebrew auto updating packages
 HOMEBREW_NO_AUTO_UPDATE=1
-
-# Disable OMO tracking
-export OMO_DISABLE_POSTHOG=1
-export OMO_SEND_ANONYMOUS_TELEMETRY=0
 
 PQ_LIB_DIR="$(brew --prefix libpq)/lib"
 
 export CPPFLAGS="-I$(brew --prefix)/opt/llvm/include"
 export LDFLAGS="-L$(brew --prefix)/opt/llvm/lib"
 export CC="$(brew --prefix)/opt/llvm/bin/clang"
-
-export OLLAMA_LIBRARY_PATH=$(brew --prefix)/lib
 
 # rig bin
 export PATH="$HOME/dev/.rig/unix/macos/bin:$PATH"
@@ -78,7 +69,7 @@ EOF
             ;;
 
         fedora)
-            cat > "$additionals_file" <<'EOF'
+            cat > "$local_file" <<'EOF'
 # rig bin
 export PATH="$HOME/dev/.rig/unix/fedora/bin:$PATH"
 
@@ -110,14 +101,7 @@ supergfxmnl() {
   esac
 }
 
-# Disable NPM ads
-export DISABLE_OPENCOLLECTIVE=1
-export ADBLOCK=1
-
-# Disable OMO tracking
-export OMO_DISABLE_POSTHOG=1
-export OMO_SEND_ANONYMOUS_TELEMETRY=0
-
+# Wayland backends
 export GDK_BACKEND=wayland
 export QT_QPA_PLATFORM=wayland
 export MOZ_ENABLE_WAYLAND=1
@@ -128,7 +112,7 @@ EOF
             ;;
 
         debian)
-            cat > "$additionals_file" <<'EOF'
+            cat > "$local_file" <<'EOF'
 # Debian specific configurations
 export LDFLAGS="-L/$(brew --prefix)/opt/binutils/lib"
 export CPPFLAGS="-I/$(brew --prefix)/opt/binutils/include"
@@ -142,7 +126,7 @@ EOF
             ;;
 
         android)
-            cat > "$additionals_file" <<'EOF'
+            cat > "$local_file" <<'EOF'
 # Termux storage
 [[ ! -d ~/storage ]] && termux-setup-storage
 # pkg aliases
@@ -157,13 +141,18 @@ EOF
             ;;
 
         *)
-            cat > "$additionals_file" <<'EOF'
+            cat > "$local_file" <<'EOF'
 # Generic Unix ZSH configuration
 
 # Add your custom configurations here
 EOF
             ;;
     esac
+
+    cat >> "$local_file" <<'MARKER_EOF'
+
+# rig manages everything above this line. Add your own config below — rig will never edit it.
+MARKER_EOF
 
     echo "[SUCCESS] Platform-specific ZSH config created"
 
