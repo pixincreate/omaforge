@@ -29,7 +29,6 @@
     "stow_packages": [
       "cargo",
       "config",
-      "git",
       "ssh",
       "zsh",
       "Pictures",

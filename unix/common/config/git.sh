@@ -6,7 +6,7 @@ setup_git() {
     local git_name="$1"
     local git_email="$2"
     local ssh_dir="${3:-$HOME/.ssh}"
-    local gitconfig_local="${4:-$HOME/.config/gitconfig/.gitconfig.local}"
+    local gitconfig_local="${4:-$HOME/.config/git/config.local}"
 
     echo "Configuring Git and SSH"
 
