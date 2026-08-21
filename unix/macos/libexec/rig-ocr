@@ -1,0 +1,50 @@
+#!/bin/bash
+# rig:summary=Capture a screen region and copy extracted text to the clipboard
+# rig:usage=rig ocr
+
+set -euo pipefail
+
+snapshot="/tmp/rig-ocr-$(date +%s).png"
+
+cleanup() {
+  [[ -f "$snapshot" ]] && rm --force "$snapshot"
+}
+trap cleanup EXIT
+
+if ! command -v screencapture &>/dev/null; then
+  echo "[ERROR] screencapture is not installed"
+  exit 1
+fi
+
+if ! command -v tesseract &>/dev/null; then
+  echo "[ERROR] tesseract is not installed"
+  exit 1
+fi
+
+echo "Select a region to extract text..."
+screencapture -i "$snapshot"
+
+if [[ ! -f "$snapshot" ]]; then
+  echo "[ERROR] No region captured"
+  exit 1
+fi
+
+text=""
+if tesseract --list-langs 2>/dev/null | grep --quiet "^kan$"; then
+  text=$(tesseract "$snapshot" stdout --lang kan+eng 2>/dev/null || true)
+elif tesseract --list-langs 2>/dev/null | grep --quiet "^hin$"; then
+  text=$(tesseract "$snapshot" stdout --lang hin+eng 2>/dev/null || true)
+fi
+
+if [[ -z "$text" ]]; then
+  text=$(tesseract "$snapshot" stdout 2>/dev/null || true)
+fi
+
+if [[ -z "$text" ]]; then
+  echo "[WARNING] No text detected"
+  exit 0
+fi
+
+printf "%s" "$text" | pbcopy
+
+echo "[SUCCESS] Extracted text copied to clipboard"

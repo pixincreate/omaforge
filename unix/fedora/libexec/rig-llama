@@ -1,0 +1,78 @@
+#!/bin/bash
+# rig:summary=Convenience wrapper for llama.cpp server/chat
+# rig:usage=rig llama [server|chat|pull] [args]
+
+set -euo pipefail
+
+models_dir="${LLAMA_MODELS_DIR:-$HOME/.local/share/llama.cpp/models}"
+mkdir -p "$models_dir"
+
+usage() {
+  echo "Usage: rig llama <command> [args]"
+  echo ""
+  echo "Commands:"
+  echo "  server [model.gguf]   Start llama-server on the given model"
+  echo "  chat [model.gguf]     Start llama-cli in interactive chat mode"
+  echo "  list                  List downloaded models"
+  echo "  pull <url>            Download a model into $models_dir"
+  exit 1
+}
+
+if [[ $# -eq 0 ]]; then
+  usage
+fi
+
+command="$1"
+shift
+
+case "$command" in
+  server)
+    model="${1:-}"
+    if [[ -z "$model" ]]; then
+      echo "[ERROR] No model specified"
+      usage
+    fi
+    [[ "$model" != /* ]] && model="$models_dir/$model"
+    if [[ ! -f "$model" ]]; then
+      echo "[ERROR] Model not found: $model"
+      exit 1
+    fi
+    echo "Starting llama-server on $model"
+    echo "  API: http://localhost:8080"
+    llama-server --model "$model" --host 127.0.0.1 --port 8080
+    ;;
+
+  chat)
+    model="${1:-}"
+    if [[ -z "$model" ]]; then
+      echo "[ERROR] No model specified"
+      usage
+    fi
+    [[ "$model" != /* ]] && model="$models_dir/$model"
+    if [[ ! -f "$model" ]]; then
+      echo "[ERROR] Model not found: $model"
+      exit 1
+    fi
+    echo "Starting llama-cli chat on $model"
+    llama-cli --model "$model" --interactive
+    ;;
+
+  list)
+    find "$models_dir" -maxdepth 1 -type f -name "*.gguf" -printf "  %f\n" 2>/dev/null || ls -1 "$models_dir"/*.gguf 2>/dev/null || echo "No models in $models_dir"
+    ;;
+
+  pull)
+    url="${1:-}"
+    if [[ -z "$url" ]]; then
+      echo "[ERROR] No URL specified"
+      usage
+    fi
+    filename=$(basename "$url")
+    curl --location --progress-bar --continue-at - "$url" --output "$models_dir/$filename"
+    echo "[SUCCESS] Downloaded $models_dir/$filename"
+    ;;
+
+  *)
+    usage
+    ;;
+esac

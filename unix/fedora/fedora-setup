@@ -63,7 +63,7 @@ RIG_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export RIG_PATH
 export RIG_INSTALL="$RIG_PATH/install"
 export RIG_CONFIG="$RIG_PATH/config.json"
-export PATH="$RIG_PATH/bin:$PATH"
+export PATH="$RIG_PATH/bin:$RIG_PATH/libexec:$PATH"
 
 # Ensure jq is available for JSON parsing
 if ! command -v jq &>/dev/null; then

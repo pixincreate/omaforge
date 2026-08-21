@@ -1,0 +1,47 @@
+#!/bin/bash
+# rig:summary=List packages in package lists
+# rig:usage=rig pkg-list <type>
+
+set -euo pipefail
+
+RIG_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PACKAGES_DIR="$RIG_PATH/packages"
+
+show_usage() {
+    echo "Usage: rig pkg-list <type>"
+    echo ""
+    echo "Types:"
+    echo "  brew              CLI tools (brew.packages)"
+    echo "  cask              GUI applications (cask.packages)"
+    echo "  rust              Rust tools (rust.packages)"
+    echo ""
+    echo "Examples:"
+    echo "  rig pkg-list brew"
+    echo "  rig pkg-list cask"
+}
+
+if [[ $# -lt 1 ]]; then
+    show_usage
+    exit 1
+fi
+
+TYPE="$1"
+
+case "$TYPE" in
+    brew) FILE="$PACKAGES_DIR/brew.packages" ;;
+    cask) FILE="$PACKAGES_DIR/cask.packages" ;;
+    rust) FILE="$PACKAGES_DIR/rust.packages" ;;
+    *)
+        echo "Error: Unknown type: $TYPE"
+        show_usage
+        exit 1
+        ;;
+esac
+
+if [[ ! -f "$FILE" ]]; then
+    echo "No $TYPE packages file found"
+    exit 1
+fi
+
+echo "Packages ($TYPE):"
+grep -v '^#\|^$' "$FILE" | sort || echo "(empty)"

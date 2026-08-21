@@ -1,0 +1,48 @@
+#!/bin/bash
+# rig:summary=Search DNF and Flatpak repositories
+# rig:usage=rig pkg-search <term> [--flatpak]
+
+set -euo pipefail
+
+if [[ $# -eq 0 ]]; then
+    echo "Usage: rig pkg-search <term> [--flatpak]"
+    echo ""
+    echo "Search DNF and Flatpak repositories for packages."
+    echo ""
+    echo "Examples:"
+    echo "  rig pkg-search neovim         # Search DNF"
+    echo "  rig pkg-search spotify --flatpak  # Search Flatpak"
+    exit 1
+fi
+
+TERM=""
+MODE="dnf"
+
+for arg in "$@"; do
+    case "$arg" in
+        --flatpak) MODE="flatpak" ;;
+        -*) echo "Unknown option: $arg"; exit 1 ;;
+        *) TERM="$arg" ;;
+    esac
+done
+
+if [[ -z "$TERM" ]]; then
+    echo "Error: search term required"
+    exit 1
+fi
+
+case "$MODE" in
+    dnf)
+        echo "Searching DNF for: $TERM"
+        dnf search "$TERM"
+        ;;
+    flatpak)
+        if command -v flatpak &>/dev/null; then
+            echo "Searching Flatpak for: $TERM"
+            flatpak search "$TERM"
+        else
+            echo "Flatpak is not installed"
+            exit 1
+        fi
+        ;;
+esac

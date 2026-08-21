@@ -1,0 +1,23 @@
+#!/bin/bash
+# rig:summary=Install RPM packages via DNF
+# rig:usage=rig pkg-add <package> [package2 ...]
+
+set -euo pipefail
+
+if [[ $# -eq 0 ]]; then
+    echo "Usage: rig-pkg-add <package> [package2 ...]"
+    echo "Example: rig-pkg-add neofetch htop"
+    exit 1
+fi
+
+for pkg in "$@"; do
+    # Check if already installed
+    if rpm -q "$pkg" &>/dev/null; then
+        echo "Already installed: $pkg"
+    else
+        echo "Installing: $pkg"
+        sudo dnf install -y "$pkg" || exit 1
+    fi
+done
+
+exit 0

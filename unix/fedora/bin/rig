@@ -7,10 +7,13 @@ set -euo pipefail
 BIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RIG_PATH="$(cd "$BIN_DIR/../../.." && pwd)"
 export RIG_PATH
-export RIG_BIN="$BIN_DIR"
 
-COMMON_BIN_DIR="$RIG_PATH/unix/common/bin"
-[[ -d "$COMMON_BIN_DIR" ]] || COMMON_BIN_DIR=""
+LIB_DIR="$BIN_DIR/../libexec"
+[[ -d "$LIB_DIR" ]] || LIB_DIR="$BIN_DIR"
+export RIG_BIN="$LIB_DIR"
+
+COMMON_LIB_DIR="$RIG_PATH/unix/common/libexec"
+[[ -d "$COMMON_LIB_DIR" ]] || COMMON_LIB_DIR=""
 
 show_help() {
   echo "Usage: rig <command> [args]"
@@ -18,7 +21,7 @@ show_help() {
   echo "Available commands:"
   echo ""
 
-  for dir in "$BIN_DIR" "$COMMON_BIN_DIR"; do
+  for dir in "$LIB_DIR" "$COMMON_LIB_DIR"; do
     [[ -d "$dir" ]] || continue
     for script in "$dir"/rig-*; do
       [[ -x "$script" ]] || continue
@@ -50,15 +53,15 @@ args=("$@")
 for (( i = ${#args[@]}; i >= 1; i-- )); do
   cmd=$(printf "%s-" "${args[@]:0:i}" | sed 's/-$//')
 
-  # Check platform bin first (takes priority)
-  bin="$BIN_DIR/rig-$cmd"
+  # Check platform libexec first (takes priority)
+  bin="$LIB_DIR/rig-$cmd"
   if [[ -x "$bin" ]]; then
     exec "$bin" "${args[@]:i}"
   fi
 
-  # Fall back to common bin
-  if [[ -n "$COMMON_BIN_DIR" ]]; then
-    common_bin="$COMMON_BIN_DIR/rig-$cmd"
+  # Fall back to common libexec
+  if [[ -n "$COMMON_LIB_DIR" ]]; then
+    common_bin="$COMMON_LIB_DIR/rig-$cmd"
     if [[ -x "$common_bin" ]]; then
       exec "$common_bin" "${args[@]:i}"
     fi
