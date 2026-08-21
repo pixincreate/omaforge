@@ -82,6 +82,7 @@ export SYS_HEALTH="${HOME}/dev/.rig/unix/fedora/health-check.sh"
 alias cleanup="sudo dnf autoremove && flatpak uninstall --unused"
 alias dnf-clean='sudo dnf autoremove && sudo dnf clean all'
 alias trigger_secure_boot='sudo kmodgenca -a && sudo mokutil --import /etc/pki/akmods/certs/public_key.der'
+alias zed=zed-preview
 
 # GPU mode switching (supergfxctl on ASUS laptops)
 supergfxmnl() {
