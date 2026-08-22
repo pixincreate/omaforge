@@ -1,20 +1,68 @@
 #!/bin/bash
 # rig:summary=Convenience wrapper for llama.cpp server/chat
-# rig:usage=rig llama [server|chat|pull] [args]
+# rig:usage=rig llama [server|chat|list|pull] [args]
 
 set -euo pipefail
 
 models_dir="${LLAMA_MODELS_DIR:-$HOME/.local/share/llama.cpp/models}"
 mkdir -p "$models_dir"
 
+config_file="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/config.json"
+
+cfg() {
+  command -v jq &>/dev/null || return 0
+  [[ -f "$config_file" ]] || return 0
+  jq -r "$1 // empty" "$config_file" 2>/dev/null
+}
+
+resolved_model=""
+resolved_is_hf=false
+
+resolve_model() {
+  local requested="${1:-}"
+  local model="$requested"
+
+  if [[ -z $model ]]; then
+    model=$(cfg ".llama.model")
+  fi
+
+  if [[ -z $model ]]; then
+    echo "[ERROR] No model given and .llama.model is not set in $config_file"
+    return 1
+  fi
+
+  # Local file: absolute path or bare name inside models_dir
+  if [[ $model == /* && -f "$model" ]]; then
+    resolved_model="$model"
+    return 0
+  fi
+  if [[ $model != /* && -f "$models_dir/$model" ]]; then
+    resolved_model="$models_dir/$model"
+    return 0
+  fi
+
+  # Anything else containing a slash is a Hugging Face ref (repo or repo:quant)
+  if [[ $model == */* ]]; then
+    resolved_model="$model"
+    resolved_is_hf=true
+    return 0
+  fi
+
+  echo "[ERROR] Model not found: $model"
+  return 1
+}
+
 usage() {
   echo "Usage: rig llama <command> [args]"
   echo ""
   echo "Commands:"
-  echo "  server [model.gguf]   Start llama-server on the given model"
-  echo "  chat [model.gguf]     Start llama-cli in interactive chat mode"
-  echo "  list                  List downloaded models"
-  echo "  pull <url>            Download a model into $models_dir"
+  echo "  server [model]   Start llama-server (default: .llama.model from config.json)"
+  echo "  chat [model]     Start llama-cli in interactive chat mode"
+  echo "  list             List downloaded models"
+  echo "  pull <url>       Download a model into $models_dir"
+  echo ""
+  echo "Model can be a file in $models_dir, an absolute path, or a Hugging Face ref"
+  echo "like ggml-org/gemma-4-E4B-it-GGUF:Q4_0 (downloaded and cached by llama.cpp)"
   exit 1
 }
 
@@ -27,34 +75,27 @@ shift
 
 case "$command" in
   server)
-    model="${1:-}"
-    if [[ -z "$model" ]]; then
-      echo "[ERROR] No model specified"
-      usage
+    resolve_model "${1:-}" || exit 1
+    host="$(cfg ".llama.host")"
+    port="$(cfg ".llama.port")"
+    [[ -n $host ]] || host="127.0.0.1"
+    [[ -n $port ]] || port=8080
+    if [[ $resolved_is_hf == true ]]; then
+      echo "Starting llama-server on $resolved_model (Hugging Face)"
+      exec llama-server -hf "$resolved_model" --host "$host" --port "$port"
     fi
-    [[ "$model" != /* ]] && model="$models_dir/$model"
-    if [[ ! -f "$model" ]]; then
-      echo "[ERROR] Model not found: $model"
-      exit 1
-    fi
-    echo "Starting llama-server on $model"
-    echo "  API: http://localhost:8080"
-    llama-server --model "$model" --host 127.0.0.1 --port 8080
+    echo "Starting llama-server on $resolved_model"
+    exec llama-server --model "$resolved_model" --host "$host" --port "$port"
     ;;
 
   chat)
-    model="${1:-}"
-    if [[ -z "$model" ]]; then
-      echo "[ERROR] No model specified"
-      usage
+    resolve_model "${1:-}" || exit 1
+    if [[ $resolved_is_hf == true ]]; then
+      echo "Starting llama-cli chat on $resolved_model (Hugging Face)"
+      exec llama-cli -hf "$resolved_model" --interactive
     fi
-    [[ "$model" != /* ]] && model="$models_dir/$model"
-    if [[ ! -f "$model" ]]; then
-      echo "[ERROR] Model not found: $model"
-      exit 1
-    fi
-    echo "Starting llama-cli chat on $model"
-    llama-cli --model "$model" --interactive
+    echo "Starting llama-cli chat on $resolved_model"
+    exec llama-cli --model "$resolved_model" --interactive
     ;;
 
   list)
@@ -63,7 +104,7 @@ case "$command" in
 
   pull)
     url="${1:-}"
-    if [[ -z "$url" ]]; then
+    if [[ -z $url ]]; then
       echo "[ERROR] No URL specified"
       usage
     fi

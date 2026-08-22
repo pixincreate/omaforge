@@ -38,3 +38,14 @@ for platform in fedora macos; do
     assert_success "$platform $cmd has usage" grep -q 'rig:usage=' "$script"
   done
 done
+
+section "rig-llama defaults come from config.json"
+
+for platform in fedora macos; do
+  assert_success "$platform config.json sets .llama.model" \
+    jq -e '.llama.model | length > 0' "$RIG_REPO/unix/$platform/config.json"
+  assert_success "$platform config.json sets .llama.port" \
+    jq -e '.llama.port | length > 0' "$RIG_REPO/unix/$platform/config.json"
+  assert_success "$platform rig-llama reads config.json" \
+    grep -q 'config.json' "$RIG_REPO/unix/$platform/libexec/rig-llama"
+done

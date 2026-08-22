@@ -2,6 +2,11 @@
   "system": {
     "hostname": "pixmac"
   },
+  "llama": {
+    "model": "ggml-org/gemma-4-E4B-it-GGUF:Q8_0",
+    "host": "127.0.0.1",
+    "port": 8080
+  },
   "homebrew": {
     "analytics": false,
     "auto_update": true
