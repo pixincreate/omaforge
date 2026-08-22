@@ -56,6 +56,7 @@ rig/
 │   │   ├── bin/             # rig dispatcher
 │   │   ├── libexec/         # Platform rig-* commands
 │   │   ├── packages/        # Package lists (*.packages)
+│   │   ├── config.json      # Per-platform defaults (read with jq)
 │   │   ├── config/          # Config templates
 │   │   ├── dotfiles/        # User dotfiles
 │   │   ├── migrations/      # Migration scripts
@@ -70,6 +71,7 @@ rig/
 │   └── macos/               # macOS-specific installer (same structure)
 ├── AGENTS.md                # Coding standards for AI
 ├── SKILL.md                 # This file
+├── tests/                   # Test suites (run via tests/run.sh)
 └── default/                 # Default configs (stowed to ~/.config/)
 ```
 
@@ -100,9 +102,72 @@ annotations** so the command appears in the help output.
 # rig:usage=rig <cmd> [options] [args]
 ```
 
-The dispatcher also exports `$RIG_PATH` (repo root) and `$RIG_BIN`
-(platform libexec dir) to child scripts. This is how scripts resolve their
-paths relative to the rig repository.
+The dispatcher also exports `$RIG_PATH` (repo root), `$RIG_BIN` (platform
+libexec dir), and `$RIG_PLATFORM` (`fedora` or `macos`) to child scripts.
+Common scripts that need platform-specific values resolve
+`unix/$RIG_PLATFORM/config.json`. This is how scripts resolve their paths
+relative to the rig repository.
+
+## Platform Config (config.json)
+
+Each platform has a `unix/{fedora,macos}/config.json` holding defaults for
+platform features (e.g. the `llama` block: model, host, port,
+system_prompt_file). Read it with `jq` and guard for missing keys:
+
+```bash
+model=$(jq -r '.llama.model // empty' "$RIG_PATH/unix/$RIG_PLATFORM/config.json")
+```
+
+Common `libexec/` scripts must never hardcode platform values — resolve
+them from config so one script serves both platforms.
+
+## Tests
+
+```bash
+bash tests/run.sh                  # Full suite
+bash tests/run.sh --common libexec # One suite (also: --fedora, --macos)
+```
+
+Suites live in `tests/{common,fedora,macos}/` using small assert helpers
+(`assert_success`, `assert_failure`). CI runs shellcheck on all `.sh`
+files — keep it clean. Gotchas:
+
+- Bash 3.2 (macOS) + `set -u`: expand possibly-empty arrays as
+  `${arr[@]+"${arr[@]}"}`
+- Don't pass `[[ ... && ... ]]` through assert helpers — use plain commands
+
+## Current Features
+
+### rig llama — local LLM stack (unix/common/libexec/rig-llama)
+
+Wrapper around llama.cpp binaries (`llama-server`, `llama-cli`). Defaults
+come from `config.json` `.llama` block per platform (model, host, port,
+system_prompt_file) — not hardcoded.
+
+- `rig llama pull <repo:quant>` — pull a GGUF from Hugging Face into
+  `~/.local/share/llama.cpp/models`
+- `rig llama list` / `rig llama chat [model] [flags]` — list models /
+  interactive CLI chat
+- `rig llama server [model] [flags]` — OpenAI-compatible API on 127.0.0.1;
+  model resolution: explicit arg → bare name in models dir → HF spec
+  (contains `/`) → config default; extra flags pass through to
+  llama-server (e.g. `--ctx-size 8192 -ngl 20`)
+
+**System-prompt proxy** (`rig-llama-proxy`, python3 stdlib): if the config'd
+`system_prompt_file` exists, `server` starts the proxy on the public port
+and llama-server on port+1; the proxy prepends the base prompt to every
+request's system message (harnesses always send their own, and the API is
+stateless — injection must happen per-request). Missing file → warn + serve
+direct.
+
+Harness integration lives in dotfiles: opencode provider + pi models.json
+pointing at `http://127.0.0.1:8080/v1`.
+
+### Other notable commands
+
+- `rig-ocr` — tesseract-based OCR helper (common)
+- `rig-stow`, `rig-add`, `rig-migrate` — dotfiles stow, package add, update migrations
+- `rig-webapp-install` / `rig-launch-webapp` — site-specific web apps
 
 ## Cross-Platform Mirroring
 

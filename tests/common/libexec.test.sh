@@ -57,7 +57,7 @@ for platform in fedora macos; do
     jq -e '.llama.port | length > 0' "$RIG_REPO/unix/$platform/config.json"
 done
 assert_success "common rig-llama reads platform config.json" \
-  grep -q 'unix/\$RIG_PLATFORM/config.json' "$RIG_REPO/unix/common/libexec/rig-llama"
+  grep -qF "unix/\$RIG_PLATFORM/config.json" "$RIG_REPO/unix/common/libexec/rig-llama"
 
 section "rig-llama forwards flags regardless of position"
 
