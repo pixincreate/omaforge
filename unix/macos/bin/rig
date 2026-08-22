@@ -7,6 +7,7 @@ set -euo pipefail
 BIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RIG_PATH="$(cd "$BIN_DIR/../../.." && pwd)"
 export RIG_PATH
+export RIG_PLATFORM="macos"
 
 LIB_DIR="$BIN_DIR/../libexec"
 [[ -d "$LIB_DIR" ]] || LIB_DIR="$BIN_DIR"

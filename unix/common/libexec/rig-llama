@@ -4,10 +4,15 @@
 
 set -euo pipefail
 
+RIG_PATH="${RIG_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)}"
+
 models_dir="${LLAMA_MODELS_DIR:-$HOME/.local/share/llama.cpp/models}"
 mkdir -p "$models_dir"
 
-config_file="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/config.json"
+if [[ -z ${RIG_PLATFORM:-} ]]; then
+  RIG_PLATFORM=$(uname -s | grep -q Darwin && echo macos || echo fedora)
+fi
+config_file="$RIG_PATH/unix/$RIG_PLATFORM/config.json"
 
 cfg() {
   command -v jq &>/dev/null || return 0

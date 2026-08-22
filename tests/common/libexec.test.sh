@@ -29,15 +29,24 @@ done
 assert_success "common libexec/ has rig-* workers" \
   ls "$RIG_REPO"/unix/common/libexec/rig-* >/dev/null 2>&1
 
-section "rig-ocr / rig-llama metadata on both platforms"
+section "rig-ocr metadata on both platforms"
 
 for platform in fedora macos; do
-  for cmd in rig-ocr rig-llama; do
-    script="$RIG_REPO/unix/$platform/libexec/$cmd"
-    assert_success "$platform $cmd has summary" grep -q 'rig:summary=' "$script"
-    assert_success "$platform $cmd has usage" grep -q 'rig:usage=' "$script"
-  done
+  script="$RIG_REPO/unix/$platform/libexec/rig-ocr"
+  assert_success "$platform rig-ocr has summary" grep -q 'rig:summary=' "$script"
+  assert_success "$platform rig-ocr has usage" grep -q 'rig:usage=' "$script"
 done
+
+section "rig-llama lives in common libexec with metadata"
+
+assert_success "common rig-llama exists" \
+  test -x "$RIG_REPO/unix/common/libexec/rig-llama"
+assert_success "common rig-llama has summary" \
+  grep -q 'rig:summary=' "$RIG_REPO/unix/common/libexec/rig-llama"
+assert_success "common rig-llama has usage" \
+  grep -q 'rig:usage=' "$RIG_REPO/unix/common/libexec/rig-llama"
+assert_failure "no platform copies of rig-llama remain" \
+  ls "$RIG_REPO/unix/fedora/libexec/rig-llama" "$RIG_REPO/unix/macos/libexec/rig-llama" 2>/dev/null
 
 section "rig-llama defaults come from config.json"
 
@@ -46,6 +55,6 @@ for platform in fedora macos; do
     jq -e '.llama.model | length > 0' "$RIG_REPO/unix/$platform/config.json"
   assert_success "$platform config.json sets .llama.port" \
     jq -e '.llama.port | length > 0' "$RIG_REPO/unix/$platform/config.json"
-  assert_success "$platform rig-llama reads config.json" \
-    grep -q 'config.json' "$RIG_REPO/unix/$platform/libexec/rig-llama"
 done
+assert_success "common rig-llama reads platform config.json" \
+  grep -q 'unix/\$RIG_PLATFORM/config.json' "$RIG_REPO/unix/common/libexec/rig-llama"
