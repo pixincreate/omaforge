@@ -5,7 +5,8 @@
   "llama": {
     "model": "ggml-org/gemma-4-E4B-it-GGUF:Q8_0",
     "host": "127.0.0.1",
-    "port": 8080
+    "port": 8080,
+    "system_prompt_file": "~/.local/share/llama.cpp/system-prompt.md"
   },
   "homebrew": {
     "analytics": false,

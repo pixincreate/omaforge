@@ -62,6 +62,8 @@ usage() {
   echo ""
   echo "Commands:"
   echo "  server [model] [flags]   Start llama-server (default: .llama.model from config.json)"
+  echo "                           If .llama.system_prompt_file exists, serves through the"
+  echo "                           rig-llama-proxy so it is injected before harness prompts."
   echo "  chat [model] [flags]     Start llama-cli in interactive chat mode"
   echo "  list             List downloaded models"
   echo "  pull <url>       Download a model into $models_dir"
@@ -99,12 +101,46 @@ case "$command" in
     port="$(cfg ".llama.port")"
     [[ -n $host ]] || host="127.0.0.1"
     [[ -n $port ]] || port=8080
+
+    server_cmd=(llama-server)
     if [[ $resolved_is_hf == true ]]; then
       echo "Starting llama-server on $resolved_model (Hugging Face)"
-      exec llama-server -hf "$resolved_model" --host "$host" --port "$port" ${extra_args[@]+"${extra_args[@]}"}
+      server_cmd+=(-hf "$resolved_model")
+    else
+      echo "Starting llama-server on $resolved_model"
+      server_cmd+=(--model "$resolved_model")
     fi
-    echo "Starting llama-server on $resolved_model"
-    exec llama-server --model "$resolved_model" --host "$host" --port "$port" ${extra_args[@]+"${extra_args[@]}"}
+
+    # Base system prompt: when configured, a proxy prepends it ahead of every
+    # request so harnesses (opencode/pi/...) get vendor-style prompt injection.
+    prompt_file="$(cfg ".llama.system_prompt_file")"
+    listen_port=$port
+    proxy_pid=""
+    if [[ -n $prompt_file ]]; then
+      prompt_file="${prompt_file/#\~/$HOME}"
+      if [[ -f $prompt_file ]]; then
+        (( internal = port + 1 ))
+        listen_port=$internal
+        echo "Base system prompt ON: $prompt_file"
+        python3 "$RIG_PATH/unix/common/libexec/rig-llama-proxy" \
+          --listen "$port" --upstream "127.0.0.1:$internal" --prompt-file "$prompt_file" &
+        proxy_pid=$!
+      else
+        echo "[WARN] .llama.system_prompt_file not found, serving without it: $prompt_file"
+      fi
+    fi
+
+    server_cmd+=(--host "$host" --port "$listen_port" ${extra_args[@]+"${extra_args[@]}"})
+
+    if [[ -n $proxy_pid ]]; then
+      echo "Harnesses connect to http://$host:$port/v1 (llama-server binds 127.0.0.1:$internal)"
+      "${server_cmd[@]}" &
+      srv_pid=$!
+      trap 'kill "$srv_pid" "$proxy_pid" 2>/dev/null' EXIT INT TERM
+      wait "$srv_pid"
+    else
+      exec "${server_cmd[@]}"
+    fi
     ;;
 
   chat)

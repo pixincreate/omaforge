@@ -82,3 +82,19 @@ assert_success "model resolved when given first" \
   grep -q 'ggml-org/test-model:Q4_0' "$stub_dir/flag-last.out"
 
 rm -rf "$stub_dir"
+
+section "rig-llama system-prompt proxy wiring"
+
+proxy="$RIG_REPO/unix/common/libexec/rig-llama-proxy"
+assert_success "rig-llama-proxy is executable" test -x "$proxy"
+
+for platform in fedora macos; do
+  assert_success "$platform config.json sets .llama.system_prompt_file" \
+    jq -e '.llama.system_prompt_file | length > 0' "$RIG_REPO/unix/$platform/config.json"
+done
+assert_success "rig-llama references the prompt file config" \
+  grep -q 'system_prompt_file' "$RIG_REPO/unix/common/libexec/rig-llama"
+
+python3 -m py_compile "$proxy"
+assert_success "rig-llama-proxy compiles" python3 -m py_compile "$proxy"
+assert_success "rig-llama-proxy self-test passes" "$proxy" --self-test
