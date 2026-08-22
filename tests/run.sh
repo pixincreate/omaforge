@@ -109,15 +109,15 @@ main() {
     echo -e "${TC_BLUE}══════════════════════════════════════════════${TC_RESET}"
 
     if $RUN_COMMON; then
-        run_test_suite "common" "${FILTERS[@]}" || exit_code=1
+        run_test_suite "common" ${FILTERS[@]+"${FILTERS[@]}"} || exit_code=1
     fi
 
     if $RUN_FEDORA; then
-        run_test_suite "fedora" "${FILTERS[@]}" || exit_code=1
+        run_test_suite "fedora" ${FILTERS[@]+"${FILTERS[@]}"} || exit_code=1
     fi
 
     if $RUN_MACOS; then
-        run_test_suite "macos" "${FILTERS[@]}" || exit_code=1
+        run_test_suite "macos" ${FILTERS[@]+"${FILTERS[@]}"} || exit_code=1
     fi
 
     if [[ $exit_code -eq 0 ]]; then
