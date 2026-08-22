@@ -58,3 +58,27 @@ for platform in fedora macos; do
 done
 assert_success "common rig-llama reads platform config.json" \
   grep -q 'unix/\$RIG_PLATFORM/config.json' "$RIG_REPO/unix/common/libexec/rig-llama"
+
+section "rig-llama forwards flags regardless of position"
+
+stub_dir=$(mktemp -d)
+printf '#!/bin/bash\nprintf "%%s\\n" "$@"\n' > "$stub_dir/llama-cli"
+chmod +x "$stub_dir/llama-cli"
+
+PATH="$stub_dir:$PATH" LLAMA_MODELS_DIR="$stub_dir/models" \
+  "$RIG_REPO/unix/common/libexec/rig-llama" chat --interactive ggml-org/test-model:Q4_0 > "$stub_dir/flag-first.out"
+PATH="$stub_dir:$PATH" LLAMA_MODELS_DIR="$stub_dir/models" \
+  "$RIG_REPO/unix/common/libexec/rig-llama" chat ggml-org/test-model:Q4_0 --interactive > "$stub_dir/flag-last.out"
+
+assert_success "leading flag does not swallow model" \
+  grep -q 'ggml-org/test-model:Q4_0' "$stub_dir/flag-first.out"
+assert_success "-hf used with leading flag" \
+  grep -q -e '-hf' "$stub_dir/flag-first.out"
+assert_success "--interactive forwarded (leading flag)" \
+  grep -q -- '--interactive' "$stub_dir/flag-first.out"
+assert_success "--interactive forwarded (trailing flag)" \
+  grep -q -- '--interactive' "$stub_dir/flag-last.out"
+assert_success "model resolved when given first" \
+  grep -q 'ggml-org/test-model:Q4_0' "$stub_dir/flag-last.out"
+
+rm -rf "$stub_dir"

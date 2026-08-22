@@ -61,13 +61,14 @@ usage() {
   echo "Usage: rig llama <command> [args]"
   echo ""
   echo "Commands:"
-  echo "  server [model]   Start llama-server (default: .llama.model from config.json)"
-  echo "  chat [model]     Start llama-cli in interactive chat mode"
+  echo "  server [model] [flags]   Start llama-server (default: .llama.model from config.json)"
+  echo "  chat [model] [flags]     Start llama-cli in interactive chat mode"
   echo "  list             List downloaded models"
   echo "  pull <url>       Download a model into $models_dir"
   echo ""
   echo "Model can be a file in $models_dir, an absolute path, or a Hugging Face ref"
-  echo "like ggml-org/gemma-4-E4B-it-GGUF:Q4_0 (downloaded and cached by llama.cpp)"
+  echo "like ggml-org/gemma-4-E4B-it-GGUF:Q4_0 (downloaded and cached by llama.cpp)."
+  echo "Extra flags are forwarded to llama-server/llama-cli in any position."
   exit 1
 }
 
@@ -78,29 +79,42 @@ fi
 command="$1"
 shift
 
+# First bare arg selects the model; dash-args are forwarded to llama-server/cli
+model_arg=""
+extra_args=()
+for arg in "$@"; do
+  if [[ $arg == -* ]]; then
+    extra_args+=("$arg")
+  elif [[ -z $model_arg ]]; then
+    model_arg="$arg"
+  else
+    extra_args+=("$arg")
+  fi
+done
+
 case "$command" in
   server)
-    resolve_model "${1:-}" || exit 1
+    resolve_model "$model_arg" || exit 1
     host="$(cfg ".llama.host")"
     port="$(cfg ".llama.port")"
     [[ -n $host ]] || host="127.0.0.1"
     [[ -n $port ]] || port=8080
     if [[ $resolved_is_hf == true ]]; then
       echo "Starting llama-server on $resolved_model (Hugging Face)"
-      exec llama-server -hf "$resolved_model" --host "$host" --port "$port"
+      exec llama-server -hf "$resolved_model" --host "$host" --port "$port" ${extra_args[@]+"${extra_args[@]}"}
     fi
     echo "Starting llama-server on $resolved_model"
-    exec llama-server --model "$resolved_model" --host "$host" --port "$port"
+    exec llama-server --model "$resolved_model" --host "$host" --port "$port" ${extra_args[@]+"${extra_args[@]}"}
     ;;
 
   chat)
-    resolve_model "${1:-}" || exit 1
+    resolve_model "$model_arg" || exit 1
     if [[ $resolved_is_hf == true ]]; then
       echo "Starting llama-cli chat on $resolved_model (Hugging Face)"
-      exec llama-cli -hf "$resolved_model" --interactive
+      exec llama-cli -hf "$resolved_model" --interactive ${extra_args[@]+"${extra_args[@]}"}
     fi
     echo "Starting llama-cli chat on $resolved_model"
-    exec llama-cli --model "$resolved_model" --interactive
+    exec llama-cli --model "$resolved_model" --interactive ${extra_args[@]+"${extra_args[@]}"}
     ;;
 
   list)
