@@ -63,6 +63,15 @@ fi
 
 RIG_BIN="$RIG_BIN" rig-pkg-add age rofimoji wtype fuzzel tesseract tesseract-langpack-kan tesseract-langpack-hin llama-cpp mpv
 
+# Install fonts (Nerd Fonts + Red Hat) via the shared fonts worker
+echo ""
+echo "Installing fonts..."
+if [[ -d "$HOME/.local/share/fonts" ]] && compgen -G "$HOME/.local/share/fonts/*RedHat*" >/dev/null; then
+  echo "[INFO] Red Hat fonts already present; skipping font install"
+else
+  "$RIG_PATH/unix/common/libexec/rig-fonts" install
+fi
+
 echo ""
 echo "Configuring rofimoji (fuzzel selector, wtype typer)..."
 rofimoji_rc="$HOME/.config/rofimoji.rc"
