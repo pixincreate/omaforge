@@ -78,7 +78,8 @@
     "bitwarden_secure_memory_backend": "mlock"
   },
   "fonts": {
-    "nerd_fonts_version": "v3.5.0"
+    "nerd_fonts_version": "v3.5.0",
+    "redhat_font_version": "5.0.0"
   },
   "performance": {
     "enable_zram": true,
@@ -121,7 +122,6 @@
       "Pictures",
       "local"
     ],
-    "fonts_source": "~/dev/.dotfiles/fonts",
     "config_root": "~/dev/.rig"
   }
 }

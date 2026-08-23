@@ -8,12 +8,32 @@ source "$SCRIPT_DIR/../helpers/platform.sh"
 # Nerd Fonts from ryanoasis/nerd-fonts GitHub releases.
 # Format: name|download_url|filter
 #   filter = "nomono" to skip the *NerdFontMono* variant files, empty for all.
-# Version comes from config.json (.fonts.nerd_fonts_version); falls back to a
-# pinned default for the rig fonts CLI, which runs without RIG_CONFIG set.
-NERD_FONTS_VERSION="v3.5.0"
-if [[ -n "${RIG_CONFIG:-}" && -f "$RIG_CONFIG" ]] && command -v jq &>/dev/null; then
-  NERD_FONTS_VERSION="$(jq -r '.fonts.nerd_fonts_version // "v3.5.0"' "$RIG_CONFIG" 2>/dev/null)"
+# Versions live ONLY in the platform config.json (.fonts.*); no pinned
+# defaults here. RIG_CONFIG is used if valid, else resolved from this
+# script's location and RIG_PLATFORM (dispatcher-exported or uname fallback).
+if [[ -z "${RIG_CONFIG:-}" || ! -f "$RIG_CONFIG" ]]; then
+  RIG_PATH="${RIG_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)}"
+  RIG_PLATFORM="${RIG_PLATFORM:-$(uname -s | grep -q Darwin && echo macos || echo fedora)}"
+  RIG_CONFIG="$RIG_PATH/unix/$RIG_PLATFORM/config.json"
 fi
+
+read_font_version() {
+  if ! command -v jq &>/dev/null; then
+    echo "[ERROR] jq is required to read $RIG_CONFIG" >&2
+    return 1
+  fi
+  local version
+  version="$(jq -r "$1 // empty" "$RIG_CONFIG" 2>/dev/null)"
+  if [[ -z "$version" ]]; then
+    echo "[ERROR] Missing $1 in $RIG_CONFIG" >&2
+    return 1
+  fi
+  printf '%s' "$version"
+}
+
+NERD_FONTS_VERSION="$(read_font_version '.fonts.nerd_fonts_version')" || return 1 2>/dev/null || exit 1
+REDHAT_FONTS_VERSION="$(read_font_version '.fonts.redhat_font_version')" || return 1 2>/dev/null || exit 1
+
 NERD_FONTS_BASE="https://github.com/ryanoasis/nerd-fonts/releases/download/${NERD_FONTS_VERSION}"
 NERD_FONTS=(
   "AdwaitaMono|${NERD_FONTS_BASE}/AdwaitaMono.zip|"
@@ -22,6 +42,15 @@ NERD_FONTS=(
   "JetBrainsMono|${NERD_FONTS_BASE}/JetBrainsMono.zip|"
   "Iosevka|${NERD_FONTS_BASE}/Iosevka.zip|"
   "Meslo|${NERD_FONTS_BASE}/Meslo.zip|"
+)
+
+# Red Hat fonts from RedHatOfficial/RedHatFont. No release assets exist, so
+# pull the tagged source archive and let the extractor pick the ttf/otf files.
+REDHAT_FONTS_URL="https://github.com/RedHatOfficial/RedHatFont/archive/refs/tags/${REDHAT_FONTS_VERSION}.zip"
+
+FONTS=(
+  "${NERD_FONTS[@]}"
+  "RedHatFont|${REDHAT_FONTS_URL}|"
 )
 
 install_fonts() {
@@ -154,10 +183,10 @@ download_github_fonts() {
 
   echo >&2 "[INFO] Fonts not found or incomplete, downloading from nerd-fonts releases..."
 
-  for font_def in "${NERD_FONTS[@]}"; do
+  for font_def in "${FONTS[@]}"; do
     IFS='|' read -r font_name url filter <<< "$font_def"
 
-    echo >&2 "[INFO] Downloading $font_name Nerd Font..."
+    echo >&2 "[INFO] Downloading $font_name..."
     local zip_file="$temp_dir/${font_name}.zip"
 
     if curl -sL -o "$zip_file" "$url"; then

@@ -4,7 +4,8 @@
 
 set -euo pipefail
 
-RIG_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+RIG_PATH="${RIG_PATH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)}"
+FONTS_SCRIPT="$RIG_PATH/unix/common/dotfiles/fonts.sh"
 
 show_usage() {
     echo "Usage: rig fonts <subcommand> [options]"
@@ -16,12 +17,14 @@ show_usage() {
     echo "  --force          Force re-download even if fonts are installed"
     echo ""
     echo "Fonts installed:"
-    echo "  - AdwaitaMono Nerd Font"
-    echo "  - CaskaydiaCove Nerd Font (no mono)"
-    echo "  - FiraCode Nerd Font (no mono)"
-    echo "  - JetBrainsMono Nerd Font"
-    echo "  - Iosevka Nerd Font"
-    echo "  - Meslo Nerd Font"
+    # shellcheck source=../../common/dotfiles/fonts.sh
+    source "$FONTS_SCRIPT"
+    local font_def name filter
+    for font_def in "${FONTS[@]}"; do
+        name="${font_def%%|*}"
+        filter="${font_def##*|}"
+        echo "  - ${name}${filter:+ ($filter)}"
+    done
     echo ""
     echo "Examples:"
     echo "  rig fonts install"
@@ -29,7 +32,6 @@ show_usage() {
 }
 
 install_fonts_cmd() {
-    local fonts_script="$RIG_PATH/common/dotfiles/fonts.sh"
     local force_flag=""
 
     # Parse --force from remaining args
@@ -39,13 +41,13 @@ install_fonts_cmd() {
         fi
     done
 
-    if [[ ! -f "$fonts_script" ]]; then
-        echo "Error: fonts script not found at $fonts_script"
+    if [[ ! -f "$FONTS_SCRIPT" ]]; then
+        echo "Error: fonts script not found at $FONTS_SCRIPT"
         exit 1
     fi
 
     # shellcheck source=../../common/dotfiles/fonts.sh
-    source "$fonts_script"
+    source "$FONTS_SCRIPT"
 
     echo "Downloading and installing fonts from GitHub releases..."
 

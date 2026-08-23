@@ -24,7 +24,8 @@
     "config_id": ""
   },
   "fonts": {
-    "nerd_fonts_version": "v3.5.0"
+    "nerd_fonts_version": "v3.5.0",
+    "redhat_font_version": "5.0.0"
   },
   "directories": {
     "ssh": "~/.ssh",
@@ -39,7 +40,6 @@
       "zsh",
       "Pictures",
       "local"
-    ],
-    "fonts_source": "~/dev/.dotfiles/fonts"
+    ]
   }
 }
