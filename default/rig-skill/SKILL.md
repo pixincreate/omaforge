@@ -166,7 +166,8 @@ pointing at `http://127.0.0.1:8080/v1`.
 ### Other notable commands
 
 - `rig-ocr` — tesseract-based OCR helper (common)
-- `rig-stow`, `rig-add`, `rig-migrate` — dotfiles stow, package add, update migrations
+- `rig-stow`, `rig pkg-add`, `rig-migrate` — dotfiles stow, package add (alias for `pkg-add`), update migrations
+- `rig-drift` — declared-vs-installed package drift report (`--apply` to converge)
 - `rig-webapp-install` / `rig-launch-webapp` — site-specific web apps
 
 ## Cross-Platform Mirroring
@@ -178,12 +179,13 @@ the same change to the counterpart platform.**
 
 Examples of changes that need mirroring:
 
-- A new `rig-*` libexec script added to Fedora → add the equivalent to macOS
+- A new platform-specific `rig-*` libexec script added to Fedora → add the equivalent to macOS
 - A new shared package added to Fedora package list → add to macOS equivalent
 - A new install module that isn't hardware-specific → create on both platforms
 
 Changes that are **platform-specific** (no mirroring needed):
 
+- Shared `rig-*` commands live in `unix/common/libexec/` — one file, no mirroring
 - Fedora-only hardware support (ASUS, NVIDIA)
 - macOS-only system configuration (hostname, defaults)
 - Package managers (DNF vs Homebrew)
@@ -317,9 +319,8 @@ rig-dev-add-migration --no-edit
 
    ```bash
    chmod +x unix/common/libexec/rig-<name>
-   # or for platform-specific:
+   # or for platform-specific (only if the counterpart needs it too):
    chmod +x unix/fedora/libexec/rig-<name>
-   chmod +x unix/macos/libexec/rig-<name>
    ```
 
 4. The dispatcher picks it up automatically — no PATH or registration needed.
@@ -361,7 +362,7 @@ shellcheck -S error unix/fedora/libexec/rig-*
 cat /var/log/rig-install.log
 
 # Debug a command
-bash -x unix/fedora/libexec/rig-pkg-add test-pkg
+bash -x unix/common/libexec/rig-pkg-add base test-pkg
 ```
 
 ## Decision Framework

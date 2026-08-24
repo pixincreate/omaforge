@@ -79,7 +79,9 @@ anywhere after setup:
 
 ```bash
 rig                    # List all available commands with descriptions
-rig add base neovim    # Add a package to a list
+rig add base neovim    # Add neovim to base list AND install it
+rig drift              # Dry-run: show declared packages missing from this system
+rig drift --apply      # Converge by re-running the idempotent packaging modules
 rig pkg-manage         # Interactive package manager
 rig stow --all         # Stow all dotfiles
 rig install skillset   # Install rig skill to skillset repo
@@ -167,15 +169,23 @@ stow --no-folding --restow --target=$HOME home/zsh
 
 ```bash
 # macOS
-rig add brew neovim             # Add CLI tool
-rig add cask firefox            # Add GUI app
-./macos-setup --only packaging/brew  # Install new packages
+rig add brew neovim             # Add CLI tool to list AND install it
+rig add cask firefox            # Add GUI app to list AND install it
+rig pkg-remove cask firefox     # Uninstall AND remove from the list
 
 # Fedora
-rig add base neovim             # Add to base packages
-rig add flatpak com.spotify.Client    # Add Flatpak
-./fedora-setup --only packaging/base  # Install new packages
+rig add base neovim             # Add to base packages AND install
+rig add flatpak com.spotify.Client    # Add Flatpak AND install
+rig pkg-remove base neovim      # Uninstall AND remove from the list
+
+# Converge a machine that drifted from its lists
+rig drift                       # Dry-run: report what is missing
+rig drift --apply               # Re-run idempotent packaging modules to fix it
 ```
+
+`rig add` (alias of `rig pkg-add`) edits the package list and immediately
+installs anything missing, in one step. `rig drift` compares every declared
+package against the live system.
 
 ### Interactive
 
@@ -209,14 +219,14 @@ rig webapp-remove ChatGPT  # Specific app
 ├── unix/
 │   ├── setup              # Common entry point (OS detection)
 │   ├── common/            # Cross-platform scripts
-│   │   ├── libexec/       # CLI commands (rig-install-skillset)
-│   │   ├── helpers/       # Logging, common functions
+│   │   ├── libexec/       # Shared CLI commands (pkg-add, drift, ocr, stow, reset, ...)
+│   │   ├── helpers/       # Logging, common functions, package backends
 │   │   ├── dotfiles/      # Stow, fonts, zsh
 │   │   ├── config/        # Git, NextDNS, Rust
 │   │   └── external/      # External git repos (skillset)
 │   ├── fedora/            # Fedora-specific setup
 │   │   ├── bin/           # rig dispatcher
-│   │   ├── libexec/       # CLI commands (rig-add, rig-llama, ...)
+│   │   ├── libexec/       # Platform-specific commands (webapps, migrate)
 │   │   ├── install/
 │   │   │   ├── config/    # System config (KDE, hardware)
 │   │   │   ├── dotfiles/  # Dotfiles management
@@ -224,7 +234,6 @@ rig webapp-remove ChatGPT  # Specific app
 │   │   └── packages/      # Package lists
 │   └── macos/             # macOS-specific setup
 │       ├── bin/           # rig dispatcher
-│       ├── libexec/       # CLI commands (rig-add, rig-llama, ...)
 ├── windows/               # Windows configuration (see windows/README.md)
 ├── default/               # Default configs (skills, wallpapers)
 └── docs/                  # Documentation

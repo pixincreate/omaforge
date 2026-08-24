@@ -3,8 +3,7 @@ set -eEuo pipefail
 
 echo "Running migration: dotfile cleanup, ollama removal, llama.cpp/age/rofimoji"
 
-# Worker scripts and the `rig` dispatcher live under libexec/ and bin/.
-RIG_BIN="$(cd "$(dirname "${BASH_SOURCE[0]}")/../libexec" && pwd)"
+# The `rig` dispatcher lives under bin/.
 
 # Allow running this migration directly (rig-migrate sets RIG_PATH,
 # but default to the parent of migrations/ when run standalone).
@@ -40,7 +39,7 @@ if [[ -d "$HOME/.config/gitconfig" ]]; then
 fi
 
 echo "[INFO] Restowing config and zsh packages via rig"
-rig stow config zsh
+"$RIG_PATH/bin/rig" stow config zsh
 
 # [2/3] Remove ollama (replaced by llama.cpp)
 echo ""
@@ -61,7 +60,7 @@ else
   echo "[INFO] sneed/llama-cpp-vulkan COPR already enabled"
 fi
 
-RIG_BIN="$RIG_BIN" rig-pkg-add age rofimoji wtype fuzzel tesseract tesseract-langpack-kan tesseract-langpack-hin llama-cpp mpv
+"$RIG_PATH/bin/rig" pkg-add base age rofimoji wtype fuzzel tesseract tesseract-langpack-kan tesseract-langpack-hin llama-cpp mpv
 
 # Install fonts (Nerd Fonts + Red Hat) via the shared fonts worker
 echo ""

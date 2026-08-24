@@ -27,7 +27,7 @@ assert_output_contains "Shows error for unknown" "unknown command" echo "$UNKNOW
 section "Fedora dispatcher multi-word routing"
 # rig reset should route to rig-reset
 RESET_HELP=$(bash "$RIG_REPO/unix/fedora/bin/rig" reset --help 2>&1)
-assert_output_contains "rig reset shows subcommands" "Subcommands:" echo "$RESET_HELP"
+assert_output_contains "rig reset shows subcommands" "Subcommands (fedora):" echo "$RESET_HELP"
 assert_output_contains "rig reset shows fonts" "fonts" echo "$RESET_HELP"
 assert_output_contains "rig reset shows zsh" "zsh" echo "$RESET_HELP"
 assert_output_contains "rig reset shows stow" "stow" echo "$RESET_HELP"

@@ -5,6 +5,9 @@ set -eEuo pipefail
 
 echo "Running migration: Install Topgrade"
 
+# Route through the platform dispatcher (pkg workers live in unix/common/libexec now).
+RIG_DISPATCHER="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/bin/rig"
+
 # Check if already installed (idempotency)
 if rpm -q topgrade &>/dev/null; then
     echo "[INFO] Topgrade already installed, skipping"
@@ -12,7 +15,7 @@ if rpm -q topgrade &>/dev/null; then
 fi
 
 # Use the package manager command
-if ! rig-pkg-add topgrade; then
+if ! "$RIG_DISPATCHER" pkg-add base topgrade; then
     echo "[ERROR] Failed to install Topgrade"
     exit 1
 fi

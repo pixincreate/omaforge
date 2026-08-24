@@ -82,7 +82,7 @@ assert_success "sneed/llama-cpp-vulkan COPR configured" \
 
 section "New rig CLI scripts"
 
-assert_success "rig-llama has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/fedora/libexec/rig-llama"
-assert_success "rig-ocr has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/fedora/libexec/rig-ocr"
-assert_success "rig-llama has usage" grep -q 'rig:usage=' "$RIG_REPO/unix/fedora/libexec/rig-llama"
-assert_success "rig-ocr has usage" grep -q 'rig:usage=' "$RIG_REPO/unix/fedora/libexec/rig-ocr"
+assert_success "rig-llama has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/common/libexec/rig-llama"
+assert_success "rig-ocr has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/common/libexec/rig-ocr"
+assert_success "rig-llama has usage" grep -q 'rig:usage=' "$RIG_REPO/unix/common/libexec/rig-llama"
+assert_success "rig-ocr has usage" grep -q 'rig:usage=' "$RIG_REPO/unix/common/libexec/rig-ocr"

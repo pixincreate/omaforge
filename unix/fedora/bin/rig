@@ -48,6 +48,11 @@ case "$1" in
     ;;
 esac
 
+# Command aliases (alias -> canonical command name)
+case "$1" in
+  add) set -- pkg-add "${@:2}" ;;
+esac
+
 # Multi-word prefix routing (inspired by omarchy)
 # Try each prefix from all-words down to 1 word
 args=("$@")

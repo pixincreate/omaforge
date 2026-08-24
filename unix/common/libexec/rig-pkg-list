@@ -1,0 +1,59 @@
+#!/bin/bash
+# rig:summary=List package types or the contents of a package list
+# rig:usage=rig pkg-list [type]
+
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+source "$ROOT/unix/common/helpers/logging.sh"
+source "$ROOT/unix/common/helpers/common.sh"
+source "$ROOT/unix/common/helpers/platform.sh"
+source "$ROOT/unix/common/helpers/packages.sh"
+
+show_usage() {
+  echo "Usage: rig pkg-list [type]"
+  echo ""
+  echo "Without a type, shows all lists with entry counts."
+  echo "Types:"
+  for t in $(pkg_types); do
+    echo "  $t"
+  done
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  show_usage
+  exit 0
+fi
+
+if [[ $# -eq 0 ]]; then
+  echo "Package lists ($(pkg_platform)):"
+  for t in $(pkg_types); do
+    file="$(pkg_file_for_type "$t")"
+    count=0
+    [[ -f "$file" ]] && count="$(pkg_list_entries "$file" | wc -l | tr -d ' ')"
+    printf "  %-12s %3s\n" "$t" "$count"
+  done
+  exit 0
+fi
+
+TYPE="$1"
+
+if ! pkg_is_valid_type "$TYPE"; then
+  log_error "Unknown type: $TYPE (platform: $(pkg_platform))"
+  show_usage
+  exit 1
+fi
+
+FILE="$(pkg_file_for_type "$TYPE")"
+if [[ ! -f "$FILE" ]]; then
+  log_warning "No $TYPE packages file found"
+  exit 1
+fi
+
+echo "Packages ($TYPE):"
+entries="$(pkg_list_entries "$FILE" | sort)"
+if [[ -z "$entries" ]]; then
+  echo "(empty)"
+else
+  printf '%s\n' "$entries"
+fi

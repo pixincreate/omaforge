@@ -1,0 +1,114 @@
+#!/bin/bash
+# rig:summary=Stow dotfile packages (stow/unstow/restow)
+# rig:usage=rig stow [-a] [-d] [-R] [--adopt] [package...]
+
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+source "$ROOT/unix/common/helpers/logging.sh"
+source "$ROOT/unix/common/helpers/platform.sh"
+
+PLATFORM_DIR="$ROOT/unix/$(detect_platform)"
+export RIG_CONFIG="$PLATFORM_DIR/config.json"
+source "$ROOT/unix/common/helpers/common.sh"
+
+show_usage() {
+  echo "Usage: rig-stow [OPTIONS] [PACKAGE...]"
+  echo ""
+  echo "Options:"
+  echo "  -a, --all         Stow all packages from config"
+  echo "  --adopt           Adopt existing files into stow package"
+  echo "  -d, --delete      Delete/unstow packages instead of stowing"
+  echo "  -R, --restow      Restow packages (delete then stow again)"
+  echo "  -h, --help        Show this help message"
+  echo ""
+  echo "Examples:"
+  echo "  rig-stow --all              # Stow all packages"
+  echo "  rig-stow config zsh         # Stow only config and zsh"
+  echo "  rig-stow --adopt config     # Adopt conflicting files and stow"
+  echo "  rig-stow -R config          # Restow config package"
+  echo "  rig-stow -d zsh             # Unstow zsh package"
+}
+
+MODE="stow"
+PACKAGES=()
+RUN_ALL=false
+ADOPT=false
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+  -a | --all)
+    RUN_ALL=true
+    shift
+    ;;
+  --adopt)
+    ADOPT=true
+    shift
+    ;;
+  -d | --delete)
+    MODE="delete"
+    shift
+    ;;
+  -R | --restow)
+    MODE="restow"
+    shift
+    ;;
+  -h | --help)
+    show_usage
+    exit 0
+    ;;
+  -*)
+    echo "Unknown option: $1"
+    show_usage
+    exit 1
+    ;;
+  *)
+    PACKAGES+=("$1")
+    shift
+    ;;
+  esac
+done
+
+stow_dir=$(expand_path "$(get_config '.dotfiles.stow_source')")
+target_dir="$HOME"
+
+# while-read instead of mapfile: bash 3.2 (macOS) has no mapfile
+if [[ "$RUN_ALL" == true ]]; then
+  while IFS= read -r pkg; do
+    [[ -n "$pkg" ]] && PACKAGES+=("$pkg")
+  done < <(get_config_array '.dotfiles.stow_packages')
+fi
+
+if [[ ${#PACKAGES[@]} -eq 0 ]]; then
+  echo "Error: No packages specified"
+  show_usage
+  exit 1
+fi
+
+for pkg in "${PACKAGES[@]}"; do
+  pkg_dir="$stow_dir/$pkg"
+
+  if [[ ! -d "$pkg_dir" ]]; then
+    log_error "Package not found: $pkg_dir"
+    continue
+  fi
+
+  case "$MODE" in
+  stow | restow)
+    log_info "Stowing package: $pkg"
+    if [[ "$ADOPT" == true ]]; then
+      stow --adopt --no-folding --restow --dir="$stow_dir" --target="$target_dir" "$pkg"
+    else
+      stow --no-folding --restow --dir="$stow_dir" --target="$target_dir" "$pkg"
+    fi
+    log_success "Stowed: $pkg"
+    ;;
+  delete)
+    log_info "Unstowing package: $pkg"
+    stow --delete --dir="$stow_dir" --target="$target_dir" "$pkg"
+    log_success "Unstowed: $pkg"
+    ;;
+  esac
+done
+
+log_success "Completed!"

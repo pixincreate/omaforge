@@ -1,0 +1,62 @@
+#!/bin/bash
+# rig:summary=Search repositories of the detected platform's package manager
+# rig:usage=rig pkg-search <term> [--flatpak|--cask]
+
+set -euo pipefail
+
+show_usage() {
+  echo "Usage: rig pkg-search <term> [--flatpak|--cask]"
+  echo ""
+  echo "Examples:"
+  echo "  rig pkg-search neovim            # dnf/brew search"
+  echo "  rig pkg-search spotify --flatpak # Flatpak search (Fedora)"
+  echo "  rig pkg-search firefox --cask    # cask search (macOS)"
+}
+
+if [[ $# -eq 0 ]]; then
+  show_usage
+  exit 1
+fi
+
+SEARCH_TERM=""
+MODE=""
+
+for arg in "$@"; do
+  case "$arg" in
+  --flatpak) MODE="flatpak" ;;
+  --cask) MODE="cask" ;;
+  -h | --help)
+    show_usage
+    exit 0
+    ;;
+  -*) echo "Unknown option: $arg" && show_usage && exit 1 ;;
+  *) SEARCH_TERM="$arg" ;;
+  esac
+done
+
+if [[ -z "$SEARCH_TERM" ]]; then
+  echo "Error: search term required"
+  exit 1
+fi
+
+if [[ "$MODE" == "flatpak" ]]; then
+  if ! command -v flatpak &>/dev/null; then
+    echo "Flatpak is not installed"
+    exit 1
+  fi
+  echo "Searching Flatpak for: $SEARCH_TERM"
+  flatpak search "$SEARCH_TERM"
+elif command -v dnf &>/dev/null; then
+  if [[ "$MODE" == "cask" ]]; then
+    echo "--cask is macOS-only"
+    exit 1
+  fi
+  echo "Searching DNF for: $SEARCH_TERM"
+  dnf search "$SEARCH_TERM"
+elif command -v brew &>/dev/null; then
+  echo "Searching Homebrew for: $SEARCH_TERM"
+  brew search "${MODE:+--$MODE}" "$SEARCH_TERM"
+else
+  echo "No supported package manager found (dnf, brew, flatpak)"
+  exit 1
+fi

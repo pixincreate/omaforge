@@ -1,0 +1,94 @@
+#!/bin/bash
+# rig:summary=Report (and optionally converge) drift between package lists and system state
+# rig:usage=rig drift [--apply]
+
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+source "$ROOT/unix/common/helpers/logging.sh"
+source "$ROOT/unix/common/helpers/common.sh"
+source "$ROOT/unix/common/helpers/platform.sh"
+source "$ROOT/unix/common/helpers/packages.sh"
+
+APPLY=false
+for arg in "$@"; do
+  case "$arg" in
+  --apply) APPLY=true ;;
+  -h | --help)
+    echo "Usage: rig drift [--apply]"
+    echo ""
+    echo "Dry-run by default: lists declared packages missing from this system."
+    echo "--apply converges by re-running the idempotent packaging modules."
+    exit 0
+    ;;
+  *)
+    echo "Unknown option: $arg"
+    exit 1
+    ;;
+  esac
+done
+
+# ponytail: detects declared-but-missing only; reverse scan (installed-but-
+# undeclared) needs per-manager dep filtering — add if cleanup matters.
+
+platform="$(pkg_platform)"
+report=""
+total_missing=0
+drifted_types=()
+
+for t in $(pkg_types); do
+  entries="$(pkg_list_entries "$(pkg_file_for_type "$t")")"
+  [[ -n "$entries" ]] || continue
+  missing=""
+  while IFS= read -r name; do
+    pkg_installed "$t" "$name" || missing+="$name"$'\n'
+  done <<<"$entries"
+  if [[ -n "$missing" ]]; then
+    count="$(printf "%s" "$missing" | grep -c . || true)"
+    total_missing=$((total_missing + count))
+    report+="[$t]"$'\n'"$missing"
+    drifted_types+=("$t")
+  fi
+done
+
+log_section "Drift report ($platform)"
+
+if ((total_missing == 0)); then
+  log_success "No drift. System matches declared package lists."
+  exit 0
+fi
+
+echo "$report"
+log_warning "$total_missing declared package(s) not installed"
+
+if ! $APPLY; then
+  echo "Dry run: nothing changed. Run 'rig drift --apply' to converge."
+  exit 1
+fi
+
+confirm "Install $total_missing missing package(s) now?" Y || {
+  log_info "Aborted."
+  exit 1
+}
+
+setup="$ROOT/unix/$platform/${platform}-setup"
+if [[ ! -f "$setup" ]]; then
+  log_error "Setup script not found: $setup"
+  exit 1
+fi
+
+modules=""
+for t in "${drifted_types[@]}"; do
+  m="$(pkg_setup_module "$t")"
+  case " $modules " in
+  *" $m "*) ;;
+  *) modules="$modules $m" ;;
+  esac
+done
+
+for m in $modules; do
+  log_section "Converging: packaging/$m"
+  "$setup" --only "packaging/$m"
+done
+
+log_success "Converged."

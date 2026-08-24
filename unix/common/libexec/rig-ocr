@@ -4,17 +4,39 @@
 
 set -euo pipefail
 
-snapshot="/tmp/rig-ocr-$(date +%s).png"
+# Private temp dir: predictable /tmp paths are a symlink-clobbering hazard
+tmpd="$(mktemp -d)"
+snapshot="$tmpd/capture.png"
 
 cleanup() {
-  [[ -f "$snapshot" ]] && rm --force "$snapshot"
+  rm -rf "$tmpd"
 }
 trap cleanup EXIT
 
-if ! command -v spectacle &>/dev/null; then
-  echo "[ERROR] spectacle is not installed"
+# Runtime detection instead of platform detection: works wherever the tools exist.
+if command -v screencapture &>/dev/null; then
+  capture() {
+    screencapture -i "$snapshot"
+  }
+elif command -v spectacle &>/dev/null; then
+  capture() {
+    spectacle --background --region --nonotify --output "$snapshot"
+  }
+else
+  echo "[ERROR] Need screencapture (macOS) or spectacle (KDE)"
   exit 1
 fi
+
+clipboard() {
+  # pbcopy preferred; wl-copy is the Wayland fallback, xclip the X11 one
+  if command -v pbcopy &>/dev/null; then
+    printf "%s" "$text" | pbcopy
+  elif command -v wl-copy &>/dev/null; then
+    printf "%s" "$text" | wl-copy
+  else
+    printf "%s" "$text" | xclip -selection clipboard
+  fi
+}
 
 if ! command -v tesseract &>/dev/null; then
   echo "[ERROR] tesseract is not installed"
@@ -22,7 +44,7 @@ if ! command -v tesseract &>/dev/null; then
 fi
 
 echo "Select a region to extract text..."
-spectacle --background --region --nonotify --output "$snapshot"
+capture
 
 if [[ ! -f "$snapshot" ]]; then
   echo "[ERROR] No region captured"
@@ -45,10 +67,6 @@ if [[ -z "$text" ]]; then
   exit 0
 fi
 
-if command -v pbcopy &>/dev/null; then
-  printf "%s" "$text" | pbcopy
-else
-  printf "%s" "$text" | wl-copy
-fi
+clipboard
 
 echo "[SUCCESS] Extracted text copied to clipboard"

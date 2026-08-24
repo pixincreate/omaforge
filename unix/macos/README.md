@@ -52,7 +52,8 @@ Use the `rig` dispatcher to run any command:
 
 ```bash
 rig stow --all              # Stow all dotfiles
-rig add brew neovim         # Add a package declaratively
+rig add brew neovim         # Add to list AND install
+rig drift                   # Report packages missing from this system
 rig pkg-manage              # Interactive package manager
 rig reset                   # Reset components
 ```
@@ -73,17 +74,21 @@ Add, remove, search packages with availability checking.
 
 ### Declarative (Recommended)
 
-Add packages to lists and install:
+Add packages to lists and install in one step:
 
 ```bash
-# Add a package declaratively
-rig add brew fastfetch      # Add to brew.packages
-rig add cask firefox        # Add to cask.packages
-rig add rust exa            # Add to rust.packages
+rig add brew fastfetch      # Add to brew.packages AND install
+rig add cask firefox        # Add to cask.packages AND install
+rig add rust exa            # Add to rust.packages AND install
+rig pkg-remove cask firefox # Uninstall AND remove from the list
 
-# Install only new packages
+# Install/reinstall everything a list declares (idempotent)
 ./macos-setup --only packaging/brew
 ./macos-setup --only packaging/rust
+
+# Or check what drifted and converge
+rig drift                   # dry-run report
+rig drift --apply           # re-run idempotent packaging modules
 ```
 
 ### Manual

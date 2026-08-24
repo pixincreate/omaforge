@@ -25,12 +25,6 @@ assert_failure "dotfiles home/omo dir absent" \
 
 section "dotfiles repo config files"
 
-assert_success "fontconfig JetBrains Mono conf exists" \
-  test -f "$DOTFILES_REPO/home/config/.config/fontconfig/conf.d/50-jetbrains-mono.conf"
-
-assert_success "mpv config exists" \
-  test -f "$DOTFILES_REPO/home/config/.config/mpv/mpv.conf"
-
 assert_success "opencode.jsonc exists" \
   test -f "$DOTFILES_REPO/home/config/.config/opencode/opencode.jsonc"
 

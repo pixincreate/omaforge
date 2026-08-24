@@ -18,6 +18,6 @@ assert_output_not_contains "Does not show launch-webapp" "launch-webapp" echo "$
 
 section "macOS dispatcher multi-word routing"
 RESET_HELP=$(bash "$RIG_REPO/unix/macos/bin/rig" reset --help 2>&1)
-assert_output_contains "rig reset shows subcommands" "Subcommands:" echo "$RESET_HELP"
+assert_output_contains "rig reset shows subcommands" "Subcommands (macos):" echo "$RESET_HELP"
 assert_output_contains "rig reset shows fonts" "fonts" echo "$RESET_HELP"
 assert_output_contains "rig reset shows rust" "rust" echo "$RESET_HELP"

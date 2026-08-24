@@ -1,13 +1,14 @@
 #!/bin/bash
-section "macOS bin scripts metadata"
-assert_success "rig-reset has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/macos/libexec/rig-reset"
-assert_success "rig-reset has usage" grep -q 'rig:usage=' "$RIG_REPO/unix/macos/libexec/rig-reset"
-assert_success "rig-pkg-add has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/macos/libexec/rig-pkg-add"
-assert_success "rig-pkg-remove has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/macos/libexec/rig-pkg-remove"
-assert_success "rig-pkg-search has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/macos/libexec/rig-pkg-search"
-assert_success "rig-pkg-list has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/macos/libexec/rig-pkg-list"
-assert_success "rig-stow has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/macos/libexec/rig-stow"
-assert_success "rig-add has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/macos/libexec/rig-add"
+section "Common libexec scripts metadata"
+assert_success "rig-reset has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/common/libexec/rig-reset"
+assert_success "rig-reset has usage" grep -q 'rig:usage=' "$RIG_REPO/unix/common/libexec/rig-reset"
+assert_success "rig-pkg-add has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/common/libexec/rig-pkg-add"
+assert_success "rig-pkg-remove has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/common/libexec/rig-pkg-remove"
+assert_success "rig-pkg-search has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/common/libexec/rig-pkg-search"
+assert_success "rig-pkg-list has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/common/libexec/rig-pkg-list"
+assert_success "rig-drift has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/common/libexec/rig-drift"
+assert_success "rig add aliases pkg-add" grep -q 'add) set -- pkg-add' "$RIG_REPO/unix/macos/bin/rig"
+assert_success "rig-ocr has summary" grep -q 'rig:summary=' "$RIG_REPO/unix/common/libexec/rig-ocr"
 
 section "macOS bin scripts syntax"
 for f in "$RIG_REPO/unix/macos/bin/"*; do
@@ -22,22 +23,27 @@ if command -v shellcheck &>/dev/null; then
 fi
 
 section "macOS rig pkg-add no args"
-PKG_ADD_OUTPUT=$(bash "$RIG_REPO/unix/macos/libexec/rig-pkg-add" 2>&1 || true)
+PKG_ADD_OUTPUT=$(bash "$RIG_REPO/unix/macos/bin/rig" pkg-add 2>&1 || true)
 assert_output_contains "Shows usage" "Usage:" echo "$PKG_ADD_OUTPUT"
 assert_output_contains "Shows types" "brew" echo "$PKG_ADD_OUTPUT"
 assert_output_contains "Shows cask" "cask" echo "$PKG_ADD_OUTPUT"
 
 section "macOS rig pkg-remove no args"
-PKG_REMOVE_OUTPUT=$(bash "$RIG_REPO/unix/macos/libexec/rig-pkg-remove" 2>&1 || true)
+PKG_REMOVE_OUTPUT=$(bash "$RIG_REPO/unix/macos/bin/rig" pkg-remove 2>&1 || true)
 assert_output_contains "Shows usage" "Usage:" echo "$PKG_REMOVE_OUTPUT"
 
 section "macOS rig pkg-search no args"
-PKG_SEARCH_OUTPUT=$(bash "$RIG_REPO/unix/macos/libexec/rig-pkg-search" 2>&1 || true)
+PKG_SEARCH_OUTPUT=$(bash "$RIG_REPO/unix/macos/bin/rig" pkg-search 2>&1 || true)
 assert_output_contains "Shows usage" "Usage:" echo "$PKG_SEARCH_OUTPUT"
 
-section "macOS rig pkg-list no args"
-PKG_LIST_OUTPUT=$(bash "$RIG_REPO/unix/macos/libexec/rig-pkg-list" 2>&1 || true)
-assert_output_contains "Shows usage" "Usage:" echo "$PKG_LIST_OUTPUT"
+section "macOS rig pkg-list overview"
+PKG_LIST_OUTPUT=$(bash "$RIG_REPO/unix/macos/bin/rig" pkg-list 2>&1 || true)
+assert_output_contains "Shows overview" "Package lists (macos)" echo "$PKG_LIST_OUTPUT"
+
+section "macOS rig drift dry run"
+DRIFT_OUTPUT=$(NON_INTERACTIVE=true bash "$RIG_REPO/unix/macos/bin/rig" drift 2>&1 || true)
+assert_output_contains "Runs dry-run report" "Drift report (macos)" echo "$DRIFT_OUTPUT"
+assert_output_not_contains "Applies without flag" "Converging" echo "$DRIFT_OUTPUT"
 
 section "macOS package lists content"
 for f in "$RIG_REPO/unix/macos/packages/"*.packages; do

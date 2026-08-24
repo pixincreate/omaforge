@@ -16,9 +16,11 @@ for platform in fedora macos; do
   assert_failure "$platform bin/ has no rig-* workers" \
     ls "$bin_dir"/rig-* 2>/dev/null
 
-  # libexec/ holds rig-* workers
-  assert_success "$platform libexec/ has rig-* workers" \
-    ls "$libexec_dir"/rig-* >/dev/null 2>&1
+  # libexec/ holds only platform-specific workers; may be empty/absent (macos)
+  if [[ -d "$libexec_dir" ]]; then
+    assert_failure "$platform libexec/ has no rig-* duplicates of common workers" \
+      ls "$libexec_dir"/rig-pkg-add "$libexec_dir"/rig-pkg-remove "$libexec_dir"/rig-drift 2>/dev/null
+  fi
 
   # dispatcher resolves libexec
   assert_success "$platform dispatcher resolves libexec" \
@@ -27,15 +29,18 @@ done
 
 # common libexec holds shared workers
 assert_success "common libexec/ has rig-* workers" \
-  ls "$RIG_REPO"/unix/common/libexec/rig-* >/dev/null 2>&1
+  test -n "$(find "$RIG_REPO/unix/common/libexec" -maxdepth 1 -name 'rig-*' -print -quit)"
 
-section "rig-ocr metadata on both platforms"
+section "rig-ocr lives in common libexec with metadata"
 
-for platform in fedora macos; do
-  script="$RIG_REPO/unix/$platform/libexec/rig-ocr"
-  assert_success "$platform rig-ocr has summary" grep -q 'rig:summary=' "$script"
-  assert_success "$platform rig-ocr has usage" grep -q 'rig:usage=' "$script"
-done
+script="$RIG_REPO/unix/common/libexec/rig-ocr"
+assert_success "common rig-ocr is executable" test -x "$script"
+assert_success "common rig-ocr has summary" grep -q 'rig:summary=' "$script"
+assert_success "common rig-ocr has usage" grep -q 'rig:usage=' "$script"
+assert_failure "no platform copies of rig-ocr remain" \
+  ls "$RIG_REPO/unix/fedora/libexec/rig-ocr" "$RIG_REPO/unix/macos/libexec/rig-ocr" 2>/dev/null
+assert_success "rig-ocr detects capture backend at runtime" \
+  grep -q 'screencapture' "$script" && grep -q 'spectacle' "$script"
 
 section "rig-llama lives in common libexec with metadata"
 

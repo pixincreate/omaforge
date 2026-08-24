@@ -10,21 +10,20 @@ if ! cmd_exists npm; then
     return 0
 fi
 
-# Configure npm global prefix
+# Configure npm global prefix (fallback to ~/.npm-global when not configured)
 npm_global_dir=$(expand_path "$(get_config '.directories.npm_global')")
 
-if [[ -d "$npm_global_dir" ]]; then
-    log_info "Configuring npm global prefix: $npm_global_dir"
-    npm config set prefix "$npm_global_dir"
-    export PATH="$npm_global_dir/bin:$PATH"
-    log_success "npm prefix configured"
-else
-    log_warning "npm-global directory not found: $npm_global_dir"
-    log_info "Run directories setup first or create it manually"
+if [[ -z "$npm_global_dir" ]]; then
+    npm_global_dir="$HOME/.npm-global"
 fi
 
+mkdir -p "$npm_global_dir"
+log_info "Configuring npm global prefix: $npm_global_dir"
+npm config set prefix "$npm_global_dir"
+export PATH="$npm_global_dir/bin:$PATH"
+
 # Read NPM packages from package file
-pkg_file="$RIG_PATH/packages/npm.packages"
+pkg_file="$RIG_PATH/unix/fedora/packages/npm.packages"
 
 if [[ ! -f "$pkg_file" ]]; then
     log_info "No NPM packages configured"
@@ -37,10 +36,6 @@ if [[ ${#packages[@]} -eq 0 ]]; then
     log_info "No NPM packages configured"
     return 0
 fi
-
-
-npm config set prefix "$HOME/.npm-global"
-export PATH=$HOME/.npm-global/bin:$PATH
 
 log_info "Installing ${#packages[@]} NPM global packages"
 

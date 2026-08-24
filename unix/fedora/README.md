@@ -78,16 +78,18 @@ Use the full path if the filename is ambiguous. List modules with
 
 ### Declarative (recommended)
 
-Add a package to a list, then install it:
+`rig add` adds the package to its list and installs it in one step:
 
 ```bash
 rig add base fastfetch
 rig add tools rofimoji
 rig add flatpak com.spotify.Client
 rig add rust eza
+rig pkg-remove tools rofimoji    # uninstall AND remove from the list
 ```
 
-Then run the matching installer:
+To converge a machine that drifted (or install everything at once), re-run the
+idempotent installer:
 
 ```bash
 ./fedora-setup --only packaging/base

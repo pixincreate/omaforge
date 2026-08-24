@@ -1,0 +1,70 @@
+#!/bin/bash
+# rig:summary=Add packages to a rig package list AND install missing ones on this system
+# rig:usage=rig pkg-add <type> <package> [package...]
+
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+source "$ROOT/unix/common/helpers/logging.sh"
+source "$ROOT/unix/common/helpers/common.sh"
+source "$ROOT/unix/common/helpers/platform.sh"
+source "$ROOT/unix/common/helpers/packages.sh"
+
+show_usage() {
+  echo "Usage: rig pkg-add <type> <package> [package...]"
+  echo ""
+  echo "Adds packages to the rig package list and installs any"
+  echo "that are missing from this system."
+  echo ""
+  echo "Types:"
+  for t in $(pkg_types); do
+    echo "  $t"
+  done
+  echo ""
+  echo "Examples:"
+  echo "  rig pkg-add base neovim"
+  echo "  rig pkg-add flatpak com.spotify.Client"
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  show_usage
+  exit 0
+fi
+
+if [[ $# -lt 2 ]]; then
+  show_usage
+  exit 1
+fi
+
+TYPE="$1"
+shift
+
+if ! pkg_is_valid_type "$TYPE"; then
+  log_error "Unknown package type: $TYPE (platform: $(pkg_platform))"
+  show_usage
+  exit 1
+fi
+
+LIST_FILE="$(pkg_file_for_type "$TYPE")"
+[[ -f "$LIST_FILE" ]] || touch "$LIST_FILE"
+
+status=0
+for name in "$@"; do
+  if ! pkg_name_valid "$name"; then
+    log_error "Invalid package name: '$name'"
+    status=1
+    continue
+  fi
+  if ! grep -Fqx "$name" "$LIST_FILE"; then
+    echo "$name" >> "$LIST_FILE"
+    log_info "Added '$name' to $TYPE list"
+  fi
+  if pkg_installed "$TYPE" "$name"; then
+    log_success "Already installed: $name"
+  else
+    log_info "Installing: $name"
+    pkg_install_one "$TYPE" "$name" || status=1
+  fi
+done
+
+exit $status

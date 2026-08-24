@@ -1,0 +1,97 @@
+#!/bin/bash
+# rig:summary=Reset dotfiles, config, and packages
+# rig:usage=rig reset <subcommand>
+
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+source "$ROOT/unix/common/helpers/logging.sh"
+source "$ROOT/unix/common/helpers/platform.sh"
+
+PLATFORM="${RIG_PLATFORM:-$(detect_platform)}"
+# Whitelist: PLATFORM feeds source paths below
+case "$PLATFORM" in
+fedora | macos) ;;
+*) log_error "Invalid platform: '$PLATFORM' (expected fedora or macos)"; exit 1 ;;
+esac
+PLATFORM_DIR="$ROOT/unix/$PLATFORM"
+export RIG_CONFIG="$PLATFORM_DIR/config.json"
+RIG_INSTALL="$PLATFORM_DIR/install"
+
+source "$RIG_INSTALL/helpers/all.sh"
+
+# label|module-under-install/|confirm?|description
+ROWS=(
+  "zsh|dotfiles/zsh.sh|yes|Reset ZSH configuration"
+  "stow|dotfiles/stow.sh|yes|Re-stow dotfiles"
+  "fonts|dotfiles/fonts.sh|no|Reinstall fonts"
+  "directories|dotfiles/directories.sh|no|Recreate directories"
+  "git|config/git.sh|yes|Reset Git & SSH configuration"
+  "nextdns|config/nextdns.sh|no|Reset NextDNS"
+  "services|config/services.sh|yes|Reset system services"
+  "hardware|config/hardware/all.sh|yes|Reset hardware configuration"
+  "webapps|packaging/webapps.sh|yes|Reinstall web applications"
+  "rust|packaging/rust.sh|yes|Reinstall Rust tools"
+)
+
+show_usage() {
+  echo "Usage: rig reset <subcommand>"
+  echo ""
+  echo "Subcommands ($PLATFORM):"
+  for row in "${ROWS[@]}"; do
+    IFS='|' read -r label module _confirm desc <<<"$row"
+    # Hide subcommands whose module doesn't exist on this platform
+    [[ -f "$RIG_INSTALL/$module" ]] || continue
+    printf "  %-12s %s\n" "$label" "$desc"
+  done
+}
+
+SUB="${1:-}"
+
+case "$SUB" in
+"" | -h | --help)
+  show_usage
+  exit 0
+  ;;
+esac
+
+found=""
+for row in "${ROWS[@]}"; do
+  IFS='|' read -r label module need_confirm desc <<<"$row"
+  if [[ "$SUB" == "$label" ]]; then
+    found="$row"
+    break
+  fi
+done
+
+if [[ -z "$found" ]]; then
+  echo "Unknown subcommand: $SUB"
+  echo "Run 'rig reset' for usage."
+  exit 1
+fi
+
+IFS='|' read -r label module need_confirm desc <<<"$found"
+
+if [[ ! -f "$RIG_INSTALL/$module" ]]; then
+  log_error "'$label' is not available on this platform"
+  exit 1
+fi
+
+if [[ "$need_confirm" == "yes" ]] && ! confirm "This will $desc. Continue?"; then
+  log_info "Cancelled."
+  exit 0
+fi
+
+if [[ "$label" == "webapps" ]]; then
+  export PATH="$PLATFORM_DIR/bin:$PATH"
+fi
+
+log_info "${desc}..."
+run_logged "$RIG_INSTALL/$module"
+
+if [[ "$label" == "zsh" ]]; then
+  rm -rf ~/.zsh/.zgenom ~/.zsh/.additionals.zsh
+  log_info "Run 'exec zsh' to reload"
+fi
+
+log_success "Done"

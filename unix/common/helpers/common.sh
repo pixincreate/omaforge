@@ -65,6 +65,7 @@ get_array_item() {
 }
 
 expand_path() {
-    local path="$1"
-    eval echo "$path"
+    # Tilde expansion only — never eval config-controlled values (injection risk)
+    local path="${1/#\~/$HOME}"
+    printf '%s\n' "$path"
 }

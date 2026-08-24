@@ -1,0 +1,79 @@
+#!/bin/bash
+# rig:summary=Remove packages from the system AND from the rig package list
+# rig:usage=rig pkg-remove <type> <package> [package...]
+
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+source "$ROOT/unix/common/helpers/logging.sh"
+source "$ROOT/unix/common/helpers/common.sh"
+source "$ROOT/unix/common/helpers/platform.sh"
+source "$ROOT/unix/common/helpers/packages.sh"
+
+show_usage() {
+  echo "Usage: rig pkg-remove <type> <package> [package...]"
+  echo ""
+  echo "Uninstalls packages via the type's backend and removes them"
+  echo "from the rig package list."
+  echo ""
+  echo "Types:"
+  for t in $(pkg_types); do
+    echo "  $t"
+  done
+  echo ""
+  echo "Examples:"
+  echo "  rig pkg-remove base neofetch"
+  echo "  rig pkg-remove cask firefox"
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  show_usage
+  exit 0
+fi
+
+if [[ $# -lt 2 ]]; then
+  show_usage
+  exit 1
+fi
+
+TYPE="$1"
+shift
+
+if ! pkg_is_valid_type "$TYPE"; then
+  log_error "Unknown package type: $TYPE (platform: $(pkg_platform))"
+  show_usage
+  exit 1
+fi
+
+LIST_FILE="$(pkg_file_for_type "$TYPE")"
+
+status=0
+for name in "$@"; do
+  if ! pkg_name_valid "$name"; then
+    log_error "Invalid package name: '$name'"
+    status=1
+    continue
+  fi
+  remove_from_list=1
+  if pkg_installed "$TYPE" "$name"; then
+    log_info "Uninstalling: $name"
+    # Keep the list entry when uninstall fails so drift can still see it
+    if ! pkg_remove_one "$TYPE" "$name"; then
+      status=1
+      remove_from_list=0
+      log_warning "Uninstall failed; keeping '$name' in $TYPE list"
+    fi
+  else
+    log_info "Not installed: $name"
+  fi
+  if [[ "$remove_from_list" == 1 ]] && grep -Fqx "$name" "$LIST_FILE" 2>/dev/null; then
+    # Rewrite instead of sed -i: BSD and GNU sed flags differ. mktemp in the
+    # same directory keeps permissions and makes mv an atomic rename.
+    tmp="$(mktemp "${LIST_FILE}.XXXXXX")"
+    grep -Fxv "$name" "$LIST_FILE" >"$tmp" || true
+    mv "$tmp" "$LIST_FILE"
+    log_info "Removed '$name' from $TYPE list"
+  fi
+done
+
+exit $status
