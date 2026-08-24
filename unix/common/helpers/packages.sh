@@ -125,10 +125,77 @@ pkg_remove_one() {
   esac
 }
 
+# Explicitly installed (user-chosen) packages for a type — dependency noise
+# excluded where the manager allows. Best-effort: empty when the manager is
+# absent or can't be introspected.
+pkg_list_installed() {
+  local type p n
+  type="$(pkg_type_file "$1")"
+  # if-blocks, never bare "cmd_exists x && cmd": an absent manager must not
+  # make this function return nonzero (callers run under set -e)
+  case "$type" in
+  brew)
+    if cmd_exists brew; then brew leaves 2>/dev/null; fi # leaves = no deps
+    ;;
+  cask)
+    if cmd_exists brew; then brew list --cask 2>/dev/null; fi
+    ;;
+  flatpak)
+    if cmd_exists flatpak; then flatpak list --app --columns=application 2>/dev/null; fi
+    ;;
+  npm)
+    if cmd_exists npm; then
+      while IFS= read -r p; do
+        case "$p" in
+        */node_modules/*) ;;
+        *) continue ;; # global-root line
+        esac
+        n="${p#*/node_modules/}"
+        case "$n" in
+        npm | corepack) continue ;; # ship with node itself
+        esac
+        echo "$n" # keeps @scope/name form
+      done < <(npm ls -g --depth=0 --parseable 2>/dev/null)
+    fi
+    ;;
+  rust)
+    if cmd_exists cargo; then cargo install --list 2>/dev/null | sed 's/ .*//;s/:$//'; fi
+    ;;
+  *)
+    # rpm world: userinstalled keeps explicit choices, not the dep tree.
+    # Strip .arch, then the trailing version-release dash fields.
+    if cmd_exists dnf; then
+      dnf history userinstalled 2>/dev/null |
+        awk '{sub(/\.[^.]+$/, ""); n = split($0, f, "-"); if ((n) > 2) {s = f[1]; for (i = 2; i < n - 1; i++) s = s "-" f[i]; print s} else print}'
+    fi
+    ;;
+  esac
+}
+
 # Setup module (under install/packaging/) that converges this type
 pkg_setup_module() {
   case "$(pkg_type_file "$1")" in
   development | tools | system) echo "base" ;;
   *) pkg_type_file "$1" ;;
+  esac
+}
+
+# Types sharing one backend namespace with $1. rpm-world types all draw from
+# the same dnf pool, so a package declared under ANY of them counts as
+# declared for each; the others are their own namespace.
+pkg_pool_types() {
+  case "$(pkg_type_file "$1")" in
+  brew | cask | flatpak | npm | rust)
+    pkg_type_file "$1"
+    ;;
+  *)
+    local t
+    for t in $(pkg_types); do
+      case "$(pkg_type_file "$t")" in
+      brew | cask | flatpak | npm | rust) ;;
+      *) echo "$t" ;;
+      esac
+    done
+    ;;
   esac
 }

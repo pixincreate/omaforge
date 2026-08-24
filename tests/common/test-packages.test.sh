@@ -17,9 +17,13 @@ cat >"$STUB_BIN/rpm" <<EOF
 [[ "\$1" == "-q" ]] && grep -qxF "\$2" "$STATE"
 EOF
 
-# dnf install/remove -y NAME: mutate the state file (last non-flag arg is the package)
+# dnf history userinstalled: report state as explicitly-installed packages
 cat >"$STUB_BIN/dnf" <<EOF
 #!/bin/bash
+if [[ "\$1" == "history" ]]; then
+  cat "$STATE"
+  exit 0
+fi
 op=""
 pkg=""
 while [[ \$# -gt 0 ]]; do
@@ -40,7 +44,10 @@ fi
 EOF
 
 printf '#!/bin/bash\nexec "$@"\n' >"$STUB_BIN/sudo"
-chmod +x "$STUB_BIN/rpm" "$STUB_BIN/dnf" "$STUB_BIN/sudo"
+# no-op npm/cargo: keeps the drift reverse scan hermetic (no real manager data)
+printf '#!/bin/bash\nexit 0\n' >"$STUB_BIN/npm"
+printf '#!/bin/bash\ncase "$1" in install) exit 1 ;; *) exit 0 ;; esac\n' >"$STUB_BIN/cargo"
+chmod +x "$STUB_BIN/rpm" "$STUB_BIN/dnf" "$STUB_BIN/sudo" "$STUB_BIN/npm" "$STUB_BIN/cargo"
 
 PKG_ADD="$RIG_REPO/unix/common/libexec/rig-pkg-add"
 PKG_REMOVE="$RIG_REPO/unix/common/libexec/rig-pkg-remove"
@@ -89,6 +96,17 @@ printf '# a comment\n\ninstalled-thing\n' >"$PACKAGES_DIR/base.packages"
 DRIFT_CLEAN=$(NON_INTERACTIVE=true bash "$RIG_REPO/unix/common/libexec/rig-drift" 2>&1) && DRIFT_CLEAN_RC=0 || DRIFT_CLEAN_RC=$?
 assert_output_contains "clean system reports no drift" "No drift" echo "$DRIFT_CLEAN"
 assert_success "clean system exits zero" test "$DRIFT_CLEAN_RC" -eq 0
+
+section "drift reverse scan: installed-but-undeclared"
+printf 'installed-thing\n' >"$PACKAGES_DIR/base.packages"
+echo "installed-thing" >"$STATE"
+echo "sneaky-extra" >>"$STATE" # present on system, absent from list
+EXTRA_OUTPUT=$(NON_INTERACTIVE=true bash "$RIG_REPO/unix/common/libexec/rig-drift" 2>&1) && EXTRA_RC=0 || EXTRA_RC=$?
+assert_output_contains "reports undeclared section" "[undeclared in base]" echo "$EXTRA_OUTPUT"
+assert_output_contains "names the undeclared package" "sneaky-extra" echo "$EXTRA_OUTPUT"
+assert_failure "undeclared packages make drift nonzero" test "$EXTRA_RC" -eq 0
+assert_output_not_contains "reverse scan never uninstalls" "Removing" echo "$EXTRA_OUTPUT"
+echo "installed-thing" >"$STATE" # restore clean state
 
 section "setup module mapping"
 MAP_CMD="source '$RIG_REPO/unix/common/helpers/platform.sh'; source '$RIG_REPO/unix/common/helpers/packages.sh'"

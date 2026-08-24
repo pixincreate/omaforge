@@ -17,8 +17,10 @@ for arg in "$@"; do
   -h | --help)
     echo "Usage: rig drift [--apply]"
     echo ""
-    echo "Dry-run by default: lists declared packages missing from this system."
-    echo "--apply converges by re-running the idempotent packaging modules."
+    echo "Dry-run by default: two-way drift report."
+    echo "  declared-but-missing   -> installable via --apply"
+    echo "  installed-but-undeclared -> report-only; remove with 'rig pkg-remove'"
+    echo "--apply converges the missing side by re-running idempotent packaging modules."
     exit 0
     ;;
   *)
@@ -34,35 +36,81 @@ done
 platform="$(pkg_platform)"
 report=""
 total_missing=0
+total_extra=0
 drifted_types=()
+scanned_pools=""
 
 for t in $(pkg_types); do
   entries="$(pkg_list_entries "$(pkg_file_for_type "$t")")"
+  if [[ -n "$entries" ]]; then
+    missing=""
+    while IFS= read -r name; do
+      pkg_installed "$t" "$name" || missing+="$name"$'\n'
+    done <<<"$entries"
+    if [[ -n "$missing" ]]; then
+      count="$(printf "%s" "$missing" | grep -c . || true)"
+      total_missing=$((total_missing + count))
+      report+="[$t]"$'\n'"$missing"
+      drifted_types+=("$t")
+    fi
+  fi
+
+  # Reverse scan: explicitly-installed packages absent from the list file.
+  # Report-only — auto-uninstalling user tools via --apply would be hostile;
+  # declare them with 'rig pkg-add' or remove them explicitly instead.
+  # Types without a list file are skipped (same adoption model as above).
   [[ -n "$entries" ]] || continue
-  missing=""
+  # One reverse scan per backend pool: all rpm types share one dnf namespace,
+  # scanning each would double-count the same extras
+  pool_key="$(pkg_pool_types "$t" | tr '\n' ' ')"
+  case " $scanned_pools " in
+  *"$pool_key"*) continue ;;
+  esac
+  scanned_pools+=" $pool_key"
+  installed="$(pkg_list_installed "$t")"
+  # Declared set spans the type's whole backend pool: rpm types share one
+  # dnf namespace, so devtool declared under development counts for base too
+  declared="$(for pt in $(pkg_pool_types "$t"); do
+    pkg_list_entries "$(pkg_file_for_type "$pt")"
+  done | sort -u)"
+  extra=""
   while IFS= read -r name; do
-    pkg_installed "$t" "$name" || missing+="$name"$'\n'
-  done <<<"$entries"
-  if [[ -n "$missing" ]]; then
-    count="$(printf "%s" "$missing" | grep -c . || true)"
-    total_missing=$((total_missing + count))
-    report+="[$t]"$'\n'"$missing"
-    drifted_types+=("$t")
+    [[ -z "$name" ]] && continue
+    grep -Fqx -- "$name" <<<"$declared" || extra+="$name"$'\n'
+  done <<<"$installed"
+  if [[ -n "$extra" ]]; then
+    count="$(printf "%s" "$extra" | grep -c . || true)"
+    total_extra=$((total_extra + count))
+    report+="[undeclared in $t]"$'\n'"$extra"
   fi
 done
 
 log_section "Drift report ($platform)"
 
-if ((total_missing == 0)); then
+if ((total_missing == 0 && total_extra == 0)); then
   log_success "No drift. System matches declared package lists."
   exit 0
 fi
 
 echo "$report"
-log_warning "$total_missing declared package(s) not installed"
+if ((total_missing > 0)); then
+  log_warning "$total_missing declared package(s) not installed"
+fi
+if ((total_extra > 0)); then
+  log_warning "$total_extra installed package(s) not declared"
+fi
 
 if ! $APPLY; then
-  echo "Dry run: nothing changed. Run 'rig drift --apply' to converge."
+  echo "Dry run: nothing changed. Run 'rig drift --apply' to install the missing."
+  if ((total_extra > 0)); then
+    echo "Undeclared packages: declare with 'rig pkg-add <type> <name>' or remove with 'rig pkg-remove'."
+  fi
+  exit 1
+fi
+
+if ((total_missing == 0)); then
+  # Nothing to install; extras are report-only
+  log_warning "No missing packages to install; undeclared packages left as-is."
   exit 1
 fi
 
@@ -91,4 +139,7 @@ for m in $modules; do
   "$setup" --only "packaging/$m"
 done
 
-log_success "Converged."
+if ((total_extra > 0)); then
+  log_warning "$total_extra undeclared package(s) left as-is (report-only)."
+fi
+log_success "Missing packages converged."

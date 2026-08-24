@@ -184,8 +184,10 @@ rig drift --apply               # Re-run idempotent packaging modules to fix it
 ```
 
 `rig add` (alias of `rig pkg-add`) edits the package list and immediately
-installs anything missing, in one step. `rig drift` compares every declared
-package against the live system.
+installs anything missing, in one step. `rig drift` works both ways: it
+reports declared packages missing from the system AND installed packages
+absent from the lists (report-only — nothing is auto-uninstalled; declare
+extras with `rig pkg-add` or remove them with `rig pkg-remove`).
 
 ### Interactive
 
