@@ -2,36 +2,49 @@
 # rig:summary=Remove a web app desktop application
 # rig:usage=rig webapp-remove [app_name...]
 
-ICON_DIR="$HOME/.local/share/applications/icons"
+set -eu
+
+ICON_DIR="$HOME/.local/share/icons/hicolor/256x256/apps"
+OLD_ICON_DIR="$HOME/.local/share/applications/icons"
 DESKTOP_DIR="$HOME/.local/share/applications"
 
-if [ "$#" -eq 0 ]; then
-  echo "Finding installed web apps..."
-  WEB_APPS=()
+# Index the launchers as found, so removal deletes the file that was
+# discovered rather than a path rebuilt from the displayed name.
+WEB_APPS=()
+WEB_APP_PATHS=()
+while IFS= read -r -d '' file; do
+  if grep -q '^Exec=.*rig-launch-\(webapp\|browser\).*' "$file"; then
+    WEB_APPS+=("$(basename "${file%.desktop}")")
+    WEB_APP_PATHS+=("$file")
+  fi
+done < <(find "$DESKTOP_DIR" -maxdepth 1 -name '*.desktop' -print0 2>/dev/null)
 
-  while IFS= read -r -d '' file; do
-    if grep -q '^Exec=.*rig-launch-\(webapp\|browser\).*' "$file"; then
-      WEB_APPS+=("$(basename "${file%.desktop}")")
+path_for_web_app() {
+  local wanted="$1" i
+  for i in "${!WEB_APPS[@]}"; do
+    if [[ ${WEB_APPS[i]} == "$wanted" ]]; then
+      printf '%s\n' "${WEB_APP_PATHS[i]}"
+      return 0
     fi
-  done < <(find "$DESKTOP_DIR" -name '*.desktop' -print0 2>/dev/null)
+  done
+  return 1
+}
 
-  if [ ${#WEB_APPS[@]} -eq 0 ]; then
+if (( $# == 0 )); then
+  if (( ${#WEB_APPS[@]} == 0 )); then
     echo "No web apps found to remove."
     exit 0
   fi
 
-  mapfile -t SORTED_WEB_APPS < <(printf "%s\n" "${WEB_APPS[@]}" | sort)
+  mapfile -t SORTED_WEB_APPS < <(printf '%s\n' "${WEB_APPS[@]}" | sort)
 
-  echo ""
   echo "Installed web apps:"
   for i in "${!SORTED_WEB_APPS[@]}"; do
-    echo "$((i+1)). ${SORTED_WEB_APPS[$i]}"
+    echo "$((i+1)). ${SORTED_WEB_APPS[i]}"
   done
-  echo ""
 
   read -rp "Enter app names to remove (space-separated, or 'all'): " input
-
-  if [ "$input" = "all" ]; then
+  if [[ $input == "all" ]]; then
     APP_NAMES=("${SORTED_WEB_APPS[@]}")
   else
     read -ra APP_NAMES <<< "$input"
@@ -40,20 +53,24 @@ else
   APP_NAMES=("$@")
 fi
 
-if [ ${#APP_NAMES[@]} -eq 0 ]; then
+if (( ${#APP_NAMES[@]} == 0 )); then
   echo "No apps selected for removal."
   exit 0
 fi
 
 for APP_NAME in "${APP_NAMES[@]}"; do
-  DESKTOP_FILE="$DESKTOP_DIR/$APP_NAME.desktop"
-  ICON_FILE="$ICON_DIR/$APP_NAME.png"
+  icon_name=$(printf '%s\n' "$APP_NAME" | tr '[:upper:]' '[:lower:]' | sed 's/[^[:alnum:]]\+/-/g; s/^-//; s/-$//')
+  desktop_file=$(path_for_web_app "$APP_NAME") || true
 
-  if [ -f "$DESKTOP_FILE" ]; then
-    rm -f "$DESKTOP_FILE"
-    rm -f "$ICON_FILE"
+  if [[ -n ${desktop_file:-} || -f "$DESKTOP_DIR/$APP_NAME.desktop" ]]; then
+    rm -f "${desktop_file:-$DESKTOP_DIR/$APP_NAME.desktop}"
+    rm -f "$ICON_DIR/$icon_name.png" "$ICON_DIR/$APP_NAME.png" "$OLD_ICON_DIR/$APP_NAME.png"
     echo "✓ Removed $APP_NAME"
   else
     echo "✗ $APP_NAME not found"
   fi
 done
+
+if command -v update-desktop-database >/dev/null 2>&1; then
+  update-desktop-database "$DESKTOP_DIR" >/dev/null 2>&1 || true
+fi
