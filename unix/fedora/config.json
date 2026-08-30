@@ -120,7 +120,8 @@
       "ssh",
       "zsh",
       "Pictures",
-      "local"
+      "local",
+      "pi"
     ],
     "config_root": "~/dev/.rig"
   }

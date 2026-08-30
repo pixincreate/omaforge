@@ -10,5 +10,6 @@ run_logged "$RIG_INSTALL/packaging/flatpak.sh"
 run_logged "$RIG_INSTALL/packaging/npm.sh"
 run_logged "$RIG_INSTALL/packaging/rust.sh"
 run_logged "$RIG_INSTALL/packaging/webapps.sh"
+run_logged "$RIG_INSTALL/packaging/rofimoji.sh"
 
 log_success "All packages installed"
