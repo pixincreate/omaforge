@@ -38,6 +38,34 @@ if [[ -d "$HOME/.config/gitconfig" ]]; then
   rm -r "$HOME/.config/gitconfig"
 fi
 
+# Recreate ~/.config/git/config.local if the config/git installer phase never
+# ran (it only runs via fedora-setup, never via migrate). Without it git has
+# no identity: ~/.config/git/config includes this file.
+gitconfig_local="$HOME/.config/git/config.local"
+if [[ ! -f "$gitconfig_local" ]] && command -v jq >/dev/null 2>&1; then
+  git_name=$(jq -r '.git.user_name // empty' "$RIG_PATH/unix/${RIG_PLATFORM:-fedora}/config.json")
+  git_email=$(jq -r '.git.user_email // empty' "$RIG_PATH/unix/${RIG_PLATFORM:-fedora}/config.json")
+
+  if [[ -n "$git_name" ]] && [[ -n "$git_email" ]]; then
+    if [[ ! -f "$HOME/.ssh/id_ed25519_sign" ]]; then
+      echo "[INFO] Generating SSH signing key"
+      mkdir -p "$HOME/.ssh"
+      ssh-keygen -t ed25519 -C "$git_email" -f "$HOME/.ssh/id_ed25519_sign" -N ""
+    fi
+
+    mkdir -p "$(dirname "$gitconfig_local")"
+    cat > "$gitconfig_local" <<EOF
+[user]
+  name = $git_name
+  email = $git_email
+  signingkey = $HOME/.ssh/id_ed25519_sign.pub
+EOF
+    echo "[INFO] Recreated $gitconfig_local: $git_name <$git_email>"
+  else
+    echo "[WARNING] config.json has no .git.user_name/.git.user_email; run: ./unix/fedora/fedora-setup --only config/git"
+  fi
+fi
+
 echo "[INFO] Restowing config and zsh packages via rig"
 "$RIG_PATH/unix/${RIG_PLATFORM:-fedora}/bin/rig" stow config zsh
 
