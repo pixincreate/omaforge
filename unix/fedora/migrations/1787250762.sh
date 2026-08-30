@@ -8,7 +8,7 @@ echo "Running migration: dotfile cleanup, ollama removal, llama.cpp/age/rofimoji
 # Allow running this migration directly (rig-migrate sets RIG_PATH,
 # but default to the parent of migrations/ when run standalone).
 if [[ -z "${RIG_PATH:-}" ]]; then
-  RIG_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+  RIG_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 fi
 
 # Marker appended to generated local.zsh: rig owns everything above,
@@ -39,7 +39,7 @@ if [[ -d "$HOME/.config/gitconfig" ]]; then
 fi
 
 echo "[INFO] Restowing config and zsh packages via rig"
-"$RIG_PATH/bin/rig" stow config zsh
+"$RIG_PATH/unix/${RIG_PLATFORM:-fedora}/bin/rig" stow config zsh
 
 # [2/3] Remove ollama (replaced by llama.cpp)
 echo ""
@@ -60,7 +60,8 @@ else
   echo "[INFO] sneed/llama-cpp-vulkan COPR already enabled"
 fi
 
-"$RIG_PATH/bin/rig" pkg-add base age rofimoji wtype fuzzel tesseract tesseract-langpack-kan tesseract-langpack-hin llama-cpp mpv
+"$RIG_PATH/unix/${RIG_PLATFORM:-fedora}/bin/rig" pkg-add tools age rofimoji wtype fuzzel tesseract tesseract-langpack-kan tesseract-langpack-hin mpv
+"$RIG_PATH/unix/${RIG_PLATFORM:-fedora}/bin/rig" pkg-add development llama-cpp
 
 # Install fonts (Nerd Fonts + Red Hat) via the shared fonts worker
 echo ""
@@ -101,7 +102,7 @@ if [[ ! -f "$age_key" ]]; then
   echo "[INFO] Generating age keypair"
   age-keygen -o "$age_key" >/dev/null
   chmod 600 "$age_key"
-  grep "^public key" "$age_key" | sed 's/.*: //' > "$age_pubkey"
+  grep -E "^#? public key" "$age_key" | sed 's/.*: //' > "$age_pubkey"
   chmod 644 "$age_pubkey"
   echo "[SUCCESS] Age keypair created at $age_key"
 else

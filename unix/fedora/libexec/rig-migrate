@@ -11,14 +11,16 @@ mkdir -p "$STATE_DIR"
 # Skipped migrations are tracked separately
 mkdir -p "$STATE_DIR/skipped"
 
-# Get the rig path (parent of libexec directory)
-RIG_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# Get the rig path (repo root, two levels above libexec) and platform
+RIG_BIN="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+RIG_PLATFORM="$(basename "$(dirname "$RIG_BIN")")"
+RIG_PATH="$(cd "$RIG_BIN/../../.." && pwd)"
+export RIG_PATH
+export RIG_PLATFORM
 
 # rig-* worker scripts live in libexec/; make them resolvable for bare calls.
 # bin/ holds the `rig` dispatcher, needed for `rig stow` inside migrations.
-RIG_BIN="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-export RIG_BIN
-export PATH="$RIG_BIN:$RIG_PATH/bin:$PATH"
+export PATH="$RIG_BIN:$RIG_PATH/unix/$RIG_PLATFORM/bin:$PATH"
 
 # Track migration results
 declare -i total=0
@@ -27,7 +29,7 @@ declare -i skipped=0
 declare -i failed=0
 
 # Run any pending migrations
-for file in "$RIG_PATH/migrations"/*.sh; do
+for file in "$RIG_PATH/unix/$RIG_PLATFORM/migrations"/*.sh; do
   # Skip if no migration files found
   [[ ! -f "$file" ]] && continue
 
